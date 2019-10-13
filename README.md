@@ -51,9 +51,9 @@ This will start a server on Port 8000. Open up the code and start editing.
 The `/routes` folder contains the route files of the API. By default, the `routes` folder contains an index.php file which is included in `index.php`.
 #### NB: Only GET and POST requests are supported currently
 
-- [GET] (#get-requests)
-- [POST] (#post-requests)
-- [Dynamic Routing] (#dynamic-routing)
+- [GET](#get-requests)
+- [POST](#post-requests)
+- [Dynamic Routing](#dynamic-routing)
 
 #### Get Requests
 ```php
@@ -244,7 +244,6 @@ Here are a couple of methods that come along with `$response` object
    });
 ```
 `renderHtmlPage()` returns json encoded data with a content type of `application/json`
-
 
 
 ## Handy Functions
