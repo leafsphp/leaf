@@ -3,7 +3,7 @@
         public function __construct() {
             $this->requestMethod = $_SERVER['REQUEST_METHOD'];
             $handler = fopen('php://input', 'r');
-			$this->request = stream_get_contents($handler);
+			      $this->request = stream_get_contents($handler);
         }
 
         public function getParam($param) {
