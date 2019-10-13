@@ -185,7 +185,7 @@ Here are a couple of methods that come along with `$request` object
 ```php
 <?php
    $router->post('/contacts/add', function() use($request) {
-      $name = $request->getParam('request');
+      $name = $request->getParam('name');
    });
 ```
 `getParam()` returns the parameter gotten by it's `key` or `selector`
@@ -212,7 +212,7 @@ Here are a couple of methods that come along with `$response` object
 ```php
 <?php
    $router->post('/contacts/add', function() use($request, $response) {
-	  $name = $request->getParam('response');
+	  $name = $request->getParam('name');
 	  $response->respond($data);
    });
 ```
@@ -221,7 +221,7 @@ Here are a couple of methods that come along with `$response` object
 ```php
 <?php
    $router->post('/contacts/add', function() use($request, $response) {
-	  $name = $request->getParam('response');
+	  $name = $request->getParam('name');
 	  $response->respondWithCode($data, $code);
    });
 ```
@@ -230,7 +230,7 @@ Here are a couple of methods that come along with `$response` object
 ```php
 <?php
    $router->post('/contacts/add', function() use($request, $response) {
-	  $name = $request->getParam('response');
+	  $name = $request->getParam('name');
 	  $response->throwErr($data, $code);
    });
 ```
@@ -238,8 +238,7 @@ Here are a couple of methods that come along with `$response` object
 
 ```php
 <?php
-   $router->post('/contacts/add', function() use($request, $response) {
-	  $name = $request->getParam('response');
+   $router->get('/contacts', function() use($response) {
 	  $response->renderHtmlPage('linkToPage.html');
    });
 ```
