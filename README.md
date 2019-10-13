@@ -6,7 +6,7 @@ This is a simple boilerplate good for any PHP project without a framework. It's 
 
 ```bash
 $ git clone https://github.com/mr-phlames/leaf-php-boilerplate.git
-$ cd vier-api
+$ cd leaf-php-boilerplate
 $ php -S localhost:8000
 ```
 
