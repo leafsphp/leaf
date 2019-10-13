@@ -39,7 +39,7 @@ This will start a server on Port 8000. Open up the code and start editing.
 |    |	  +-- Irequest.php
 |    |	  +-- Request.php
 |    |	  +-- Router.php
-`
+```
 
 ##### NB:
 `index.php` is the entry point of the project. All requests are redirected to the `index.php`. This is achieved through the `.htaccess` file. From there, the appRouter picks up all requests made to the app. 
