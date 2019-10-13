@@ -30,7 +30,7 @@
 			$day = $timestamp->format('d');
 			$month = $timestamp->format('m');
 			$month = ltrim($month, 0);
-			$month = GetMonthFromNumber($month);
+			$month = $this->GetMonthFromNumber($month);
 			$year = $timestamp->format('Y');
 			$date = $month.' '.$day.', '.$year;
 			return $date;
@@ -48,9 +48,9 @@
 			$day = $timestampp->format('d');
 			$month = $timestampp->format('m');
 			$month = ltrim($month, '0');
-			$month = GetMonthFromNumber($month);
+			$month = $this->GetMonthFromNumber($month);
 			$year = $timestampp->format('Y');
-			$time = GetTimeFromTimeStamp($timestamp);
+			$time = $this->GetTimeFromTimeStamp($timestamp);
 			$english_timeStamp = $day.' '.$month.' '.$year.' '.$time;
 			return $english_timeStamp;
 		}

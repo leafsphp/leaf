@@ -85,10 +85,39 @@ The app router can be found in `/src/router/Router.php` and is registered in
 ```php
 <?php
 
-  $router->get('/user?id=', function() use($response) {
+  $router->get('/user?id='.$id, function() use($response) {
     return $response->respond(/*data*/);
   });
 ```
+
+
+## App Header Configurations
+All headers for are defined in `src/config/headers.php`, add or remove headers from this file
+```php
+<?php
+  header('Content-Type: application/json');
+  header('Access-Control-Allow-Origin: *');
+  // header('Access-Control-Allow-Headers: *');
+```
+
+
+## Core Functionality
+Leaf comes along with a lot of helper functions which make development so easy, below is a list of the core functionality
+
+### date functions
+Leaf carries a lot of handy functions to help handle date all from the `CustomDate` class initialised in the `init.php` file
+[GetDateFromTimeStamp](#Getdatefromtimestamp)
+
+#### GetDateFromTimeStamp
+This gets the date in YY-MM-DD format from an existing timestamp
+```php
+<?php
+  $parsedDate = $date->GetDateFromTimeStamp($timestamp);
+```
+
+
+## Handy Functions
+
 
 ## Database connection
 
@@ -108,4 +137,4 @@ class Database {
   // private $dbname = 'id11174187_vierdb';
 ```
 
-# The _docs_ for this project are incomplete, use the readme instead
+#### The `docs` for this project are incomplete, use the `readme` instead
