@@ -15,7 +15,7 @@ or launch serve.bat
 This will start a server on Port 8000. Open up the code and start editing.
 
 ## Project Structure
-`
+```bash
 +-- index.php
 +-- .htaccess
 +-- .docs
