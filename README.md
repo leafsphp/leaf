@@ -49,12 +49,12 @@ This will start a server on Port 8000. Open up the code and start editing.
 ## Routing
 
 The `/routes` folder contains the route files of the API. By default, the `routes` folder contains an index.php file which is included in `index.php`.
-##### NB: Only GET and POST requests are supported currently
+#### NB: Only GET and POST requests are supported currently
 
 The app router can be found in `/src/router/Router.php` and is registered in 
 
 ### Simple Routing
-Get Requests
+**Get Requests**
 ```php
 <?php
 
@@ -63,9 +63,32 @@ Get Requests
   });
 ```
 
-View the [Leaf starter documentation](https://github.com/mr-phlames/leaf-php-boilerplate) for more on routing.
+**Post Requests**
+```php
+<?php
 
+  $router->post('/people/add', function() use($response) {
+    return $response->respond(/*data*/);
+  });
+```
+#### NB: Dynamic routes are not currently supported
+#### Unsupported
+```php
+<?php
 
+  $router->get('/user/{id}', function() use($response) {
+    return $response->respond(/*data*/);
+  });
+```
+
+#### Work Around
+```php
+<?php
+
+  $router->get('/user?id=', function() use($response) {
+    return $response->respond(/*data*/);
+  });
+```
 
 ## Database connection
 
