@@ -14,7 +14,7 @@
             return json_encode($dataToPrint);
         }
 
-        public function renderMarkup($file) {
+        public function renderHtmlPage($file) {
             return require $file;
         }
     };

@@ -115,6 +115,7 @@ Leaf carries a lot of handy functions to help handle date all from the `CustomDa
 - [GetDayFromNumber](#getdayfromnumber)
 - [GetEnglishDateFromTimeStamp](#getenglishdatefromtimestamp)
 - [GetEnglishTimeStampFromTimeStamp](#getenglishtimestampfromtimestamp)
+- [GetTimeFromTimeStamp](#gettimefromtimestamp)
 
 #### GetDateFromTimeStamp
 This gets the date in YYYY-MM-DD format from an existing timestamp
@@ -150,6 +151,100 @@ This gets the date in the format (DD MM, YYYY HH:MM:SS) from a timestamp
 <?php
   $parsedDate = $date->GetEnglishTimeStampFromTimeStamp($timestamp);
 ```
+
+#### GetTimeFromTimeStamp
+This gets the time in the format (HH:MM:SS) from a timestamp
+```php
+<?php
+  $parsedDate = $date->GetTimeFromTimeStamp($timestamp);
+```
+
+
+### Field Validation
+Field Validation takes a field as a parameter and does basic validation on them, there are only two stable validation  tests
+```php
+<?php
+	// checks for empty state and outputs error message or returns $field
+   $validate->isEmpty($field, 'Message to display if validation test fails and is optional');
+   $validate->isEmptyOrNull($field, 'Message to display if validation test fails and is optional');
+```
+`isEmpty` checks whether field is empty or not
+`isEmptyOrNull` checks whether the field is empty or `null`
+
+
+### Request
+The request section basically deals with requests made to the app, so far, there are only two functions chained to the Request class. 
+To use the request object, you simply need to pass `$request` into your `$route` like this
+```php
+<?php
+   $router->post('/contacts/add', function() use($request) {
+```
+
+Here are a couple of methods that come along with `$request` object
+
+```php
+<?php
+   $router->post('/contacts/add', function() use($request) {
+      $name = $request->getParam('request');
+   });
+```
+`getParam()` returns the parameter gotten by it's `key` or `selector`
+
+```php
+<?php
+   $router->post('/contacts/add', function() use($request) {
+      $data = $request->getBody();
+   });
+```
+`getBody()` returns the `key` => `value` pairs of all the request data
+
+
+### Response
+Response deals with responses and how to handle them....we have a bunch of handy response functionsfor APIs, markup and so much more
+To use the response object, you simply need to pass `$response` into your `$route` like this
+```php
+<?php
+   $router->post('/contacts/add', function() use($response) {
+```
+
+Here are a couple of methods that come along with `$response` object
+
+```php
+<?php
+   $router->post('/contacts/add', function() use($request, $response) {
+	  $name = $request->getParam('response');
+	  $response->respond($data);
+   });
+```
+`respond()` returns json encoded data with a content type of `application/json`
+
+```php
+<?php
+   $router->post('/contacts/add', function() use($request, $response) {
+	  $name = $request->getParam('response');
+	  $response->respondWithCode($data, $code);
+   });
+```
+`respondWithCode()` returns json encoded data with a content type of `application/json` with a status code attached, `$code` is optional, and will return 200 if nothing is passed in for `$code`
+
+```php
+<?php
+   $router->post('/contacts/add', function() use($request, $response) {
+	  $name = $request->getParam('response');
+	  $response->throwErr($data, $code);
+   });
+```
+`throwErr()` is our special error handling method that returns an error in JSON format with a status code
+
+```php
+<?php
+   $router->post('/contacts/add', function() use($request, $response) {
+	  $name = $request->getParam('response');
+	  $response->renderHtmlPage('linkToPage.html');
+   });
+```
+`renderHtmlPage()` returns json encoded data with a content type of `application/json`
+
 
 
 ## Handy Functions
