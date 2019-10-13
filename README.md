@@ -58,9 +58,9 @@ Get Requests
 ```php
 <?php
 
-$router->get('/home', function() use($response) {
-	return $response->respond(/*data*/);
-});
+  $router->get('/home', function() use($response) {
+    return $response->respond(/*data*/);
+  });
 ```
 
 View the [Leaf starter documentation](https://github.com/mr-phlames/leaf-php-boilerplate) for more on routing.
@@ -75,14 +75,14 @@ In the _src/config/db.php_, connection variables are declared at the top of the 
 <?php
 
 class Database {
-	private $host = 'localhost';
-	private $user = 'root';
-	private $password = '';
-	private $dbname = 'books';
-	// these were added to allow easy switching between local dev environment and the hosting platform 
-	// private $user = 'id11174187_root';
-	// private $password = '***********';
-	// private $dbname = 'id11174187_vierdb';
+  private $host = 'localhost';
+  private $user = 'root';
+  private $password = '';
+  private $dbname = 'books';
+  // these were added to allow easy switching between local dev environment and the hosting platform 
+  // private $user = 'id11174187_root';
+  // private $password = '***********';
+  // private $dbname = 'id11174187_vierdb';
 ```
 
 # The _docs_ for this project are incomplete, use the readme instead
