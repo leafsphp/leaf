@@ -36,13 +36,6 @@
 			return $date;
 		}
 
-		# time stuff
-		function GetTimeFromTimeStamp($timestamp) {
-			$timestamp = new DateTime($timestamp);
-			$time = $timestamp;
-			return $time->format('G:i:s');
-		}
-
 		function GetEnglishTimeStampFromTimeStamp($timestamp) {
 			$timestampp = new DateTime($timestamp);
 			$day = $timestampp->format('d');
@@ -53,5 +46,12 @@
 			$time = $this->GetTimeFromTimeStamp($timestamp);
 			$english_timeStamp = $day.' '.$month.' '.$year.' '.$time;
 			return $english_timeStamp;
+		}
+
+		# time stuff
+		function GetTimeFromTimeStamp($timestamp) {
+			$timestamp = new DateTime($timestamp);
+			$time = $timestamp;
+			return $time->format('G:i:s');
 		}
 	}
