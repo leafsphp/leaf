@@ -24,24 +24,24 @@ This will start a server on Port 8000. Open up the code and start editing.
 |   +-- index.php
 +-- src
 |   +-- config
-|    |	  +-- db.php
-|    |	  +-- headers.php
-|    |	  +-- init.php
+|   |	  +-- db.php
+|   |	  +-- headers.php
+|   |	  +-- init.php
 |   +-- core
-|    |	  +-- date.php
-|    |	  +-- fieldValidate.php
-|    |	  +-- request.php
-|    |	  +-- respond.php
+|   |	  +-- date.php
+|   |	  +-- fieldValidate.php
+|   |	  +-- request.php
+|   |	  +-- respond.php
 |   +-- helpers
-|    |	  +-- constants.php
-|    |	  +-- jwt.php 
+|   |	  +-- constants.php
+|   |	  +-- jwt.php 
 |   +-- router
-|    |	  +-- Irequest.php
-|    |	  +-- Request.php
-|    |	  +-- Router.php
+|   |	  +-- Irequest.php
+|   |	  +-- Request.php
+|   |	  +-- Router.php
 ```
 
-##### NB:
+**NB:**
 `index.php` is the entry point of the project. All requests are redirected to the `index.php`. This is achieved through the `.htaccess` file. From there, the appRouter picks up all requests made to the app. 
 
 `init.php` is where all the core and helper classes are "registered".
@@ -51,10 +51,11 @@ This will start a server on Port 8000. Open up the code and start editing.
 The `/routes` folder contains the route files of the API. By default, the `routes` folder contains an index.php file which is included in `index.php`.
 #### NB: Only GET and POST requests are supported currently
 
-The app router can be found in `/src/router/Router.php` and is registered in 
+- [GET] (#get-requests)
+- [POST] (#post-requests)
+- [Dynamic Routing] (#dynamic-routing)
 
-### Simple Routing
-**Get Requests**
+#### Get Requests
 ```php
 <?php
 
@@ -63,7 +64,7 @@ The app router can be found in `/src/router/Router.php` and is registered in
   });
 ```
 
-**Post Requests**
+#### Post Requests
 ```php
 <?php
 
@@ -71,8 +72,10 @@ The app router can be found in `/src/router/Router.php` and is registered in
     return $response->respond(/*data*/);
   });
 ```
-#### NB: Dynamic routes are not currently supported
-#### Unsupported
+#### Dynamic routing
+Dynamic routing is currently not fully supported, there are still a few problems here and there
+
+**Unsupported**
 ```php
 <?php
 
@@ -81,7 +84,7 @@ The app router can be found in `/src/router/Router.php` and is registered in
   });
 ```
 
-#### Work Around
+**Work Around**
 ```php
 <?php
 
@@ -106,13 +109,46 @@ Leaf comes along with a lot of helper functions which make development so easy, 
 
 ### date functions
 Leaf carries a lot of handy functions to help handle date all from the `CustomDate` class initialised in the `init.php` file
-[GetDateFromTimeStamp](#Getdatefromtimestamp)
+
+- [GetDateFromTimeStamp](#getdatefromtimestamp)
+- [GetMonthFromNumber](#getmonthfromnumber)
+- [GetDayFromNumber](#getdayfromnumber)
+- [GetEnglishDateFromTimeStamp](#getenglishdatefromtimestamp)
+- [GetEnglishTimeStampFromTimeStamp](#getenglishtimestampfromtimestamp)
 
 #### GetDateFromTimeStamp
-This gets the date in YY-MM-DD format from an existing timestamp
+This gets the date in YYYY-MM-DD format from an existing timestamp
 ```php
 <?php
   $parsedDate = $date->GetDateFromTimeStamp($timestamp);
+```
+
+#### GetMonthFromNumber
+This gets the month from a number (0-11)
+```php
+<?php
+  $parsedDate = $date->GetMonthFromNumber($number);
+```
+
+#### GetDayFromNumber
+This gets the day from a number (1-7)
+```php
+<?php
+  $parsedDate = $date->GetDayFromNumber($number);
+```
+
+#### GetEnglishDateFromTimeStamp
+This gets the date in the format (MM DD, YYYY) from a timestamp
+```php
+<?php
+  $parsedDate = $date->GetEnglishDateFromTimeStamp($timestamp);
+```
+
+#### GetEnglishTimeStampFromTimeStamp
+This gets the date in the format (DD MM, YYYY HH:MM:SS) from a timestamp
+```php
+<?php
+  $parsedDate = $date->GetEnglishTimeStampFromTimeStamp($timestamp);
 ```
 
 
