@@ -44,7 +44,27 @@ This will start a server on Port 8000. Open up the code and start editing.
 **NB:**
 `index.php` is the entry point of the project. All requests are redirected to the `index.php`. This is achieved through the `.htaccess` file. From there, the appRouter picks up all requests made to the app. 
 
-`init.php` is where all the core and helper classes are "registered".
+
+## init.php
+`init.php` is where all the core and helper classes are "registered". Every class in Leaf is called in `init.php`, you can add or remove classes from the `init.php` file.
+```php
+   <?php
+    $router = new Router(new HttpRequest);
+
+    $database = new Database();
+    $connection = $database->connect('PDO');
+
+    $response = new Response();
+
+    $request = new Request();
+
+    $validate = new Validation($response);
+
+    $date = new CustomDate();
+
+    $jwt = new JWT();
+```
+
 
 ## Routing
 
@@ -253,12 +273,14 @@ Here are a couple of methods that come along with `$response` object
 `renderMarkup()` outputs an markup to the screen
 
 
-## Handy Functions
+## Handy Functionality
+### Error codes
+### Javascript Web Tokens(JWT)
 
 
 ## Database connection
 
-In the _src/config/db.php_, connection variables are declared at the top of the file, enter your own details for your database.
+In the `src/config/db.php`, connection variables are declared at the top of the file, enter your own details for your database.
 
 ```php
 <?php
@@ -273,5 +295,17 @@ class Database {
   // private $password = '***********';
   // private $dbname = 'id11174187_vierdb';
 ```
+
+In `db.php` provision has been made for both PDO and mysqli, by default, the connection type is PDO. To change that, head to the `init.php` file and locate the **database class call**, a single parameter is passed into it which is the connection type
+
+```php
+<?php
+    $router = new Router(new HttpRequest);
+
+    $database = new Database();
+    $connection = $database->connect('PDO');
+```
+
+use `connect('PDO);` for a PDO connection and `connect(mysqli)` for and mysqli connection
 
 #### The `docs` for this project are incomplete, use the `readme` instead
