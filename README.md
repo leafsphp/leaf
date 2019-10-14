@@ -209,11 +209,12 @@ This gets the time in the format (HH:MM:SS) from a timestamp
 Field Validation takes a field as a parameter and does basic validation on them, there are only two stable validation  tests
 ```php
 <?php
-	// checks for empty state and outputs error message or returns $field
+   // checks for empty state and outputs error message or returns $field
    $validate->isEmpty($field, 'Message to display if validation test fails and is optional');
    $validate->isEmptyOrNull($field, 'Message to display if validation test fails and is optional');
 ```
 `isEmpty` checks whether field is empty or not
+
 `isEmptyOrNull` checks whether the field is empty or `null`
 
 
@@ -299,9 +300,44 @@ Here are a couple of methods that come along with `$response` object
 
 
 ## Handy Functionality
-### Error codes
-### Javascript Web Tokens(JWT)
+### Http codes
+A couple of http codes have been defined in `constants.php`, you can use them anywhere in your app by just calling the name.
+```php
+<?php
+   $router->get('/me', function() use($response) {
+	   return $response->respondWithCode('Something to output', SUCCESS);
+   });
+```
+```php
+<?php
+   $router->get('/me', function() use($response) {
+	   return $response->throwErr('Name is null', RESOURCE_NOT_FOUND);
+   });
+```
 
+#### All available codes
+- REQUEST_METHOD_NOT_VALID
+- REQUEST_CONTENTTYPE_NOT_VALID
+- REQUEST_NOT_VALID
+- API_PARAM_REQUIRED
+- INVALID_USER_PASS
+- USER_NOT_ACTIVE
+- RESOURCE_ALREADY_EXISTS
+- RESOURCE_NOT_FOUND
+- SUCCESS
+- AUTHORIZATION_HEADER_NOT_FOUND
+- ACCESS_TOKEN_ERROR
+
+### Javascript Web Tokens(JWT)
+Leaf provides you with the `$jwt` object which includes various methods for creating and parsing token data....but we do not advice directly using the `$jwt` object. For this reason, a special `$authentication` object has been created to work with all the $jwt data.
+
+`$authentiacation` methods:
+- [generateToken](#generatetoken)
+- [validateToken](#validatetoken)
+- [getBearerToken](#getbearertoken)
+- [getAuthorizationHeader](#getauthorizationheader)
+
+#### generateToken
 
 ## Database connection
 
