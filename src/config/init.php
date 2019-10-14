@@ -13,3 +13,5 @@
     $date = new CustomDate();
 
     $jwt = new JWT();
+
+    $authentication = new Authentication();
