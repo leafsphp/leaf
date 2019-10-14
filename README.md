@@ -242,7 +242,15 @@ Here are a couple of methods that come along with `$response` object
 	  $response->renderHtmlPage('linkToPage.html');
    });
 ```
-`renderHtmlPage()` returns json encoded data with a content type of `application/json`
+`renderHtmlPage()` outputs an html page to the screen
+
+```php
+<?php
+   $router->get('/contacts', function() use($response) {
+	  $response->renderMarkup('<b>Hello World</b>');
+   });
+```
+`renderMarkup()` outputs an markup to the screen
 
 
 ## Handy Functions
