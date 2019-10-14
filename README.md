@@ -328,7 +328,7 @@ A couple of http codes have been defined in `constants.php`, you can use them an
 - AUTHORIZATION_HEADER_NOT_FOUND
 - ACCESS_TOKEN_ERROR
 
-### Javascript Web Tokens(JWT)
+### JSON Web Tokens(JWT)
 Leaf provides you with the `$jwt` object which includes various methods for creating and parsing token data....but we do not advice directly using the `$jwt` object. For this reason, a special `$authentication` object has been created to work with all the $jwt data.
 
 `$authentiacation` methods:
@@ -338,6 +338,33 @@ Leaf provides you with the `$jwt` object which includes various methods for crea
 - [getAuthorizationHeader](#getauthorizationheader)
 
 #### generateToken
+This method generates a new JSON Web Token
+```php
+<?php
+   $token = $authentication->generateToken('user id to encode', 'a secret phrase to use');
+```
+
+#### validateToken
+This method is used to confirm the identity of a token from an authorization `header`
+```php
+<?php
+   $authentication->validateToken();
+```
+
+#### getBearerToken
+This method is used to get the **bearer token** from an authorization `header`
+```php
+<?php
+   $token = $authentication->getBearerToken();
+```
+
+#### getAuthorizationHeader
+This method is used to an authorization `header`
+```php
+<?php
+   $authHeader = $authentication->getAuthorizationHeader();
+```
+
 
 ## Database connection
 
