@@ -1,8 +1,4 @@
 <?php
-
-	/*Security*/
-	define('SECRET_KEY', 'test123');
-
 	/*Data Type*/
 	define('BOOLEAN', 	'1');
 	define('INTEGER', 	'2');
