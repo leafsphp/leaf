@@ -7,6 +7,7 @@
     require __DIR__ . '/src/core/request.php';
     require __DIR__ . '/src/core/fieldValidate.php';
     require __DIR__ . '/src/core/date.php';
+    require __DIR__ . '/src/core/auth.php';
 
     // helpers    
     require __DIR__ . '/src/helpers/constants.php';
