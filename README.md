@@ -41,8 +41,33 @@ This will start a server on Port 8000. Open up the code and start editing.
 |   |	  +-- Router.php
 ```
 
-**NB:**
-`index.php` is the entry point of the project. All requests are redirected to the `index.php`. This is achieved through the `.htaccess` file. From there, the appRouter picks up all requests made to the app. 
+
+## index.php
+`index.php` is the entry point of the project. All requests are redirected to the `index.php`. This is achieved through the `.htaccess` file. From there, the app Router picks up all requests made to the app. Every file is imported into the index.php file for use.
+
+```php
+   <?php
+    require_once __DIR__ . '/src/router/Request.php';
+    require_once __DIR__ . '/src/router/Router.php';
+
+    // core modules
+    require __DIR__ . '/src/core/respond.php';
+    require __DIR__ . '/src/core/request.php';
+    require __DIR__ . '/src/core/fieldValidate.php';
+    require __DIR__ . '/src/core/date.php';
+
+    // helpers    
+    require __DIR__ . '/src/helpers/constants.php';
+    require __DIR__ . '/src/helpers/jwt.php';
+
+    // config files
+    require __DIR__ . '/src/config/db.php';
+    require __DIR__ . '/src/config/headers.php';
+    require __DIR__ . '/src/config/init.php';
+
+    // routes
+    require __DIR__ . '/routes/index.php';
+```
 
 
 ## init.php
@@ -251,7 +276,7 @@ Here are a couple of methods that come along with `$response` object
 <?php
    $router->post('/contacts/add', function() use($request, $response) {
 	  $name = $request->getParam('name');
-	  $response->throwErr($data, $code);
+	  $name ==  null ? $response->throwErr('Name is null', $code) : null;
    });
 ```
 `throwErr()` is our special error handling method that returns an error in JSON format with a status code
@@ -262,7 +287,7 @@ Here are a couple of methods that come along with `$response` object
 	  $response->renderHtmlPage('linkToPage.html');
    });
 ```
-`renderHtmlPage()` outputs an html page to the screen
+`renderHtmlPage()` outputs an html page to the screen with a content type of text/html
 
 ```php
 <?php
@@ -270,7 +295,7 @@ Here are a couple of methods that come along with `$response` object
 	  $response->renderMarkup('<b>Hello World</b>');
    });
 ```
-`renderMarkup()` outputs an markup to the screen
+`renderMarkup()` outputs an markup to the screen with a content type of text/html
 
 
 ## Handy Functionality
