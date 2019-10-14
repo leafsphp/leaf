@@ -394,6 +394,6 @@ In `db.php` provision has been made for both PDO and mysqli, by default, the con
     $connection = $database->connect('PDO');
 ```
 
-use `connect('PDO);` for a PDO connection and `connect(mysqli)` for and mysqli connection
+use `connect('PDO');` for a PDO connection and `connect('mysqli')` for and mysqli connection
 
 #### The `docs` for this project are incomplete, use the `readme` instead
