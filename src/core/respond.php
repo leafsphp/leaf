@@ -14,7 +14,18 @@
             return json_encode($dataToPrint);
         }
 
+        // has no use at the moment
+        // public function rawResponse($res) {
+        //     return $res;
+        // }
+
         public function renderHtmlPage($file) {
+            header('Content-Type: text/html');
             return require $file;
+        }
+
+        public function renderMarkup($markup) {
+            header('Content-Type: text/html');
+            return $markup;
         }
     };
