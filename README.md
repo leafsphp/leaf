@@ -262,7 +262,7 @@ Here are a couple of methods that come along with `$response` object
 	  $response->respond($data);
    });
 ```
-`respond()` returns json encoded data with a content type of `application/json`
+`respond()` returns json encoded data with a content type of `application/json`, suitable for APIs
 
 ```php
 <?php
@@ -350,6 +350,7 @@ This method is used to confirm the identity of a token from an authorization `he
 <?php
    $authentication->validateToken();
 ```
+**This feature is still under development**
 
 #### getBearerToken
 This method is used to get the **bearer token** from an authorization `header`
@@ -357,6 +358,7 @@ This method is used to get the **bearer token** from an authorization `header`
 <?php
    $token = $authentication->getBearerToken();
 ```
+**This feature is still under development**
 
 #### getAuthorizationHeader
 This method is used to an authorization `header`
@@ -364,36 +366,46 @@ This method is used to an authorization `header`
 <?php
    $authHeader = $authentication->getAuthorizationHeader();
 ```
+**This feature is still under development**
 
 
 ## Database connection
 
-In the `src/config/db.php`, connection variables are declared at the top of the file, enter your own details for your database.
+In the `src/config/init.php`, connection variables are declared at the top of the file, enter your own details for your database.
 
 ```php
 <?php
-
-class Database {
-  private $host = 'localhost';
-  private $user = 'root';
-  private $password = '';
-  private $dbname = 'books';
-  // these were added to allow easy switching between local dev environment and the hosting platform 
-  // private $user = 'id11174187_root';
-  // private $password = '***********';
-  // private $dbname = 'id11174187_vierdb';
+  $host = 'localhost';
+  $user = 'root';
+  $password = '';
+  $dbname = 'books';
 ```
 
-In `db.php` provision has been made for both PDO and mysqli, by default, the connection type is PDO. To change that, head to the `init.php` file and locate the **database class call**, a single parameter is passed into it which is the connection type
+In `db.php` provision has been made for both PDO and mysqli. 
 
 ```php
 <?php
     $router = new Router(new HttpRequest);
 
     $database = new Database();
-    $connection = $database->connect('PDO');
+    $connection = $database->connectMysqli($host, $user, $password, $dbname);
 ```
+**to use mysqli**
 
-use `connect('PDO');` for a PDO connection and `connect('mysqli')` for and mysqli connection
+```php
+<?php
+    $router = new Router(new HttpRequest);
+
+    $database = new Database();
+    $connection = $database->connectPDO($host, $dbname, $user, $password);
+```
+**to use PDO**
+
+To use the connection object inside a route(`$router`) use 
+```php
+<?php
+   $router->post('/users/add', function() use($connection) {
+      // your code
+   });
 
 #### The `docs` for this project are incomplete, use the `readme` instead

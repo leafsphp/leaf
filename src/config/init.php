@@ -1,8 +1,13 @@
 <?php
+    $host = 'localhost';
+    $user = 'root';
+    $password = '';
+    $dbname = 'books';
+
     $router = new Router(new HttpRequest);
 
     $database = new Database();
-    $connection = $database->connect('PDO');
+    $connection = $database->connectMysqli($host, $user, $password, $dbname);
 
     $response = new Response();
 

@@ -1,12 +1,24 @@
 <?php
 	class Authentication extends JWT {
-		public function generateToken($user_id, $secret_phrase) {
+		public function generateSimpleToken($user_id, $secret_phrase) {
 			define('SECRET_KEY', $secret_phrase);
 			$payload = array(
 				'iat' => time(),
 				'iss' => 'localhost',
 				'exp' => time() + (15*60),
-				'userId' => $user['id']
+				'userId' => $user_id
+			);
+	
+			return $this->encode($payload, $secret_phrase);
+		}
+
+		public function generateToken($user_id, $expires_at, $secret_phrase, $iss = 'localhost') {
+			define('SECRET_KEY', $secret_phrase);
+			$payload = array(
+				'iat' => time(),
+				'iss' => $iss,
+				'exp' => time() + $expires_at,
+				'userId' => $user_id
 			);
 	
 			return $this->encode($payload, $secret_phrase);
