@@ -77,7 +77,7 @@ This will start a server on Port 8000. Open up the code and start editing.
     $router = new Router(new HttpRequest);
 
     $database = new Database();
-    $connection = $database->connect('PDO');
+    $connection = $database->connectMysqli(...);
 
     $response = new Response();
 
