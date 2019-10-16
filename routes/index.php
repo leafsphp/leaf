@@ -14,3 +14,19 @@
 		// there's no need to return the html page since it will display immedietly it loads
 		$response->renderHtmlPage('html/home.php');
 	});
+
+	$router->get('/books/all', function() use($connection, $response) {
+		$books = mysqli_fetch_all(mysqli_query($connection, "SELECT * FROM books"));
+		return $response->respond($books);
+	});
+
+	$router->get('/date-tests', function() use($response, $date) {
+		// some date methods
+		$timestamp = $date->timestamp();
+		$dates = array();
+		$dates['GetDateFromTimeStamp'] = $date->GetDateFromTimeStamp($timestamp);
+		$dates['GetEnglishDateFromTimeStamp'] = $date->GetEnglishDateFromTimeStamp($timestamp);
+		$dates['GetEnglishTimeStampFromTimeStamp'] = $date->GetEnglishTimeStampFromTimeStamp($timestamp);
+		$dates['GetTimeFromTimeStamp'] = $date->GetTimeFromTimeStamp($timestamp);
+		return $response->respond($dates);
+	});

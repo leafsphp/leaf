@@ -162,6 +162,13 @@ Leaf carries a lot of handy functions to help handle date all from the `CustomDa
 - [GetEnglishTimeStampFromTimeStamp](#getenglishtimestampfromtimestamp)
 - [GetTimeFromTimeStamp](#gettimefromtimestamp)
 
+#### timestamp
+This gets a random timestamp
+```php 
+<?php
+  $timestamp = $date->timestamp();
+```
+
 #### GetDateFromTimeStamp
 This gets the date in YYYY-MM-DD format from an existing timestamp
 ```php
@@ -332,17 +339,27 @@ A couple of http codes have been defined in `constants.php`, you can use them an
 Leaf provides you with the `$jwt` object which includes various methods for creating and parsing token data....but we do not advice directly using the `$jwt` object. For this reason, a special `$authentication` object has been created to work with all the $jwt data.
 
 `$authentiacation` methods:
+- [generateSimpleToken](#generatesimpletoken)
 - [generateToken](#generatetoken)
 - [validateToken](#validatetoken)
 - [getBearerToken](#getbearertoken)
 - [getAuthorizationHeader](#getauthorizationheader)
 
+#### generateSimpleToken
+This method generates a new JSON Web Token
+```php
+<?php
+   $token = $authentication->generateSimpleToken('user id to encode', 'a secret phrase to use');
+```
+
 #### generateToken
 This method generates a new JSON Web Token
 ```php
 <?php
-   $token = $authentication->generateToken('user id to encode', 'a secret phrase to use');
+   $token = $authentication->generateToken('user id to encode', $expires_at, 'a secret phrase to use', $iss);
 ```
+the `$iss` has a default value of localhost.
+the `$expires_at` field takes a `number` and adds it to the `current time`
 
 #### validateToken
 This method is used to confirm the identity of a token from an authorization `header`
@@ -401,11 +418,12 @@ In `db.php` provision has been made for both PDO and mysqli.
 ```
 **to use PDO**
 
-To use the connection object inside a route(`$router`) use 
+To use the connection object inside a route(`$router`) use:
 ```php
 <?php
    $router->post('/users/add', function() use($connection) {
       // your code
    });
+```
 
 #### The `docs` for this project are incomplete, use the `readme` instead

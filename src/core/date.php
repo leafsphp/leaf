@@ -4,6 +4,10 @@
 			// maybe initialise date
 		}
 
+		function timestamp() {
+			return "2019-10-01 03:00:00.000";
+		}
+
 		# date stuff
 		function GetDateFromTimeStamp($timestamp) {
 			$timestamp = new DateTime($timestamp);
