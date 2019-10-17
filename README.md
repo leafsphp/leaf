@@ -104,7 +104,7 @@ The `/core` folder now contains the `router.php` file.
 
 #### new features
 Leaf PHP uses a new router version(v1.1.0). In v1.1, all major http requests are supported, effort has been made to keep the syntax as backward compatible as possible. Also, `named parameters` are now supported.
-In v1.1.0, `echo $response` is no longer supported, `echo $response` is used instead. 
+In v1.1.0, `return $response` is no longer supported, `echo $response` is used instead. 
 
 #### Handling 404
 ```php
