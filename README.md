@@ -1,4 +1,4 @@
-# Leaf PHP Quick Start v1
+# Leaf PHP Quick Start v1.1.0
 
 This is a simple boilerplate good for any PHP project without a framework. It's simple and contains a ton of functionality all written in plain PHP.
 
