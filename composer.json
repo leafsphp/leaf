@@ -12,9 +12,12 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-            "Leaf": "/src"
+        "psr-4": {
+            "Leaf\\": "src"
         }
+    },
+    "provide": {
+        "psr/http-message-implementation": "1.0"
     },
     "minimum-stability": "stable",
     "require": {}
