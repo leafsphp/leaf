@@ -237,8 +237,6 @@ $router->get('/movies/{foo}/photos/{bar}', function($movieId, $photoId) {
 });
 ```
 
-## Visit [https://github.com/bramus/router](https://github.com/bramus/router) for more info on routing
-
 #### Subrouting
 ```php
 <?php
@@ -262,6 +260,8 @@ $leaf->mount('/movies', function () use ($leaf) {
    });
 });
 ```
+
+## Visit [https://github.com/bramus/router](https://github.com/bramus/router) for more info on routing
 
 
 ## App Header Configurations
