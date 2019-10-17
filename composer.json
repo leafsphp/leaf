@@ -1,17 +1,8 @@
 {
-	"name": "leafs/leaf",
-	"version": "1.1.0",
-	"minimum-stability": "stable",
-    "type": "library",
+    "name": "leafs/leaf",
     "description": "Leaf is a PHP starter kit that helps you quickly write simple yet powerful web applications and APIs without any framework.",
-    "keywords": ["PHP","Leaf","framework","routing", "router", "server side routing", "php routing", "library"],
-    "homepage": "https://leaf-docs.netlify.com/",
-	"license": "MIT",
-	"autoload": {
-		"psr-0": {
-			"Leaf\\": "/src"
-		}
-	},
+    "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Michael Darko",
@@ -19,5 +10,12 @@
             "homepage": "https://mychi.netlify.com",
             "role": "Developer"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-0": {
+            "Leaf": "/src"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {}
 }
