@@ -4,7 +4,7 @@
     $password = '';
     $dbname = 'books';
 
-    $router = new Router(new HttpRequest);
+    $leaf = new \Leaf\Router\Router();
 
     $database = new Database();
     $connection = $database->connectMysqli($host, $user, $password, $dbname);

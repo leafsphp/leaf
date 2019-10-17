@@ -74,7 +74,7 @@ This will start a server on Port 8000. Open up the code and start editing.
 `init.php` is where all the core and helper classes are "registered". Every class in Leaf is called in `init.php`, you can add or remove classes from the `init.php` file.
 ```php
    <?php
-    $router = new Router(new HttpRequest);
+    $leaf = new Router(new HttpRequest);
 
     $database = new Database();
     $connection = $database->connectMysqli(...);
@@ -93,19 +93,53 @@ This will start a server on Port 8000. Open up the code and start editing.
 
 ## Routing
 
-The `/routes` folder contains the route files of the API. By default, the `routes` folder contains an index.php file which is included in `index.php`.
-#### NB: Only GET and POST requests are supported currently
+The `/core` folder now contains the `router.php` file. 
 
+- [New Features](#new-features)
+- [404](#handling-404)
 - [GET](#get-requests)
 - [POST](#post-requests)
 - [Dynamic Routing](#dynamic-routing)
+- [Sub Routing](#subrouting)
+
+#### new features
+Leaf PHP uses a new router version(v1.1.0). In v1.1, all major http requests are supported, effort has been made to keep the syntax as backward compatible as possible. Also, `named parameters` are now supported.
+In v1.1.0, `echo $response` is no longer supported, `echo $response` is used instead. 
+
+#### Handling 404
+```php
+<?php
+   // Custom 404 Handler
+   $leaf->set404(function () {
+      header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+      echo '404, route not found!';
+   });
+```
+
+#### Routing Shorthands
+```php
+$leaf->get('/pattern', function() { /* ... */ });
+$leaf->post('/pattern', function() { /* ... */ });
+$leaf->put('/pattern', function() { /* ... */ });
+$leaf->delete('/pattern', function() { /* ... */ });
+$leaf->options('/pattern', function() { /* ... */ });
+$leaf->patch('/pattern', function() { /* ... */ });
+```
+You can use this shorthand for a route that can be accessed using any method:
+```php
+$router->all('/pattern', function() { … });
+```
+
+Note: Routes must be hooked before `$router->run();` is being called.
+
+Note: There is no shorthand for `match()` as `Leaf/Router` will internally re-route such requrests to their equivalent GET request, in order to comply with RFC2616 (see note).
 
 #### Get Requests
 ```php
 <?php
 
-  $router->get('/home', function() use($response) {
-    return $response->respond(/*data*/);
+  $leaf->get('/home', function() use($response) {
+    echo $response->respond(/*data*/);
   });
 ```
 
@@ -113,29 +147,118 @@ The `/routes` folder contains the route files of the API. By default, the `route
 ```php
 <?php
 
-  $router->post('/people/add', function() use($response) {
-    return $response->respond(/*data*/);
+  $leaf->post('/people/add', function() use($request, $response) {
+     $name = $request->getParam('name');
+     echo $response->respond(/*data*/);
   });
 ```
+
 #### Dynamic routing
 Dynamic routing is currently not fully supported, there are still a few problems here and there
 
-**Unsupported**
+**Version 1.1.0 *new***
 ```php
 <?php
 
-  $router->get('/user/{id}', function() use($response) {
-    return $response->respond(/*data*/);
+  $leaf->get('/user/{id}', function() use($response) {
+    echo $response->respond(/*data*/);
   });
 ```
 
-**Work Around**
+
+**Version 1.0.0 *no longer supported***
 ```php
 <?php
 
-  $router->get('/user?id='.$id, function() use($response) {
-    return $response->respond(/*data*/);
+  $leaf->get('/user?id='.$id, function() use($response) {
+    echo $response->respond(/*data*/);
   });
+```
+
+
+#### Dynamic PCRE-based Route Patterns
+This type of Route Patterns contain dynamic parts which can vary per request. The varying parts are named subpatterns and are defined using regular expressions.
+
+Examples:
+- /movies/(\d+)
+- /profile/(\w+)
+Commonly used PCRE-based subpatterns within Dynamic Route Patterns are:
+- \d+ = One or more digits (0-9)
+- \w+ = One or more word characters (a-z 0-9 _)
+- [a-z0-9_-]+ = One or more word characters (a-z 0-9 _) and the dash (-)
+- .* = Any character (including /), zero or more
+- [^/]+ = Any character but /, one or more
+
+Note: The [PHP PCRE Cheat Sheet](https://www.cs.washington.edu/education/courses/190m/12sp/cheat-sheets/php-regex-cheat-sheet.pdf) might come in handy.
+
+
+The subpatterns defined in Dynamic PCRE-based Route Patterns are converted to parameters which are passed into the route handling function. Prerequisite is that these subpatterns need to be defined as parenthesized subpatterns, which means that they should be wrapped between parens:
+```php
+// Bad
+$router->get('/hello/\w+', function($name) {
+    echo 'Hello ' . htmlentities($name);
+});
+
+// Good
+$router->get('/hello/(\w+)', function($name) {
+    echo 'Hello ' . htmlentities($name);
+});
+```
+
+Note: The leading `/` at the very beginning of a route pattern is not mandatory, but is recommended.
+
+When multiple subpatterns are defined, the resulting **route handling parameters** are passed into the route handling function in the order they are defined in:
+
+```php 
+$router->get('/movies/(\d+)/photos/(\d+)', function($movieId, $photoId) {
+    echo 'Movie #' . $movieId . ', photo #' . $photoId);
+});
+```
+
+
+#### Dynamic Placeholder-based Route Patterns
+This type of Route Patterns are the same as Dynamic PCRE-based Route Patterns, but with one difference: they don't use regexes to do the pattern matching but they use the more easy placeholders instead. Placeholders are strings surrounded by curly braces, e.g. `{name}`. You don't need to add parens around placeholders.
+
+Examples:
+- /movies/{id}
+- /profile/{username}
+
+Placeholders are easier to use than PRCEs, but offer you less control as they internally get translated to a PRCE that matches any character `(.*)`.
+```php
+$router->get('/movies/{movieId}/photos/{photoId}', function($movieId, $photoId) {
+    echo 'Movie #' . $movieId . ', photo #' . $photoId);
+});
+```
+
+Note: the name of the placeholder does not need to match with the name of the parameter that is passed into the route handling function:
+```php
+$router->get('/movies/{foo}/photos/{bar}', function($movieId, $photoId) {
+    echo 'Movie #' . $movieId . ', photo #' . $photoId);
+});
+```
+
+#### Subrouting
+```php
+<?php
+// Subrouting
+$leaf->mount('/movies', function () use ($leaf) {
+   // will result in '/movies'
+   $leaf->get('/', function () {
+      echo 'movies overview';
+   });
+   // will result in '/movies'
+   $leaf->post('/', function () {
+      echo 'add movie';
+   });
+   // will result in '/movies/id'
+   $leaf->get('/(\d+)', function ($id) {
+      echo 'movie id ' . htmlentities($id);
+   });
+   // will result in '/movies/id'
+   $leaf->put('/(\d+)', function ($id) {
+      echo 'Update movie id ' . htmlentities($id);
+   });
+});
 ```
 
 
@@ -230,14 +353,14 @@ The request section basically deals with requests made to the app, so far, there
 To use the request object, you simply need to pass `$request` into your `$route` like this
 ```php
 <?php
-   $router->post('/contacts/add', function() use($request) {
+   $leaf->post('/contacts/add', function() use($request) {
 ```
 
 Here are a couple of methods that come along with `$request` object
 
 ```php
 <?php
-   $router->post('/contacts/add', function() use($request) {
+   $leaf->post('/contacts/add', function() use($request) {
       $name = $request->getParam('name');
    });
 ```
@@ -245,7 +368,7 @@ Here are a couple of methods that come along with `$request` object
 
 ```php
 <?php
-   $router->post('/contacts/add', function() use($request) {
+   $leaf->post('/contacts/add', function() use($request) {
       $data = $request->getBody();
    });
 ```
@@ -257,32 +380,32 @@ Response deals with responses and how to handle them....we have a bunch of handy
 To use the response object, you simply need to pass `$response` into your `$route` like this
 ```php
 <?php
-   $router->post('/contacts/add', function() use($response) {
+   $leaf->post('/contacts/add', function() use($response) {
 ```
 
 Here are a couple of methods that come along with `$response` object
 
 ```php
 <?php
-   $router->post('/contacts/add', function() use($request, $response) {
+   $leaf->post('/contacts/add', function() use($request, $response) {
 	  $name = $request->getParam('name');
-	  $response->respond($data);
+	  echo $response->respond($data);
    });
 ```
 `respond()` returns json encoded data with a content type of `application/json`, suitable for APIs
 
 ```php
 <?php
-   $router->post('/contacts/add', function() use($request, $response) {
+   $leaf->post('/contacts/add', function() use($request, $response) {
 	  $name = $request->getParam('name');
-	  $response->respondWithCode($data, $code);
+	  echo $response->respondWithCode($data, $code);
    });
 ```
 `respondWithCode()` returns json encoded data with a content type of `application/json` with a status code attached, `$code` is optional, and will return 200 if nothing is passed in for `$code`
 
 ```php
 <?php
-   $router->post('/contacts/add', function() use($request, $response) {
+   $leaf->post('/contacts/add', function() use($request, $response) {
 	  $name = $request->getParam('name');
 	  $name ==  null ? $response->throwErr('Name is null', $code) : null;
    });
@@ -291,7 +414,7 @@ Here are a couple of methods that come along with `$response` object
 
 ```php
 <?php
-   $router->get('/contacts', function() use($response) {
+   $leaf->get('/contacts', function() use($response) {
 	  $response->renderHtmlPage('linkToPage.html');
    });
 ```
@@ -299,8 +422,8 @@ Here are a couple of methods that come along with `$response` object
 
 ```php
 <?php
-   $router->get('/contacts', function() use($response) {
-	  $response->renderMarkup('<b>Hello World</b>');
+   $leaf->get('/contacts', function() use($response) {
+	  echo $response->renderMarkup('<b>Hello World</b>');
    });
 ```
 `renderMarkup()` outputs an markup to the screen with a content type of text/html
@@ -311,14 +434,14 @@ Here are a couple of methods that come along with `$response` object
 A couple of http codes have been defined in `constants.php`, you can use them anywhere in your app by just calling the name.
 ```php
 <?php
-   $router->get('/me', function() use($response) {
-	   return $response->respondWithCode('Something to output', SUCCESS);
+   $leaf->get('/me', function() use($response) {
+	   echo $response->respondWithCode('Something to output', SUCCESS);
    });
 ```
 ```php
 <?php
-   $router->get('/me', function() use($response) {
-	   return $response->throwErr('Name is null', RESOURCE_NOT_FOUND);
+   $leaf->get('/me', function() use($response) {
+	   echo $response->throwErr('Name is null', RESOURCE_NOT_FOUND);
    });
 ```
 
@@ -401,27 +524,21 @@ In the `src/config/init.php`, connection variables are declared at the top of th
 In `db.php` provision has been made for both PDO and mysqli. 
 
 ```php
-<?php
-    $router = new Router(new HttpRequest);
-
-    $database = new Database();
-    $connection = $database->connectMysqli($host, $user, $password, $dbname);
+$database = new Database();
+$connection = $database->connectMysqli($host, $user, $password, $dbname);
 ```
 **to use mysqli**
 
 ```php
-<?php
-    $router = new Router(new HttpRequest);
-
-    $database = new Database();
-    $connection = $database->connectPDO($host, $dbname, $user, $password);
+$database = new Database();
+$connection = $database->connectPDO($host, $dbname, $user, $password);
 ```
 **to use PDO**
 
-To use the connection object inside a route(`$router`) use:
+To use the connection object inside a route(`$leaf`) use:
 ```php
 <?php
-   $router->post('/users/add', function() use($connection) {
+   $leaf->post('/users/add', function() use($connection) {
       // your code
    });
 ```
