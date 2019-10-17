@@ -29,10 +29,11 @@
         echo $id;
 	});
 
-	$leaf->get('/books/all', function() use($connection, $response) {
-		$books = mysqli_fetch_all(mysqli_query($connection, "SELECT * FROM books"));
-		echo $response->respond($books);
-	});
+	// database example (to use, first define your database connection variables in init.php)
+	// $leaf->get('/books/all', function() use($connection, $response) {
+	// 	$books = mysqli_fetch_all(mysqli_query($connection, "SELECT * FROM books"));
+	// 	echo $response->respond($books);
+	// });
 
 	$leaf->get('/date-tests', function() use($response, $date) {
 		// some date methods

@@ -1,13 +1,13 @@
 <?php
-    $host = 'localhost';
-    $user = 'root';
-    $password = '';
-    $dbname = 'books';
+    // $host = 'localhost';
+    // $user = 'root';
+    // $password = '';
+    // $dbname = 'books';
 
+    // $database = new Database();
+    // $connection = $database->connectMysqli($host, $user, $password, $dbname);
+    
     $leaf = new \Leaf\Router\Router();
-
-    $database = new Database();
-    $connection = $database->connectMysqli($host, $user, $password, $dbname);
 
     $response = new Response();
 
