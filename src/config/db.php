@@ -1,4 +1,6 @@
 <?php
+    namespace Leaf;
+
     class Database {
         public function connectMysqli($host, $user, $password, $dbname) {
             try {

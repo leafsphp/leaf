@@ -1,4 +1,6 @@
 <?php
+    namespace Leaf;
+    
     class Response {
         public function respond($data) {
             header('Content-Type: application/json');

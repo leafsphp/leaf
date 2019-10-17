@@ -1,4 +1,7 @@
 <?php
+	namespace Leaf;
+	use \DateTime;
+	
 	class CustomDate {
 		public function __construct() {
 			// maybe initialise date

@@ -1,4 +1,6 @@
 <?php
+	namespace Leaf;
+	
 	class Authentication extends JWT {
 		public function generateSimpleToken($user_id, $secret_phrase) {
 			define('SECRET_KEY', $secret_phrase);

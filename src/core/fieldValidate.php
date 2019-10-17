@@ -1,8 +1,7 @@
 <?php
+    namespace Leaf;
+    
     class Validation extends Response {
-        public function __construct($response) {
-            $this->response = $response;
-        }
 
         public function isEmpty($field, $errorMessage = "Field is required") {
             if (empty($field)) {

@@ -45,3 +45,8 @@
 		$dates['GetTimeFromTimeStamp'] = $date->GetTimeFromTimeStamp($timestamp);
 		echo $response->respond($dates);
 	});
+
+	$leaf->get('/token/create', function() use($authentication, $response) {
+		$token = $authentication->generateSimpleToken(1, "SECRET KEY");
+		echo $response->respond(["token" => $token]);
+	});

@@ -1,4 +1,6 @@
 <?php
+	namespace Leaf;
+	
 	/*Data Type*/
 	define('BOOLEAN', 	'1');
 	define('INTEGER', 	'2');

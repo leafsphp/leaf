@@ -1,4 +1,6 @@
 <?php
+  namespace Leaf;
+  
     class Request {
         public function __construct() {
             $this->requestMethod = $_SERVER['REQUEST_METHOD'];
