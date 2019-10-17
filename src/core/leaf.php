@@ -4,7 +4,7 @@
      */
     namespace Leaf\Core;
     
-    class Router
+    class Leaf
     {
         /**
          * @var array The route patterns and their handling functions
