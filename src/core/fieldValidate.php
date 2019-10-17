@@ -1,5 +1,5 @@
 <?php
-    namespace Leaf;
+    namespace Leaf\Core;
     
     class Validation extends Response {
 

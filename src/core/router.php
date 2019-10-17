@@ -2,7 +2,7 @@
     /**
      * based on https://github.com/bramus/router
      */
-    namespace Leaf;
+    namespace Leaf\Core;
     
     class Router
     {

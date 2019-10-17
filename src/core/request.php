@@ -1,5 +1,5 @@
 <?php
-  namespace Leaf;
+  namespace Leaf\Core;
   
     class Request {
         public function __construct() {

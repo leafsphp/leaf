@@ -1,5 +1,5 @@
 <?php
-	namespace Leaf;
+	namespace Leaf\Helpers;
 	
 	/*Data Type*/
 	define('BOOLEAN', 	'1');

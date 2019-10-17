@@ -1,5 +1,5 @@
 <?php
-	namespace Leaf;
+	namespace Leaf\Core;
 	use \DateTime;
 	
 	class CustomDate {

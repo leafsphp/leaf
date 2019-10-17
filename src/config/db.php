@@ -1,5 +1,5 @@
 <?php
-    namespace Leaf;
+    namespace Leaf\Config;
 
     class Database {
         public function connectMysqli($host, $user, $password, $dbname) {

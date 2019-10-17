@@ -1,5 +1,6 @@
 <?php
-	namespace Leaf;
+	namespace Leaf\Core;
+	use \Leaf\Helpers\JWT;
 	
 	class Authentication extends JWT {
 		public function generateSimpleToken($user_id, $secret_phrase) {

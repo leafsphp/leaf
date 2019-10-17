@@ -4,19 +4,19 @@
     // $password = '';
     // $dbname = 'books';
 
-    // $database = new \Leaf\Database();
+    // $database = new \Leaf\Config\Database();
     // $connection = $database->connectMysqli($host, $user, $password, $dbname);
     
-    $leaf = new \Leaf\Router();
+    $leaf = new \Leaf\Core\Router();
 
-    $response = new \Leaf\Response();
+    $response = new \Leaf\Core\Response();
 
-    $request = new \Leaf\Request();
+    $request = new \Leaf\Core\Request();
 
-    $validate = new \Leaf\Validation($response);
+    $validate = new \Leaf\Core\Validation($response);
 
-    $date = new \Leaf\CustomDate();
+    $date = new \Leaf\Core\CustomDate();
 
-    $jwt = new \Leaf\JWT();
+    $jwt = new \Leaf\Helpers\JWT();
 
-    $authentication = new \Leaf\Authentication();
+    $authentication = new \Leaf\Core\Authentication();

@@ -1,5 +1,5 @@
 <?php
-namespace Leaf;
+namespace Leaf\Helpers;
 /**
  * JSON Web Token implementation, based on this spec:
  * https://tools.ietf.org/html/rfc7519
