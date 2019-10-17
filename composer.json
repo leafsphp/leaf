@@ -16,9 +16,6 @@
             "Leaf\\": "src"
         }
     },
-    "provide": {
-        "psr/http-message-implementation": "1.0"
-    },
     "minimum-stability": "stable",
     "require": {}
 }
