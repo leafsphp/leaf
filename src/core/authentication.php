@@ -15,14 +15,8 @@
 			return $this->encode($payload, $secret_phrase);
 		}
 
-		public function generateToken($user_id, $expires_at, $secret_phrase, $iss = 'localhost') {
+		public function generateToken($payload, $secret_phrase) {
 			define('SECRET_KEY', $secret_phrase);
-			$payload = array(
-				'iat' => time(),
-				'iss' => $iss,
-				'exp' => time() + $expires_at,
-				'userId' => $user_id
-			);
 	
 			return $this->encode($payload, $secret_phrase);
 		}

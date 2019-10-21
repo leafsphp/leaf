@@ -2,7 +2,7 @@
 	namespace Leaf\Core;
 	use \DateTime;
 	
-	class CustomDate {
+	class LeafDate {
 		public function __construct() {
 			// maybe initialise date
 		}
