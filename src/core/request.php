@@ -13,7 +13,7 @@
               $data = json_decode($this->request, true);
               return isset($data[$param]) ? $data[$param] : null;
             } else {
-              return $_GET[$param];
+              return isset($_GET[$param]) ? $_GET[$param] : null;
             }
         }
 
@@ -25,14 +25,14 @@
               foreach($_GET as $key => $value) {
                 $body[$key] = $value;
               }
-              return $body;
+              return count($body) > 0 ? $body : null;
             }
             if ($this->requestMethod == "POST") {
               $body = array();
               foreach($data as $key => $value) {
                 $body[$key] = $value;
               }
-              return $body;
+              return count($body) > 0 ? $body : null;
             }
         }
     };

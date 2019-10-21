@@ -24,6 +24,7 @@
 
     // module init
     // require __DIR__ . '/src/Config/init.php';
+    // use Psr\Http\Message\ResponseFactoryInterface;
 
     // routes
     $leaf = new Leaf\Core\Leaf;
@@ -33,9 +34,9 @@
 
     $leaf->get('/home', function() use($response, $request) {
         $id = $request->getParam('id');
-        $body = $request->getBody();
-        // echo $response->respond(["message" => "Welcome to the Leaf Framework....your id is ".$id ]);
-        echo json_encode($body);
+        // $body = $request->getBody();
+        echo $response->respond(["message" => "Welcome to the Leaf Framework....your id is ".$id ]);
+        // echo json_encode($body);
     });
 
     $leaf->get('/date', function() use($date, $response) {

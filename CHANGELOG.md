@@ -11,6 +11,7 @@
 
 #### Fixed
 - Fixed up the LeafDate::timestamp method
+- Fixed up LeafDate::getDayFromNumber
 - Fixed getBearerToken
 - Fixed getAuthorizationHeader
 
