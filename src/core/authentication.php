@@ -50,7 +50,7 @@
 	                return $matches[1];
 	            }
 	        }
-	        // $this->throwError( ATHORIZATION_HEADER_NOT_FOUND, 'Access Token Not found');
+	        // $this->throwError(ATHORIZATION_HEADER_NOT_FOUND, 'Access Token Not found');
 		}
 		
 		public function getAuthorizationHeader(){
@@ -58,7 +58,7 @@
 	        if (isset($_SERVER['Authorization'])) {
 	            $headers = trim($_SERVER["Authorization"]);
 	        }
-	        else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+	        else if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
 	            $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
 	        } elseif (function_exists('apache_request_headers')) {
 	            $requestHeaders = apache_request_headers();

@@ -3,12 +3,30 @@
 	use \DateTime;
 	
 	class LeafDate {
-		public function __construct() {
-			// maybe initialise date
+		function randomTimestamp($start=1149095981, $end=1749095981) {
+			$random = mt_rand($start,  $end);
+			return date("Y-m-d H:i:s", $random);
 		}
 
-		function timestamp() {
-			return "2019-10-01 03:00:00.000";
+		function setTimeZone($timezone="Africa/Accra") {
+			date_default_timezone_set($timezone);
+			return;
+		}
+
+		function getTimeZone() {
+			return date_default_timezone_get();
+		}
+
+		function now() {
+			return date('Y-m-d h:i:s a', time());
+		}
+
+		function randomDate($start=1149095981, $end=1749095981) {
+			$timestamp = mt_rand($start,  $end);
+			$randomDate = new DateTime();
+			$randomDate->setTimestamp($timestamp);
+			$randomDate = json_decode(json_encode($randomDate), true);
+			return $randomDate['date'];
 		}
 
 		# date stuff
@@ -28,7 +46,7 @@
 		function GetDayFromNumber($number) {
 			$number = ltrim($number, '0');
 			$days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-			$day = $days[$number];
+			$day = $days[$number - 1];
 			return $day;
 		}
 
