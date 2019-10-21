@@ -1,6 +1,6 @@
 {
     "name": "leafs/leaf",
-    "description": "Leaf is a PHP starter kit that helps you quickly write simple yet powerful web applications and APIs without any framework.",
+    "description": "Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly.",
     "type": "library",
     "license": "MIT",
     "authors": [
