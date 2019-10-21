@@ -32,7 +32,9 @@
 
     $leaf->get('/home', function() use($response, $request) {
         $id = $request->getParam('id');
-        echo $response->respond(["message" => "Welcome to the Leaf Framework....your id is ".$id ]);
+        $body = $request->getBody();
+        // echo $response->respond(["message" => "Welcome to the Leaf Framework....your id is ".$id ]);
+        echo json_encode($body);
     });
 
 	$leaf->run();

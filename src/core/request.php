@@ -21,7 +21,11 @@
             $data = json_decode($this->request, true);
 
             if($this->requestMethod === "GET") {
-              return;
+              $body = array();
+              foreach($_GET as $key => $value) {
+                $body[$key] = $value;
+              }
+              return $body;
             }
             if ($this->requestMethod == "POST") {
               $body = array();
