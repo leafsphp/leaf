@@ -2,8 +2,9 @@
     // header config
     require __DIR__ . '/src/Config/headers.php';
     // request/response
-    require __DIR__ . '/src/Core/response.php';
-    require __DIR__ . '/src/Core/request.php';
+    require __DIR__ . '/src/Core/Http/response.php';
+    require __DIR__ . '/src/Core/Http/request.php';
+    require __DIR__ . '/src/Core/Http/session.php';
 
     // router 
     require_once __DIR__ . '/src/Core/leaf.php';
@@ -21,23 +22,27 @@
 
     // dependent modules
     require __DIR__ . '/src/Core/authentication.php';
-    require __DIR__ . '/src/Core/csrf.php';
+    // require __DIR__ . '/src/Core/csrf.php';
 
     // module init
     // require __DIR__ . '/src/Config/init.php';
 
     // routes
     $leaf = new Leaf\Core\Leaf;
-    $response = new Leaf\Core\Response;
-    $request = new Leaf\Core\Request;
+    $response = new Leaf\Core\Http\Response;
+    $request = new Leaf\Core\Http\Request;
     $date = new Leaf\Core\LeafDate;
-    $csrf = new Leaf\Core\CSRF;
+    $session = new Leaf\Core\Http\Session;
 
-    $leaf->get('/home', function() use($response, $request) {
-        $id = $request->getParam('id');
-        // $body = $request->getBody();
-        echo $response->respond(["message" => "Welcome to the Leaf Framework....your id is ".$id ]);
+    $leaf->get('/home', function() use($response, $request, $session) {
+        $session->set('hello', 'User created');
+        $response->respond(["message" => $session->getBody() ]);
         // echo json_encode($body);
+    });
+
+    $leaf->get('/logout', function() use($session) {
+        $session->destroy();
+        echo "User logged out";
     });
 
     $leaf->get('/date', function() use($date, $response) {
