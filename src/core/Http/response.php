@@ -1,5 +1,5 @@
 <?php
-    namespace Leaf\Core;
+    namespace Leaf\Core\Http;
     
     class Response {
         public function respond($data) {

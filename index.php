@@ -21,16 +21,17 @@
 
     // dependent modules
     require __DIR__ . '/src/Core/authentication.php';
+    require __DIR__ . '/src/Core/csrf.php';
 
     // module init
     // require __DIR__ . '/src/Config/init.php';
-    // use Psr\Http\Message\ResponseFactoryInterface;
 
     // routes
     $leaf = new Leaf\Core\Leaf;
     $response = new Leaf\Core\Response;
     $request = new Leaf\Core\Request;
     $date = new Leaf\Core\LeafDate;
+    $csrf = new Leaf\Core\CSRF;
 
     $leaf->get('/home', function() use($response, $request) {
         $id = $request->getParam('id');
