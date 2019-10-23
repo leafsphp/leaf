@@ -8,6 +8,7 @@
 - Added `now()` to LeafDate
 - Added `randomDate` to LeafDate
 - Added session support
+- Added form data `POST` support
 
 
 #### Fixed
@@ -18,7 +19,7 @@
 
 
 #### Changed
-- Changed `CustomDate` to `LeafDate`
+- Changed `CustomDate` to `Date`
 - Renamed `LeafDate::timestamp` to `LeafDate::randomTimestamp`
 - Changed `generateToken` params to `generateToken($payload, $secret_phrase)`
 - Moved `request` and `response` to http folder inside `core`

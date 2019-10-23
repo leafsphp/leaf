@@ -2,7 +2,7 @@
 	namespace Leaf\Core;
 	use \DateTime;
 	
-	class LeafDate {
+	class Date {
 		function randomTimestamp($start=1149095981, $end=1749095981) {
 			$random = mt_rand($start,  $end);
 			return date("Y-m-d H:i:s", $random);

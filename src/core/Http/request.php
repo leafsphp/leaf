@@ -10,8 +10,12 @@
 
         public function getParam($param) {
             if ($this->requestMethod == "POST") {
-              $data = json_decode($this->request, true);
-              return isset($data[$param]) ? $data[$param] : null;
+              if (isset($_POST[$param])) {
+                return $_POST[$param];
+              } else {
+                $data = json_decode($this->request, true);
+                return isset($data[$param]) ? $data[$param] : null;
+              }
             } else {
               return isset($_GET[$param]) ? $_GET[$param] : null;
             }
@@ -28,11 +32,19 @@
               return count($body) > 0 ? $body : null;
             }
             if ($this->requestMethod == "POST") {
-              $body = array();
-              foreach($data as $key => $value) {
-                $body[$key] = $value;
+              if (isset($_POST)) {
+                $body = array();
+                foreach($_POST as $key => $value) {
+                  $body[$key] = $value;
+                }
+                return count($body) > 0 ? $body : null;
+              } else {
+                $body = array();
+                foreach($data as $key => $value) {
+                  $body[$key] = $value;
+                }
+                return count($body) > 0 ? $body : null;
               }
-              return count($body) > 0 ? $body : null;
             }
         }
     };
