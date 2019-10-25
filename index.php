@@ -1,10 +1,12 @@
 <?php
     // header config
-    require __DIR__ . '/src/Config/headers.php';
+    // require __DIR__ . '/src/Config/headers.php';
+    // header('content-type: text/html');
     // request/response
     require __DIR__ . '/src/Core/Http/response.php';
     require __DIR__ . '/src/Core/Http/request.php';
     require __DIR__ . '/src/Core/Http/session.php';
+    require __DIR__ . '/src/Veins/Template.php';
 
     // router 
     require_once __DIR__ . '/src/Core/leaf.php';
@@ -25,6 +27,7 @@
     require __DIR__ . '/src/Core/Middleware/middlewareInterface.php';
     require __DIR__ . '/src/Core/csrf.php';
 
+
     // module init
     // require __DIR__ . '/src/Config/init.php';
 
@@ -35,13 +38,50 @@
     $date = new Leaf\Core\Date;
     $session = new Leaf\Core\Http\Session;
     $csrf = new Leaf\Core\CSRF;
+    $vein = new Leaf\Veins\Template;
+
+    $vein->registerPlugin(new Leaf\Veins\Template\Plugin\PathReplace);
+
+    $leaf->set404(function() use($response) {
+        $response->respond("Error 404");
+    });
+
+    $leaf->get('/', function() use($vein, $response) {
+        $vein->assign([
+            "title" => "Veins",
+            "pageTitle" => "Leaf Veins",
+            "headerLinks" => [
+                "home" => "Home",
+                "about" => "About",
+                "contact" => "Contact"
+            ],
+            "articles" => [
+                "one" => [
+                    "id" => 1,
+                    "title" => "One",
+                    "body" => "This is article one...aka body 1"
+                ],
+                "two" => [
+                    "id" => 2,
+                    "title" => "Two",
+                    "body" => "This is article two...aka body 2"
+                ],
+                "three" => [
+                    "id" => 3,
+                    "title" => "Three",
+                    "body" => "This is article three...aka body 3"
+                ],
+            ]
+        ]);
+        echo $vein->renderTemplate("index");
+    });
 
     $leaf->get('/home', function() use($response, $request, $session) {
         // $session->set('hello', 'User created');
         // $response->respond(["message" => $session->getBody() ]);
         $response->renderMarkup('
-            <form method="post" action="/user/add">
-                <input type="text" name="username" placeholder="username">
+        <form method="post" action="/user/add">
+        <input type="text" name="username" placeholder="username">
                 <input type="text" name="password" placeholder="password">
                 <button>Submit</button>
             </form>
