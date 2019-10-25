@@ -27,12 +27,12 @@ $response = new Leaf\Core\Http\Response();
 
 // Add routes
 $leaf->get('/', function () use($response) {
-   echo $response->renderMarkup('<h5>My first Leaf app</h5>');
+   $response->renderMarkup('<h5>My first Leaf app</h5>');
 });
 
 $leaf->post('/users/add', function () use($response, $request) {
     $name = $request->getParam('name');
-    echo $response->respond(["message" => $name." has been added"]);
+    $response->respond(["message" => $name." has been added"]);
 });
 
 $leaf->run();
