@@ -22,8 +22,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // Instantiate Leaf
 $leaf = new Leaf\Core\Leaf();
-$request = new Leaf\Core\Request();
-$response = new Leaf\Core\Response();
+$request = new Leaf\Core\Http\Request();
+$response = new Leaf\Core\Http\Response();
 
 // Add routes
 $leaf->get('/', function () use($response) {
