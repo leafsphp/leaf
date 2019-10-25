@@ -22,17 +22,17 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // Instantiate Leaf
 $leaf = new Leaf\Core\Leaf();
-$request = new Leaf\Core\Request();
-$response = new Leaf\Core\Response();
+$request = new Leaf\Core\Http\Request();
+$response = new Leaf\Core\Http\Response();
 
 // Add routes
 $leaf->get('/', function () use($response) {
-   echo $response->renderMarkup('<h5>My first Leaf app</h5>');
+   $response->renderMarkup('<h5>My first Leaf app</h5>');
 });
 
 $leaf->post('/users/add', function () use($response, $request) {
     $name = $request->getParam('name');
-    echo $response->respond(["message" => $name." has been added"]);
+    $response->respond(["message" => $name." has been added"]);
 });
 
 $leaf->run();
@@ -43,4 +43,4 @@ You may quickly test this using the built-in PHP server:
 $ php -S localhost:8000
 ```
 
-## View Leaf's docs [here](https://leaf-docs.netlify.com)
+## View Leaf's docs [here](https://leaf-docs.netlify.com/v1.3.0)
