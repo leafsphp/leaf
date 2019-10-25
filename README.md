@@ -43,4 +43,4 @@ You may quickly test this using the built-in PHP server:
 $ php -S localhost:8000
 ```
 
-## View Leaf's docs [here](https://leaf-docs.netlify.com)
+## View Leaf's docs [here](https://leaf-docs.netlify.com/v1.3.0)
