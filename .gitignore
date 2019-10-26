@@ -1,2 +1,3 @@
-composer2.json
 vendor
+cache
+views
