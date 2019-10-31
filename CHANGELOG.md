@@ -4,7 +4,7 @@
 - Added base Leaf Controller `Leaf\Core\Controller`
 - Added base Leaf Model `Leaf\Core\Model`
 - Added support for full MVC app
-- Added Leaf Veins in default Leaf package
+- Added [Leaf Veins](https://github.com/leafsphp/veins) in default Leaf package
 - Added Error Handling for development and production
 - Added a base database layer connected with custom environment variables
 - Added a bunch of methods for Form Validation
