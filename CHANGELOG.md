@@ -8,7 +8,7 @@
 - Added Error Handling for development and production
 - Added a base database layer connected with custom environment variables
 - Added a bunch of methods for Form Validation
-- Added simple `Token` object for creating and validating tokens without `JWT`. These can be used in test projects but are not secure in actual projects
+- Added simple `Token` object for creating and validating tokens without `JWT`. These can be used in test projects but are not recommended for use in actual projects
 
 
 #### Fixed
