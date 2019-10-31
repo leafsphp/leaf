@@ -3,7 +3,11 @@
      * based on https://github.com/bramus/router
      */
     namespace Leaf\Core;
-    
+    /**
+     *  Leaf 
+     *  --------
+     *  This is the core of the Leaf framework. It's just a router and a few handy functions
+     */
     class Leaf
     {
         /**
@@ -67,6 +71,22 @@
                     'fn' => $fn,
                 ];
             }
+        }
+        /**
+         * Add a route that sends an HTTP redirect
+         *
+         * @param string             $from
+         * @param string|URI      $to
+         * @param int                 $status
+         *
+         * @return redirect
+         */
+        public function redirect($from, $to, $status = 302) {
+            $handler = function() use ($to, $status) {
+                return header('location: '.$to, true, $code);
+            };
+
+            return $this->get($from, $handler);
         }
         /**
          * Shorthand for a route accessed using any method.

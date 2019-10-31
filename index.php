@@ -73,7 +73,21 @@
                 ],
             ]
         ]);
-        echo $vein->renderTemplate("index");
+        $vein->renderTemplate("index");
+    });
+
+    $leaf->get('/article/{id}', function($id) use($vein, $response) {
+        $vein->assign([
+            "title" => "Veins",
+            "pageTitle" => "Leaf Veins",
+            "id" => $id,
+            "headerLinks" => [
+                "home" => "Home",
+                "about" => "About",
+                "contact" => "Contact"
+            ]
+        ]);
+        echo $vein->renderTemplate("article");
     });
 
     $leaf->get('/home', function() use($response, $request, $session) {

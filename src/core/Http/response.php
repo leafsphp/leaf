@@ -21,7 +21,7 @@
 
         // has no use at the moment
         // public function rawResponse($res) {
-        //     return $res;
+        //     echo $res;
         // }
 
         public function renderHtmlPage($file) {
