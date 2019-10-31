@@ -1,29 +1,24 @@
 ## Changelog
-### v1.3.0 - 24th October, 2019
+### v1.4 - 1st November, 2019
 #### Added
-- Added support for native `GET` requests in `Request::getParam`
-- Added support for native `GET` requests in `Request::getBody`
-- Added `setTimeZone()` to Date
-- Added `getTimeZone()` to Date
-- Added `now()` to Date
-- Added `randomDate` to Date
-- Added session support
-- Added form data `POST` support
+- Added base Leaf Controller `Leaf\Core\Controller`
+- Added base Leaf Model `Leaf\Core\Model`
+- Added support for full MVC app
+- Added Leaf Veins in default Leaf package
+- Added Error Handling for development and production
+- Added a base database layer connected with custom environment variables
+- Added a bunch of methods for Form Validation
+- Added simple `Token` object for creating and validating tokens without `JWT`. These can be used in test projects but are not secure in actual projects
 
 
 #### Fixed
-- Fixed up the `Date::timestamp` method
-- Fixed up `Date::getDayFromNumber`
-- Fixed `getBearerToken`
-- Fixed `getAuthorizationHeader`
+- Fixed 
 
 
 #### Changed
-- Changed `CustomDate` to `Date`
-- Renamed `Date::timestamp` to `Date::randomTimestamp`
-- Changed `generateToken` params to `generateToken($payload, $secret_phrase)`
-- Moved `request` and `response` to http folder inside `core`
+- Changed `Validation` to `Form`
 
 
 #### Removed
-- Removed the `isEmpty`, `isEmptyOrNull` and `returnEmptyOrNull` methods from `Validation`
+- Removed Leaf `Exceptions`
+- Removed Middleware interfaces
