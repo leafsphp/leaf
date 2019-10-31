@@ -11,8 +11,8 @@
 		public function __construct() {
 			$this->veins = new Template;
 			$this->veins->configure([
-				"veins_dir" => "views/",
-                "cache_dir" => "views/build/"
+				"veins_dir" => "app/views/",
+                "cache_dir" => "app/views/build/"
 			]);
 		}
 
@@ -23,7 +23,7 @@
 		 *
 		 * @return void
 		 */
-		public function configure($config = ["veins_dir" => "views/", "cache_dir" => "views/build/"]) {
+		public function configure($config = ["veins_dir" => "app/views/", "cache_dir" => "app/views/build/"]) {
 			$this->veins->configure($config);
 		}
         
