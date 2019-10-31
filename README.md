@@ -21,9 +21,9 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 require __DIR__ . '/../vendor/autoload.php';
 
 // Instantiate Leaf
-$leaf = new Leaf\Core\Leaf();
-$request = new Leaf\Core\Http\Request();
-$response = new Leaf\Core\Http\Response();
+$leaf = new Leaf\Core\Leaf;
+$request = new Leaf\Core\Http\Request;
+$response = new Leaf\Core\Http\Response;
 
 // Add routes
 $leaf->get('/', function () use($response) {

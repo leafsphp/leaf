@@ -12,7 +12,7 @@
 
 
 #### Fixed
-- Fixed 
+- Fixed bug with `Response::renderHtmlPage()`
 
 
 #### Changed

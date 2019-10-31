@@ -26,7 +26,7 @@
 
         public function renderHtmlPage($file) {
             header('Content-Type: text/html');
-            echo require $file;
+            require $file;
         }
 
         public function renderMarkup($markup) {
