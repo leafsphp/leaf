@@ -1,6 +1,10 @@
 <?php
     namespace Leaf\Core\Http;
-    
+    /**
+	*	Leaf PHP Response
+	*	--------------------------
+	*	Handles responses from Leaf App
+	*/
     class Response {
         public function respond($data) {
             header('Content-Type: application/json');
@@ -8,7 +12,7 @@
         }
 
         public function respondWithCode($data, $code = 200) {
-            header('Content-Type: application/json');
+            header('Content-Type: application/json', true, $code);
             $dataToPrint = array('data' => $data, 'code' => $code);
             echo json_encode($dataToPrint);
         }

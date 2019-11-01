@@ -2,6 +2,7 @@
 ### v1.4 - 1st November, 2019
 #### Added
 - Added base Leaf Controller `Leaf\Core\Controller`
+- Added base controller for APIs: `Leaf\Core\ApiController`
 - Added base Leaf Model `Leaf\Core\Model`
 - Added support for full MVC app
 - Added [Leaf Veins](https://github.com/leafsphp/veins) in default Leaf package
@@ -13,6 +14,7 @@
 
 #### Fixed
 - Fixed bug with `Response::renderHtmlPage()`
+- Fixed the HTTP code rendering in the browser from `Response::respondWithCode`
 
 
 #### Changed
