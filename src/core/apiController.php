@@ -6,7 +6,7 @@
 	*	--------------------------
 	*	Loads the model and views
 	*/
-	class Controller {
+	class ApiController {
 		public $response;
 		public function __construct() {
 			$this->$response = new Response;
