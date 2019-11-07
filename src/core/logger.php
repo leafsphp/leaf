@@ -17,10 +17,24 @@ class Logger extends FS {
 
 	public function logInDir($dirname = __DIR__) {
 		$this->setBaseDirectory($dirname);
+		$this->simpleLog();
 	}
 
-	public function simpleLog($logData, $type = "debug", $file = "txt") {
-		$title = $type.".".time().".$file";
+	public function simpleLog($logData, $type = "debug") {
+		if (!\in_array($type, $this->supportedTypes)) {
+			$type = "debug";
+		}
+		$title = "app.log";
+		if ($this->fileExists($title)) {
+			$this->createFile($title);
+		}
+		$date = new Date;
+		$currentDate = $date->GetEnglishTimeStampFromTimeStamp($date->now());
+		$data = $currentDate."  ".$logData;
+	}
+
+	public function newTrueLog($logData, $type = "debug", $file = "txt") {
+		$title = $type.".".time().".";
 		$this->createFile($title);
 		$date = new Date;
 		$currentDate = $date->GetEnglishTimeStampFromTimeStamp($date->now());

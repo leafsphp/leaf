@@ -4,6 +4,7 @@
 - Added FileSystem module
 - Added Leaf Petal module
 - Added `mysqliQuery` method to `leaf\config\db`
+- Added logger module
 
 
 #### Fixed
