@@ -38,6 +38,9 @@ class Petal {
 	}
 
 	function __destruct() {
+		if (!isset($this->callback) || $this->callback == null) {
+			return;
+		}
 		$this->resolve();
 	}
 }
