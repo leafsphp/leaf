@@ -4,6 +4,12 @@
     <br><br><br><br><br><br>
 </p>
 
+
+[![Latest Stable Version](https://poser.pugx.org/leafs/leaf/v/stable)](https://packagist.org/packages/leafs/leaf)
+[![Total Downloads](https://poser.pugx.org/leafs/leaf/downloads)](https://packagist.org/packages/leafs/leaf)
+[![License](https://poser.pugx.org/leafs/leaf/license)](https://packagist.org/packages/leafs/leaf)
+
+
 # Leaf
 Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly
 
@@ -56,11 +62,14 @@ It's an MVC framework built with this package at it's core that let's you create
 Ckeckout LeafMVC [here](https://github.com/leafsphp/leafMVC)
 
 
-# Working with APIs
+# Working with API
 Leaf also added a simple framework constructed in an MVCish way, but without the View layer purposely for creating APIs and Libraries. Leaf terms this construct as MRRC(Model Request Response Controller😅😅😅). This let's you seperate API logic, data and "views"(request and response) just like how it's done in MVC. 
 
 
 Checkout the LeafAPI package [here](https://github.com/leafsphp/leafAPI)
+
+
+Of course, with this core package, you can build your app in any way that you wish to as Leaf contains all the required functionality to do so
 
 
 ## View Leaf's docs [here](https://leaf-docs.netlify.com/v1.3.0)

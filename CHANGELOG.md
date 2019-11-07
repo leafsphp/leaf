@@ -1,4 +1,24 @@
 ## Changelog
+### v1.4.1 - 8th November, 2019
+#### Added
+- Added FileSystem module
+- Added Leaf Petal module
+- Added `mysqliQuery` method to `leaf\config\db`
+
+
+#### Fixed
+
+
+
+#### Changed
+- Changed `leaf\config\db`: connection variables and connection type are set on db init. `$db = new db($host, $user, $password, $dbname, "PDO")`
+
+
+#### Removed
+
+
+
+
 ### v1.4 - 1st November, 2019
 #### Added
 - Added base Leaf Controller `Leaf\Core\Controller`
