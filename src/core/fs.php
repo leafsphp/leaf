@@ -9,7 +9,7 @@ namespace Leaf\Core;
 class FS {
 	private $baseDirectory;
 
-	public function __construct($baseDirectory = __DIR__) {
+	public function __construct($baseDirectory) {
 		$this->baseDirectory = $baseDirectory;
 	}
 
@@ -49,7 +49,7 @@ class FS {
 	*/
 	public function mkDir($dirname) {
 		if (is_dir($dirname)) {
-			echo "$dirname already exists in $this->baseDirectory.";
+			echo "$dirname already exists in ".dirname($dirname);
 			exit();
 		}
 		mkdir($dirname);
@@ -68,6 +68,23 @@ class FS {
 			exit();
 		}
 		mkdir($this->baseDirectory."/".$dirname);
+	}
+
+	/**
+	* Rename a directory
+	*
+	* @param string $dirname: the name of the file to rename
+	* @param string $newdirname: the new name of the file
+	*
+	* @return void
+	*/
+	public function renameDir($dirname, $newdirname) {
+		if (!is_dir($dirname)) {
+			echo "$dirname not found in ".dirname($dirname).".";
+			exit();
+		}
+		// rename file
+		rename($dirname, $newdirname);
 	}
 
 	// having problems here
@@ -95,6 +112,10 @@ class FS {
 	* @return integer free space in bits
 	*/
 	public function freeSpace($dirname = __DIR__) {
+		if (!is_dir($dirname)) {
+			echo "This directory doesn't exist";
+			exit();
+		}
 		return \disk_free_space($dirname);
 	}
 
@@ -116,7 +137,7 @@ class FS {
 		touch($this->baseDirectory."/".$filename);
 	}
 
-	// working on it
+
 	/**
 	* Write content to a file in the base directory
 	*
@@ -130,6 +151,7 @@ class FS {
 			$this->createFile($filename);
 		}
 		// write to file
+		file_put_contents($this->baseDirectory."/".$filename, $content);
 	}
 
 	/**
@@ -142,7 +164,27 @@ class FS {
 	public function readFile($filename) {
 		if (!file_exists($this->baseDirectory."/".$filename)) {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
 		}
+		// read file contents
+		return file_get_contents($this->baseDirectory."/".$filename);
+	}
+
+	/**
+	* Rename a file in the base directory
+	*
+	* @param string $filename: the name of the file to rename
+	* @param string $newfilename: the new name of the file
+	*
+	* @return void
+	*/
+	public function renameFile($filename, $newfilename) {
+		if (!file_exists($this->baseDirectory."/".$filename)) {
+			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
+		}
+		// rename file
+		rename($this->baseDirectory."/".$filename, $this->baseDirectory."/".$newfilename);
 	}
 
 	/**
@@ -155,9 +197,19 @@ class FS {
 	public function appendFile($filename, $content) {
 		if (!file_exists($this->baseDirectory."/".$filename)) {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
 		}
+		// append data to file
+		// read file
+		$fileContent = $this->readFile($filename);
+		// write to file
+		$data = $fileContent."
+		
+		".$content;
+		$this->writeFile($filename, $data);
 	}
 
+	// having few issues here
 	/**
 	* Delete a file in the base directory
 	*
@@ -168,22 +220,58 @@ class FS {
 	public function deleteFile($filename) {
 		if (!file_exists($this->baseDirectory."/".$filename)) {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
 		}
 	}
 
 	/**
-	* Copy and paste a file in the base directory
+	* Copy and paste a file from the base directory
 	*
-	* @param string $dirname: the name of the file to copy
+	* @param string $filename: the name of the file to copy
+	* @param string $to: the directory to copy file to
+	* @param bool $rename: rename the file in dir after copyinng or override
 	*
 	* @return void
 	*/
-	public function copyFile($filename) {
+	public function copyFile($filename, $to, $rename = true) {
 		if (!file_exists($this->baseDirectory."/".$filename)) {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
+		}
+		$newfilename = $filename;
+		if (file_exists($this->baseDirectory."/".$filename) && $rename == true) {
+			$newfilename = "(".time().")".$filename;
+		}
+		try {
+			copy($this->baseDirectory."/".$filename, $to."/".$newfilename);
+		} catch (\Throwable $err) {
+			throw "Unable to copy file: ".$err;
 		}
 	}
 
+
+	/**
+	* Copy and paste a file from the base directory into a new file
+	*
+	* @param string $filename: the name of the file to copy
+	* @param string $to: the name of the new file to copy file to
+	*
+	* @return void
+	*/
+	public function copyToFile($filename, $to) {
+		if (!file_exists($this->baseDirectory."/".$filename)) {
+			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
+		}
+		try {
+			copy($this->baseDirectory."/".$filename, $to);
+		} catch (\Throwable $err) {
+			throw "Unable to copy file: ".$err;
+		}
+	}
+
+
+	// having issues here
 	/**
 	* Move a file from the base directory
 	*
@@ -191,9 +279,11 @@ class FS {
 	*
 	* @return void
 	*/
-	public function moveFile($filename) {
+	public function moveFile($filename, $to) {
 		if (!file_exists($this->baseDirectory."/".$filename)) {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
 		}
+		move_uploaded_file($this->baseDirectory."/".$filename, $to);
 	}
 }

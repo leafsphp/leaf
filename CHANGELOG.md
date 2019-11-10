@@ -5,10 +5,11 @@
 - Added Leaf Petal module
 - Added `mysqliQuery` method to `leaf\config\db`
 - Added logger module
+- Added console module
 
 
 #### Fixed
-
+- Fixed  a few problems with `leaf\config\db`;
 
 
 #### Changed
@@ -16,6 +17,7 @@
 
 
 #### Removed
+- Nothing has been depricated in this version
 
 
 
