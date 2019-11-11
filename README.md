@@ -13,6 +13,7 @@ $ composer require leafs/leaf
 This will install Leaf in your project directory.
 
 ## Basic Usage
+
 This is a simple demmonstration of Leaf's simplicity.
 After [installing](#installation) Leaf, create an _index.php_ file.
 
@@ -39,8 +40,23 @@ $leaf->run();
 ```
 
 You may quickly test this using the built-in PHP server:
+
 ```bash
 $ php -S localhost:8000
+```
+
+or simply run the _command_:
+
+### Windows
+
+```bash
+$ serve.bat
+```
+
+### Linux | Mac
+
+```bash
+$ ./serve.sh
 ```
 
 ## View Leaf's docs [here](https://leaf-docs.netlify.com/v1.3.0)
