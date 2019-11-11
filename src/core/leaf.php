@@ -4,7 +4,7 @@
      */
     namespace Leaf\Core;
     /**
-     *  Leaf 
+     *  Leaf
      *  --------
      *  This is the core of the Leaf framework. It's just a router and a few handy functions
      */

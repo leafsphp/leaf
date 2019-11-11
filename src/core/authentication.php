@@ -1,7 +1,7 @@
 <?php
 	namespace Leaf\Core;
 	use \Leaf\Helpers\JWT;
-	
+
 	class Authentication extends JWT {
 		public function generateSimpleToken($user_id, $secret_phrase) {
 			define('SECRET_KEY', $secret_phrase);
@@ -11,13 +11,13 @@
 				'exp' => time() + (15*60),
 				'userId' => $user_id
 			);
-	
+
 			return $this->encode($payload, $secret_phrase);
 		}
 
 		public function generateToken($payload, $secret_phrase) {
 			define('SECRET_KEY', $secret_phrase);
-	
+
 			return $this->encode($payload, $secret_phrase);
 		}
 
@@ -52,7 +52,7 @@
 	        }
 	        // $this->throwError(ATHORIZATION_HEADER_NOT_FOUND, 'Access Token Not found');
 		}
-		
+
 		public function getAuthorizationHeader(){
 	        $headers = null;
 	        if (isset($_SERVER['Authorization'])) {

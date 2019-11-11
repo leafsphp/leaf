@@ -30,7 +30,7 @@ class Token {
 		);
 		return $this->createToken($payload);
 	}
-	
+
 	/**
      * generate a simple user token
      *
@@ -75,6 +75,6 @@ class Token {
 		}
 		return $token;
 	}
-	
+
 	// Example token => eyJpZDogMSwgInVzZXJuYW1lIjogIk15Y2hpIiwgImV4cGlyeV90aW1lIjogIjI3LzIwLzIwIiwgICJzZWNyZXRfcGhyYXNlIjogIkBMZWFmMXNHcjgifQ==
 }
