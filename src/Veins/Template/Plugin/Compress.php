@@ -55,10 +55,10 @@ class Compress extends \Leaf\Veins\Template\Plugin {
 
         $html = $context->code;
         if( $this->conf['css']['status'] )
-            $html = $this->compressCSS( $html );
+            $html = $this->compressStyle( $html );
 
         if( $this->conf['javascript']['status'] )
-            $html = self::compressJavascript( $html );
+            $html = self::compressScript( $html );
 
         if( $this->conf['html']['status'] )
             $html = $this->compressHTML($html);
@@ -109,7 +109,7 @@ class Compress extends \Leaf\Veins\Template\Plugin {
      * @param type $html
      * @return type 
      */
-    protected function compressCSS($html) {
+    protected function compressStyle($html) {
 
         // search for all stylesheet
         if (!preg_match_all("/<link.*href=\"(.*?\.css)\".*>/", $html, $matches))
@@ -194,7 +194,7 @@ class Compress extends \Leaf\Veins\Template\Plugin {
      * @param type $html
      * @return type 
      */
-    protected function compressJavascript($html) {
+    protected function compressScript($html) {
 
         $htmlToCheck = preg_replace("<!--.*?-->", "", $html);
 
