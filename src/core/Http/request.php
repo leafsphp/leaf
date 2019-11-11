@@ -1,6 +1,6 @@
 <?php
   namespace Leaf\Core\Http;
-  
+
     class Request {
         public function __construct() {
           $this->requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -12,13 +12,11 @@
             if ($this->requestMethod == "POST") {
               if (isset($_POST[$param])) {
                 return $_POST[$param];
-              } else {
-                $data = json_decode($this->request, true);
-                return isset($data[$param]) ? $data[$param] : null;
               }
-            } else {
-              return isset($_GET[$param]) ? $_GET[$param] : null;
+              $data = json_decode($this->request, true);
+              return isset($data[$param]) ? $data[$param] : null;
             }
+            return isset($_GET[$param]) ? $_GET[$param] : null;
         }
 
         public function getBody() {
@@ -38,13 +36,12 @@
                   $body[$key] = $value;
                 }
                 return count($body) > 0 ? $body : null;
-              } else {
-                $body = array();
-                foreach($data as $key => $value) {
-                  $body[$key] = $value;
-                }
-                return count($body) > 0 ? $body : null;
               }
+              $body = array();
+              foreach($data as $key => $value) {
+                $body[$key] = $value;
+              }
+              return count($body) > 0 ? $body : null;
             }
         }
     };

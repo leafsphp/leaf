@@ -22,7 +22,7 @@
 		public function respond($data) {
 			$this->response->respond($data);
 		}
-        
+
         /**
 		 * Submit JSON encoded data to  user with an http code
 		 *
@@ -46,11 +46,11 @@
 			$upload_ok      =   true;                                                      // upload checker
 			$file_type      =   strtolower(pathinfo($target_file, PATHINFO_EXTENSION));  // file type
 
-				
+
 			if (!file_exists($path)):
 				mkdir($path, 0777, true);
 			endif;
-			
+
 			// Check if file already exists
 			if (file_exists($target_file)) {
 				return [true, $name];
@@ -64,7 +64,7 @@
 				case 'image':
 					$extensions = ['jpg', 'jpeg', 'png', 'gif'];
 					break;
-				
+
 				case 'audio':
 					$extensions = ['wav', 'mp3', 'ogg', 'wav', 'm4a'];
 					break;
@@ -76,9 +76,8 @@
 			// Check if $upload_ok is set to 0 by an error
 			if (move_uploaded_file($temp, $target_file)) {
 				return [true, $name];
-			} else {
-				return [false, "Wasn't able to upload {$file_category}"];
 			}
+				return [false, "Wasn't able to upload {$file_category}"];
 		}
 
 		function startsWith($haystack, $needle): Bool {

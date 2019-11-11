@@ -4,8 +4,7 @@
     class Database {
         public function connectMysqli($host, $user, $password, $dbname) {
             try {
-                $connection = mysqli_connect($host, $user, $password, $dbname);
-                return $connection;
+                return mysqli_connect($host, $user, $password, $dbname);
             } catch (\Exception $e) {
                 echo $e;
             }

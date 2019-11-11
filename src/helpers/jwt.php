@@ -111,7 +111,7 @@ class JWT
         }
         // Check if this token has expired.
         if (isset($payload->exp) && ($timestamp - static::$leeway) >= $payload->exp) {
-            throw new Exception('Expired token');   
+            throw new Exception('Expired token');
         }
         return $payload;
     }
@@ -174,9 +174,8 @@ class JWT
                 $success = openssl_sign($msg, $signature, $key, $algorithm);
                 if (!$success) {
                     throw new DomainException("OpenSSL unable to sign data");
-                } else {
-                    return $signature;
                 }
+                return $signature;
         }
     }
     /**
