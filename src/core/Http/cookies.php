@@ -1,16 +1,13 @@
 <?php
-/**
- * Slim Framework (https://slimframework.com)
- *
- * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
- */
 
 namespace Leaf\Core\Http;
 
-use InvalidArgumentException;
-use Slim\Interfaces\Http\CookiesInterface;
-
-class Cookies implements CookiesInterface
+/**
+ * Leaf Cookies
+ * ------
+ * Simple cookies for your leaf app
+ */
+class Cookies
 {
     /**
      * Cookies from HTTP request

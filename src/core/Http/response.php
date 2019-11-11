@@ -17,10 +17,11 @@
             echo json_encode($dataToPrint);
         }
 
-        public function throwErr($error, $code) {
+        public function throwErr($error, $code = 500) {
             header('Content-Type: application/json');
             $dataToPrint = array('error' => $error, 'code' => $code);
-            echo json_encode($dataToPrint);
+            $this->respond($dataToPrint);
+            exit();
         }
 
         // has no use at the moment

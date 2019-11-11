@@ -10,6 +10,7 @@
 
 #### Fixed
 - Fixed  a few problems with `leaf\config\db`;
+- Fixed tiny bug with `response->throwErr`
 
 
 #### Changed

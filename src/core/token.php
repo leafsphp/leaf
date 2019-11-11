@@ -1,6 +1,8 @@
 <?php
 namespace Leaf\Core;
 
+use Leaf\Core\Http\Response;
+
 // Token objects from this class do not implement bin2hex, rather, base64 is used
 
 /**
@@ -8,7 +10,6 @@ namespace Leaf\Core;
  *  --------
  *  This is just a simple way to create tokens.Use this if you prefer not to use JWT
  */
-
 class Token {
 	protected $token;
 
@@ -64,14 +65,14 @@ class Token {
 		$token = base64_decode($token);
 		$token = json_decode($token);
 		if ($token['secret_phrase' != "@Leaf1sGr8"] || !isset($token['secret_phrase'])) {
-			die(json_encode(array(
+			$this->response->throwErr(array(
 				'error' => 'token is invalid'
-			)));
+			));
 		}
 		if ($token['expiry_time'] <= time() || !isset($token['expiry_time'])) {
-			die(json_encode(array(
+			$this->response->throwErr(array(
 				'error' => 'token has expired or is invalid'
-			)));
+			));
 		}
 		return $token;
 	}
