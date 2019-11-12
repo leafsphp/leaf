@@ -91,7 +91,7 @@ class FS {
 	/**
 	* List all files and folders in directory
 	*
-	* @param string $dirname: the name of the directory to create
+	* @param string $dirname: the name of the directory to list
 	*
 	* @return void
 	*/
@@ -122,7 +122,7 @@ class FS {
 	/**
 	* Create a new file in the base directory
 	*
-	* @param string $dirname: the name of the file to create
+	* @param string $filename: the name of the file to create
 	*
 	* @return void
 	*/
@@ -141,7 +141,8 @@ class FS {
 	/**
 	* Write content to a file in the base directory
 	*
-	* @param string $dirname: the name of the file to create
+	* @param string $filename: the name of the file to write to
+	* @param $contant: the name of the file to write to
 	*
 	* @return void
 	*/
@@ -203,9 +204,7 @@ class FS {
 		// read file
 		$fileContent = $this->readFile($filename);
 		// write to file
-		$data = $fileContent."
-		
-		".$content;
+		$data = $fileContent."\n".$content;
 		$this->writeFile($filename, $data);
 	}
 

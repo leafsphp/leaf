@@ -1,11 +1,15 @@
 ## Changelog
-### v1.4.1 - 8th November, 2019
+### v1.4.1 - 11th November, 2019
 #### Added
 - Added FileSystem module
-- Added Leaf Petal module
+<!-- - Added Leaf Petal module -->
 - Added `mysqliQuery` method to `leaf\config\db`
-- Added logger module
-- Added console module
+- Added a bunch of handy session methods
+- Added leaf token
+- Added a bunch of handy functions to 
+<!-- change baseDirectory to workingDirectory -->
+<!-- - Added logger module
+- Added console module -->
 
 
 #### Fixed
@@ -23,7 +27,7 @@
 
 
 
-### v1.4 - 1st November, 2019
+### v1.4.0 - 1st November, 2019
 #### Added
 - Added base Leaf Controller `Leaf\Core\Controller`
 - Added base controller for APIs: `Leaf\Core\ApiController`

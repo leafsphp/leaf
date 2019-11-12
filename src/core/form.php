@@ -4,7 +4,7 @@ namespace Leaf\Core;
 /**
  *  Leaf Forms
  *  --------
- *  This is an object to help validate a form and it's fields
+ *  Simple Form Validation with Leaf
  */
 class Form {
 	public $errors = array();
@@ -15,7 +15,7 @@ class Form {
      *
      * @return string, string: The parsed data
      */
-	public function testInput($data) {
+	public function sanitizeInput($data) {
 		// check for sql injection possibilities
 		$data = trim($data);
 		$data = stripslashes($data);
@@ -36,7 +36,6 @@ class Form {
 		!isset($data) ? die(json_encode(array("message" => "isEmpty requires a param to test"))) : null;
 		if (empty($data)) {
 			$errors[$key] = $message;
-			return;
 		}
 		return;
 	}
@@ -50,11 +49,10 @@ class Form {
      *
      * @return string, $message: The to add to the errors array
      */
-	public function isNull($data, $key, $message="This field is required") {
-		!isset($data) ? die(json_encode(array("message" => "isEmpty requires a param to test"))) : null;
+	public function isNull($data, $key, $message="This field cannot be null") {
+		!isset($data) ? die(json_encode(array("message" => "isNull requires a param to test"))) : null;
 		if (is_null($data)) {
 			$errors[$key] = $message;
-			return;
 		}
 		return;
 	}

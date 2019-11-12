@@ -42,8 +42,12 @@ class Token {
      */
 	public function generateToken($token_data, $expiry_time = (7 * 24 * 60 * 60)) {
 		$payload = array();
-		array_push($payload, $token_data);
-		array_push($payload, array("expiry_time" => time() + $expiry_time, "secret_phrase" => "@Leaf1sGr8"));
+		foreach ($token_data as $key => $value) {
+			$payload[$key] = $value;
+		}
+		$payload["expiry_time"] =  time() + $expiry_time;
+		$payload["secret_phrase"] = "@Leaf1sGr8";
+		
 		return $this->createToken($payload);
 	}
 

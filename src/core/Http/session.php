@@ -60,6 +60,21 @@
 			}
 			$_SESSION[$key] = $value;
 		}
+
+		/**
+		 * Remove a session variable
+		 *
+		 * @param string $key: The session variable key
+		 *
+		 * @return void
+		 */
+		public function remove($key) {
+			if (!isset($_SESSION)) {
+				echo "There's no active session";
+				exit();
+			}
+			unset($_SESSION[$key]);
+		}
 		
 		/**
 		 * End the current session
