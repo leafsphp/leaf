@@ -1,10 +1,10 @@
-<p align="center">
+<center>
     <br><br>
     <img src="https://leaf-docs.netlify.com/images/logo.png" height="100"/>
+    <h1>Leaf PHP Framework</h1>
     <br>
-    <h2>Leaf PHP Framework</h2>
     <br><br><br>
-</p>
+</center>
 
 
 [![Latest Stable Version](https://poser.pugx.org/leafs/leaf/v/stable)](https://packagist.org/packages/leafs/leaf)
