@@ -13,7 +13,7 @@
 
 
 # Leaf
-Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly
+Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly.
 
 ## Installation
 
