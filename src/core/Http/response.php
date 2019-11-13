@@ -29,7 +29,7 @@
         //     echo $res;
         // }
 
-        public function renderHtmlPage($file) {
+        public function renderHtml($file) {
             header('Content-Type: text/html');
             require $file;
         }

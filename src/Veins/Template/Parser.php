@@ -392,7 +392,7 @@ class Parser {
                     $parsedCode .= "<?php $counter=-1; $assignNewVar if( isset($newvar) && ( is_array($newvar) || $newvar instanceof Traversable ) && sizeof($newvar) ) foreach( $newvar as $key => $value ){ $counter++; ?>";
                 }
 
-                
+
 
                 //close loop tag
                 elseif (preg_match($tagMatch['loop_close'], $html)) {
@@ -458,7 +458,7 @@ class Parser {
                     $parsedCode .= "<?php $counter=-1; $assignNewVar if( isset($newvar) && ( is_array($newvar) || $newvar instanceof Traversable ) && sizeof($newvar) ) foreach( $newvar as $key => $value ){ $counter++; ?>";
                 }
 
-                
+
 
                 //close foreach tag
                 elseif (preg_match($tagMatch['foreach_close'], $html)) {
