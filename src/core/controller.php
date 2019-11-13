@@ -1,12 +1,13 @@
 <?php
 	namespace Leaf\Core;
 	use Leaf\Veins\Template;
+	use Leaf\Core\Http\Response;
 	/**
 	*	Leaf PHP base controller
 	*	--------------------------
 	*	Loads the model and views
 	*/
-	class Controller {
+	class Controller extends Response {
 		public $veins;
 		public function __construct() {
 			$this->veins = new Template;
