@@ -1,4 +1,4 @@
-<?php 
+<?php
     namespace Leaf\Core;
 
     use Leaf\Helpers\JWT;

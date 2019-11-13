@@ -111,27 +111,27 @@
 			return $valid;
 		}
 
-		
+
 		public function getTokenName(): ?string {
 			return $this->keyPair[$this->getTokenNameKey()] ?? null;
 		}
-		
+
 		public function getTokenValue(): ?string {
 			return $this->keyPair[$this->getTokenValueKey()] ?? null;
 		}
-		
+
 		public function getTokenNameKey(): string {
 			return $this->prefix . '_name';
 		}
-		
+
 		public function getTokenValueKey(): string {
 			return $this->prefix . '_value';
 		}
-		
+
 		public function getPersistentTokenMode(): bool {
 			return $this->persistentTokenMode;
 		}
-		
+
 		protected function getLastKeyPair(): ?array {
 			if ((is_array($this->storage) && empty($this->storage)) || ($this->storage instanceof Countable && count($this->storage) < 1)) {
 				return null;
@@ -153,7 +153,7 @@
 		protected function loadLastKeyPair(): bool {
 			return (bool) $this->keyPair = $this->getLastKeyPair();
 		}
-		
+
 		protected function saveTokenToStorage(string $name, string $value): void {
 			$this->storage[$name] = $value;
 		}

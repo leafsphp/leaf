@@ -30,7 +30,7 @@ require_once __DIR__ . '/../Plugin.php';
 class Compress extends \Leaf\Veins\Template\Plugin {
 
     protected $hooks = array('afterDraw'),
-              $cache_dir, 
+              $cache_dir,
               $conf;
 
     protected static $configure = array('html'      =>array('status'=>true),
@@ -43,10 +43,10 @@ class Compress extends \Leaf\Veins\Template\Plugin {
     public function __construct(){
         $this->conf = self::$configure;
     }
-    
+
     /**
      * Function called in the hook afterDraw
-     * @param \ArrayAccess $context 
+     * @param \ArrayAccess $context
      */
     public function afterDraw(\ArrayAccess $context) {
 
@@ -70,7 +70,7 @@ class Compress extends \Leaf\Veins\Template\Plugin {
     /**
      * Compress the HTML
      * @param type $html
-     * @return type 
+     * @return type
      */
     protected function compressHTML($html) {
 
@@ -107,7 +107,7 @@ class Compress extends \Leaf\Veins\Template\Plugin {
     /**
      * Compress the CSS
      * @param type $html
-     * @return type 
+     * @return type
      */
     protected function compressStyle($html) {
 
@@ -177,7 +177,7 @@ class Compress extends \Leaf\Veins\Template\Plugin {
         // remove all the old stylesheet from the page
         $html = preg_replace("/<link.*href=\"(.*?\.css)\".*>/", "", $html);
 
-        // create the tag for the stylesheet 
+        // create the tag for the stylesheet
         $tag = '<link href="' . $cachedFilepath . '" rel="stylesheet" type="text/css">';
 
         // add the tag to the end of the <head> tag
@@ -186,13 +186,13 @@ class Compress extends \Leaf\Veins\Template\Plugin {
         // return the stylesheet
         return $html;
     }
-    
-    
-    
+
+
+
     /**
      * Compress the CSS
      * @param type $html
-     * @return type 
+     * @return type
      */
     protected function compressScript($html) {
 
@@ -212,7 +212,7 @@ class Compress extends \Leaf\Veins\Template\Plugin {
         $cachedFilename = md5($md5Name);
         $cacheFolder = $this->cache_dir . "compress/js/"; // css cache folder
         $cachedFilepath = $cacheFolder . $cachedFilename . ".js";
-        
+
 
         if( !file_exists($cachedFilepath) ){
             foreach ($matches[1] as $url) {
@@ -231,10 +231,10 @@ class Compress extends \Leaf\Veins\Template\Plugin {
                     $javascriptFile = preg_replace("#\n+|\t+| +#", " ", $javascriptFile);
 
                     $javascript .= "/*---\n Javascript compressed in Veins \n {$url} \n---*/\n\n" . $javascriptFile . "\n\n";
-                    
+
                 }
             }
-            
+
             if (!is_dir($cacheFolder))
                 mkdir($cacheFolder, 0755, $recursive = true);
 
@@ -255,7 +255,7 @@ class Compress extends \Leaf\Veins\Template\Plugin {
 
         return $html;
     }
-    
+
     public function configure( $setting, $value ){
         $this->conf[$setting] = self::$configure[$setting] = $value;
     }
