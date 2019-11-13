@@ -1,7 +1,9 @@
 <p align="center">
     <br><br>
     <img src="https://leaf-docs.netlify.com/images/logo.png" height="100"/>
-    <br><br><br><br><br><br>
+    <br>
+    <h2>Leaf PHP Framework</h2>
+    <br><br><br>
 </p>
 
 
