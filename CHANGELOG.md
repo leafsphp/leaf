@@ -15,6 +15,7 @@
 
 #### Changed
 - Changed `leaf\config\db`: connection variables and connection type are set on db init. `$db = new db($host, $user, $password, $dbname, "PDO")`
+- Renamed renderHtmlPage to renderHtml
 
 
 #### Removed
