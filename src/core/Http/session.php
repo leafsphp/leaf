@@ -116,6 +116,9 @@
 			if (!isset($_SESSION['id'])) {
 				$this->set("id", session_id($id));
 			}
+			if ($id != null) {
+				$this->regenrate();
+			}
 			return $this->getParam("id");
 		}
 
@@ -126,7 +129,7 @@
 		 * 
 		 * @return void
 		 */
-		public function regenerate($clearData = null) {
+		public function regenerate($clearData = false) {
 			$this->set("id", session_regenerate_id($clearData));
 		}
 

@@ -1,15 +1,11 @@
 ## Changelog
-### v1.4.1 - 12th November, 2019
+### v1.4.1 - 13th November, 2019
 #### Added
 - Added FileSystem module
-<!-- - Added Leaf Petal module -->
 - Added `mysqliQuery` method to `leaf\config\db`
 - Added a bunch of handy session methods
 - Added leaf token
-- Added a bunch of handy functions to 
-<!-- change baseDirectory to workingDirectory -->
-<!-- - Added logger module
-- Added console module -->
+- Added leaf form
 
 
 #### Fixed
@@ -22,7 +18,7 @@
 
 
 #### Removed
-- Nothing has been depricated in this version
+- Leaf\Config\DB has been depricated for now
 
 
 
@@ -36,8 +32,6 @@
 - Added [Leaf Veins](https://github.com/leafsphp/veins) in default Leaf package
 - Added Error Handling for development and production
 - Added a base database layer connected with custom environment variables
-- Added a bunch of methods for Form Validation
-- Added simple `Token` object for creating and validating tokens without `JWT`. These can be used in test projects but are not recommended for use in actual projects
 
 
 #### Fixed
