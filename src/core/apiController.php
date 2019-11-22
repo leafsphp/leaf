@@ -1,6 +1,8 @@
 <?php
 	namespace Leaf\Core;
+
 	use Leaf\Core\Http\Response;
+	use Leaf\Core\Form;
 	/**
 	*	Leaf PHP base controller
 	*	--------------------------
@@ -8,8 +10,10 @@
 	*/
 	class ApiController {
 		public $response;
+		public $form;
 		public function __construct() {
-			$this->$response = new Response;
+			$this->response = new Response;
+			$this->form = new Form;
 		}
 
         /**
@@ -33,6 +37,27 @@
 		 */
 		public function respondWithCode($data, $code) {
 			$this->response->respondWithCode($data, $code);
+		}
+
+		/**
+		 * Validate the given request with the given rules.
+		 * 
+		 * @param  array  $rules
+		 * @param  array  $messages
+		 * 
+		 * @return void
+		 */
+		public function validate(array $rules, array $messages = []) {
+			$this->form->validate($rules, $messages);
+		}
+
+		/**
+		 * Return the form errors
+		 *
+		 * @return string, $message: The to add to the errors array
+		 */
+		public function returnErrors() {
+			return $this->form->returnErrors();
 		}
 
 		public function file_upload($path, $file, $file_category = "image"): Array {

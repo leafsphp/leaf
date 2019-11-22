@@ -2,6 +2,7 @@
 	namespace Leaf\Core;
 	use Leaf\Veins\Template;
 	use Leaf\Core\Http\Response;
+	use Leaf\Core\Form;
 	/**
 	*	Leaf PHP base controller
 	*	--------------------------
@@ -9,12 +10,15 @@
 	*/
 	class Controller extends Response {
 		public $veins;
+		public $form;
 		public function __construct() {
 			$this->veins = new Template;
 			$this->veins->configure([
 				"veins_dir" => "app/views/",
-                "cache_dir" => "app/views/build/"
+                "cache_dir" => "storage/framework/views/"
 			]);
+			$this->veins->registerPlugin(new \Leaf\Veins\Template\Plugin\PathReplace);
+			$this->form = new Form;
 		}
 
         /**
@@ -24,8 +28,29 @@
 		 *
 		 * @return void
 		 */
-		public function configure($config = ["veins_dir" => "app/views/", "cache_dir" => "app/views/build/"]) {
+		public function configure($config = ["veins_dir" => "app/views/", "cache_dir" => "storage/framework/views/"]) {
 			$this->veins->configure($config);
+		}
+
+		/**
+		 * Validate the given request with the given rules.
+		 * 
+		 * @param  array  $rules
+		 * @param  array  $messages
+		 * 
+		 * @return void
+		 */
+		public function validate(array $rules, array $messages = []) {
+			$this->form->validate($rules, $messages);
+		}
+
+		/**
+		 * Return the form errors
+		 *
+		 * @return string, $message: The to add to the errors array
+		 */
+		public function returnErrors() {
+			return $this->form->returnErrors();
 		}
         
         /**
@@ -47,7 +72,7 @@
 		 * @return void
 		 */
 		public function render($templateName) {
-			$this->veins->renderTemplate($templateName);
+			$this->veins->render($templateName);
 		}
 
 		public function file_upload($path, $file, $file_category = "image"): Array {

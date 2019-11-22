@@ -10,7 +10,7 @@
         public function __construct() {
 			!isset($_SESSION) ? session_start() : null;
 			if (!isset($_SESSION['id'])) {
-				$this->set("id", session_id($id));
+				$this->set("id", session_id());
 			}
 		}
 		
@@ -102,6 +102,9 @@
 				session_start();
 			}
 			session_reset();
+			if ($id == null) {
+				$id = session_id();
+			}
 			$this->set("id", session_id($id));
 		}
 
@@ -113,6 +116,9 @@
 		 * @return string: session id
 		 */
 		public function id($id = null) {
+			if ($id == null) {
+				$id = session_id();
+			}
 			if (!isset($_SESSION['id'])) {
 				$this->set("id", session_id($id));
 			}

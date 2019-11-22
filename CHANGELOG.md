@@ -1,5 +1,37 @@
 ## Changelog
-### v1.4.1 - 13th November, 2019
+### v1.4.3 - ?? ??, 2019
+#### Added
+- Added FS->deleteFolder
+- Added FS->deleteFile
+- Added Form->validate😅
+- Added Form->validate and return errors to base controllers
+- Added Leaf Veins path replace to base controller
+- Added Leaf\Core\Str: equivalent of Illuminate\Support\Str with added methods
+
+
+#### Fixed
+- Fixed FS->deleteFile
+- Fixed FS->listDir
+- Fixed Leaf DB
+- Fixed init bug with session
+
+
+#### Changed
+- Renamed Veins->renderTemplate to render
+- Rename veins->assign to set()
+- Renamed mkdir to createFolder
+- Renamed mkdirInBase to createFolderInBase
+- Renamed renameDir to renameFolder
+- Changed vein file extension from .vein to .vein.php
+- Split Leaf\Config\Db between Leaf\Core\Db\Mysqli and Leaf\Core\Db\PDO
+
+
+#### Removed
+Nothing was removed
+
+
+
+### v1.4.2 - 13th November, 2019
 #### Added
 - Added FileSystem module
 - Added `mysqliQuery` method to `leaf\config\db`
@@ -24,7 +56,7 @@
 
 
 
-### v1.4.0 - 1st November, 2019
+### v1.4.1 - 1st November, 2019
 #### Added
 - Added base Leaf Controller `Leaf\Core\Controller`
 - Added base controller for APIs: `Leaf\Core\ApiController`

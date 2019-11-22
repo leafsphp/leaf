@@ -23,7 +23,7 @@ class FS {
 	public function setBaseDirectory($newBaseDirectory = __DIR__) {
 		$this->baseDirectory = $newBaseDirectory;
 		if (!is_dir($this->baseDirectory)) {
-			$this->mkDir($this->baseDirectory);
+			$this->createFolder($this->baseDirectory);
 		}
 	}
 
@@ -47,7 +47,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public function mkDir($dirname) {
+	public function createFolder($dirname) {
 		if (is_dir($dirname)) {
 			echo "$dirname already exists in ".dirname($dirname);
 			exit();
@@ -62,7 +62,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public function mkDirInBase($dirname) {
+	public function createFolderInBase($dirname) {
 		if (is_dir($this->baseDirectory."/".$dirname)) {
 			echo "$dirname already exists in $this->baseDirectory.";
 			exit();
@@ -73,12 +73,12 @@ class FS {
 	/**
 	* Rename a directory
 	*
-	* @param string $dirname: the name of the file to rename
-	* @param string $newdirname: the new name of the file
+	* @param string $dirname: the name of the folder to rename
+	* @param string $newdirname: the new name of the folder
 	*
 	* @return void
 	*/
-	public function renameDir($dirname, $newdirname) {
+	public function renameFolder($dirname, $newdirname) {
 		if (!is_dir($dirname)) {
 			echo "$dirname not found in ".dirname($dirname).".";
 			exit();
@@ -87,7 +87,24 @@ class FS {
 		rename($dirname, $newdirname);
 	}
 
-	// having problems here
+
+	/**
+	* Delete a directory
+	*
+	* @param string $dirname: the name of the folder to delete
+	*
+	* @return void
+	*/
+	public function deleteFolder($dirname) {
+		if (!is_dir($dirname)) {
+			echo "$dirname not found in ".dirname($dirname).".";
+			exit();
+		}
+		// delete folder
+		rmdir($dirname);
+	}
+
+	
 	/**
 	* List all files and folders in directory
 	*
@@ -95,12 +112,26 @@ class FS {
 	*
 	* @return void
 	*/
-	public function listDir($dirname) {
+	public function listDir($dirname = null, $pattern = null) {
 		if ($dirname == null || $dirname == "") {
 			$dirname = $this->baseDirectory || __DIR__;
 		}
 		// list dir content
-		dir($dirname);
+		$files = glob($dirname . "/*$pattern*");
+		$filenames = [];
+        
+        foreach ($files as $file) {
+            $file = pathinfo($file);
+			$filename = $file['filename'];
+			if (isset($file['extension'])) {
+				$extension = $file['extension'];
+				array_push($filenames, "$filename.$extension");
+			} else {
+				array_push($filenames, "$filename/");
+			}
+		}
+		
+		return $filenames;
 	}
 
 	// just about done
@@ -128,7 +159,7 @@ class FS {
 	*/
 	public function createFile($filename) {
 		if (!is_dir($this->baseDirectory)) {
-			$this->mkDir($this->baseDirectory);
+			$this->createFolder($this->baseDirectory);
 		}
 		if (file_exists($this->baseDirectory."/".$filename)) {
 			touch($this->baseDirectory."/".time().".".$filename);
@@ -221,6 +252,7 @@ class FS {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
 			exit();
 		}
+		unlink($this->baseDirectory."/".$filename);
 	}
 
 	/**

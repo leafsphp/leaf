@@ -1,12 +1,14 @@
 <?php
 namespace Leaf\Core;
 
+use Leaf\Core\Http\Request;
+
 /**
  *  Leaf Forms
  *  --------
  *  Simple Form Validation with Leaf
  */
-class Form {
+class Form extends Request {
 	public $errors = array();
 	/**
      * make sure that the form data is safe to work with
@@ -30,12 +32,11 @@ class Form {
      * @param string $key: The name of the form field
      * @param string $message: The message to add to the errors array
      *
-     * @return string, $message: The to add to the errors array
+     * @return void
      */
 	public function isEmpty($data, $key, $message="This field is required") {
-		!isset($data) ? die(json_encode(array("message" => "isEmpty requires a param to test"))) : null;
 		if (empty($data)) {
-			$errors[$key] = $message;
+			$this->errors[$key] = $message;
 		}
 		return;
 	}
@@ -47,14 +48,63 @@ class Form {
      * @param string $key: The name of the form field
      * @param string $message: The message to add to the errors array
      *
-     * @return string, $message: The to add to the errors array
+     * @return void
      */
 	public function isNull($data, $key, $message="This field cannot be null") {
-		!isset($data) ? die(json_encode(array("message" => "isNull requires a param to test"))) : null;
 		if (is_null($data)) {
-			$errors[$key] = $message;
+			$this->errors[$key] = $message;
 		}
 		return;
+	}
+
+	/**
+	 * Validate the given request with the given rules.
+	 * 
+     * @param  array  $rules
+     * @param  array  $messages
+	 * 
+     * @return void
+	 */
+	public function validate(array $rules, array $messages = []) {
+		$supportedRules = ["required", "number", "textonly", "validusername", "email", "nospaces"];
+
+		$fields = [];
+		
+		foreach ($rules as $param => $rule) {
+			array_push($fields, ["name" => $param, "value" => $this->getParam($param), "rule" => strtolower($rule)]);
+		}
+		
+		foreach ($fields as $field) {
+			if (!in_array($field["rule"], $supportedRules)) {
+				echo $field["rule"]." is not a supported rule<br>";
+				echo "Supported rules are ".json_encode($supportedRules);
+				exit();
+			}
+
+			if ($field["rule"] == "required" && ($field["value"] == "" || $field["value"] == null)) {
+				$this->errors[$field["name"]] = $field["name"]." is required";
+			}
+
+			if ($field["rule"] == "number" && ($field["value"] == "" || !preg_match('/^[0-9]+$/', $field["value"]))) {
+				$this->errors[$field["name"]] = $field["name"]." must only contain numbers";
+			}
+
+			if ($field["rule"] == "textonly" && ($field["value"] == "" || !preg_match('/^[_a-zA-Z]+$/', $field["value"]))) {
+				$this->errors[$field["name"]] = $field["name"]." must only contain text";
+			}
+
+			if ($field["rule"] == "validusername" && ($field["value"] == "" || !preg_match('/^[_a-zA-Z0-9]+$/', $field["value"]))) {
+				$this->errors[$field["name"]] = $field["name"]." must only contain characters 0-9, A-Z and _";
+			}
+
+			if ($field["rule"] == "email" && ($field["value"] == "" || !!filter_var($field["value"], 274) == false)) {
+				$this->errors[$field["name"]] = $field["name"]." must be a valid email";
+			}
+
+			if ($field["rule"] == "nospaces" && ($field["value"] == "" || !preg_match('/^[ ]+$/', $field["value"]))) {
+				$this->errors[$field["name"]] = $field["name"]." can't contain any spaces";
+			}
+		}
 	}
 
 	/**

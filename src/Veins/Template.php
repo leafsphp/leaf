@@ -53,7 +53,7 @@ class Template {
         'debug' => false,
         'veins_dir' => 'views/',
         'cache_dir' => 'cache/',
-        'veins_ext' => 'vein',
+        'veins_ext' => 'vein.php',
         'base_url' => '',
         'php_enabled' => false,
         'auto_escape' => true,
@@ -75,7 +75,7 @@ class Template {
      *
      * @return void, string: depending of the $toString
      */
-    public function renderTemplate($templateFilePath, $toString = FALSE) {
+    public function render($templateFilePath, $toString = FALSE) {
         extract($this->var);
         // Merge local and static configurations
         $this->config = $this->objectConf + static::$conf;
@@ -177,14 +177,14 @@ class Template {
 
     /**
      * Assign variable
-     * eg.     $t->assign('name','mickey');
+     * eg.     $t->set('name','mickey');
      *
      * @param mixed $variable Name of template variable or associative array name/value
      * @param mixed $value value assigned to this variable. Not set if variable_name is an associative array
      *
      * @return \Leaf\Veins\Template $this
      */
-    public function assign($variable, $value = null) {
+    public function set($variable, $value = null) {
         if (is_array($variable))
             $this->var = $variable + $this->var;
         else
