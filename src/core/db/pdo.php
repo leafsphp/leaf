@@ -21,30 +21,47 @@
                 echo "Initialise your database first with connectMysqli()";
             }
             
-            if (count($params) != 0) {
-                $stmt = $this->connection->prepare($query);
-                $stmt->bind_param(1);
-                // foreach ($params as $param) {
-				// }
-				mysqli_fetch_all($array, MYSQLI_ASSOC);
-
-                $this->queryResult = $stmt->execute();
-            } else {
-                $this->queryResult = mysqli_query($this->connection, $query);
-            }
-
+            
             return $this;
+		}
+		
+		public function select() {
+			// 
+		}
+
+		public function update() {
+			// 
+		}
+
+		public function delete() {
+			// 
+		}
+
+		public function insert() {
+			// 
+		}
+
+		public function count() {
+			// 
+		}
+
+		public function fetchObj() {
+			// 
+		}
+
+        public function fetchAssoc() {
+            // 
         }
 
-        public function mysqliFetchAssoc() {
-            return mysqli_fetch_assoc($this->queryResult);
-        }
-
-        public function mysqliFetchAll() {
-            return mysqli_fetch_all($this->queryResult);
+        public function fetchAll() {
+            // 
         }
 
         public function result() {
             return $this->queryResult;
-        }
+		}
+		
+		public function close() {
+			// 
+		}
     }

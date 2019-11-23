@@ -46,8 +46,28 @@
 			return $this;
 		}
 
+		public function delete(string $table, string $options = "", array $params = []) {
+			if (strlen($options) > 1) {
+				$this->query("DELETE FROM $table WHERE $options", $params);
+			} else {
+				$this->query("DELETE FROM $table", $params);
+			}
+			
+			return $this;
+		}
+
 		public function insert(string $table, string $column, string $value, array $params = []) {
 			$this->query("INSERT INTO $table ($column) VALUES ($value)", $params);
+			
+			return $this;
+		}
+
+		public function update(string $table, string $updateOptions, string $options, array $params = []) {
+			if (strlen($options) > 1) {
+				$this->query("UPDATE $table SET $updateOptions WHERE $options", $params);
+			} else {
+				$this->query("UPDATE $table SET $updateOptions", $params);
+			}
 			
 			return $this;
 		}
@@ -65,10 +85,71 @@
         }
 
         public function fetchAll($type = MYSQLI_ASSOC) {
+			if ($type = "num") {
+				$type = MYSQLI_NUM;
+			}
+			if ($type != "num" && $type != "assoc" && $type = MYSQLI_NUM) {
+				$type = MYSQLI_ASSOC;
+			}
             return mysqli_fetch_all($this->queryResult, $type);
-        }
+		}
+
+		/**
+		 * Get number of rows from SELECT
+		 *
+		 * @return int $connection->num_rows
+		 */
+		public function numRows(): int {
+			return $this->connection->num_rows;
+		}
+		
+		/**
+		 * Get affected rows. Can be used instead of numRows() in SELECT
+		 *
+		 * @return int $connection->affected_rows or rows matched if setRowsMatched() is used
+		 */
+		public function affectedRows(): int {
+			return $this->connection->affected_rows;
+		}
+
+		/**
+		 * A more specific version of affectedRows() to give you more info what happened. Uses $connection::info under the hood
+		 * Can be used for the following cases http://php.net/manual/en/mysqli.info.php
+		 *
+		 * @return array Associative array converted from result string
+		 */
+		public function info(): array {
+			preg_match_all('/(\S[^:]+): (\d+)/', $this->connection->info, $matches);
+			return array_combine($matches[1], $matches[2]);
+		}
+
+		/**
+		 * Get rows matched instead of rows changed. Can strictly be used on UPDATE. Otherwise returns false
+		 *
+		 * @return int Rows matched
+		 */
+		public function rowsMatched(): int {
+			return $this->info()['Rows matched'] ?? false;
+		}
+
+		/**
+		 * Get the latest primary key inserted
+		 *
+		 * @return int $connection->insert_id
+		 */
+		public function insertId(): int {
+			return $this->connection->insert_id;
+		}
 
         public function result() {
             return $this->queryResult;
-        }
+		}
+		
+		/**
+		 * Closes MySQL connection
+		 *
+		 */
+		public function close(): void {
+			$this->connection->close();
+		}
     }
