@@ -5,7 +5,6 @@
 - Added FS->deleteFile
 - Added Form->validate😅
 - Added Form->validate and return errors to base controllers
-- Added Leaf Veins path replace to base controller
 - Added Leaf\Core\Str: equivalent of Illuminate\Support\Str with added methods
 - Finished Mysqli and started PDO
 

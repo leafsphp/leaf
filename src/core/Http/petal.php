@@ -2,13 +2,13 @@
 namespace Leaf\Core\Http;
 
 class Petal {
-	private $request;
-	private $supportedHttpMethods = ["GET", "POST", "PUT"];
-	private $callback;
-	private $url;
-	private $requestMethod;
-	private $requestData;
-	private $requestResult;
+	protected $request;
+	protected $supportedHttpMethods = ["GET", "POST", "PUT"];
+	protected $callback;
+	protected $url;
+	protected $requestMethod;
+	protected $requestData;
+	protected $requestResult;
 
 	function __call($requestMethod, $args) {
 		list($url, $callback) = $args;
@@ -39,45 +39,40 @@ class Petal {
 		$this->requestResult = $requestResult;
 	}
 
-	public function makeRequest($requestMethod, $url, $requestData = false) {
-		$curl = curl_init();
+	public function makeRequest($requestMethod, $url, $requestData = false, $requestHeaders = null) {
 		$requestMethod = strtoupper($requestMethod);
+
+		$netRequest = curl_init($url);
+		
+		curl_setopt($netRequest, CURLOPT_RETURNTRANSFER, true);
+		if ($requestHeaders != null) {
+			curl_setopt($netRequest, CURLOPT_HTTPHEADER, $requestHeaders);
+		}
 
 		switch ($requestMethod) {
 			case "POST":
-				curl_setopt($curl, CURLOPT_POST, 1);
-				if ($requestData)
-					curl_setopt($curl, CURLOPT_POSTFIELDS, $requestData);
-				break;
+				curl_setopt($netRequest, CURLOPT_POST, 1);
+				if ($requestData) {
+					curl_setopt($netRequest, CURLOPT_POSTFIELDS, $requestData);
+				}
+			break;
+
 			case "PUT":
-				curl_setopt($curl, CURLOPT_PUT, 1);
-				break;
-			default:
-				if ($requestData)
-					$url = sprintf("%s?%s", $url, http_build_query($requestData));
+				curl_setopt($netRequest, CURLOPT_PUT, 1);
+			break;
+
+			// default:
+			// 	if ($requestData) {
+			// 		$url = sprintf("%s?%s", $url, http_build_query($requestData));
+			// 	}
 		}
 
 		// Optional Authentication:
-		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+		// curl_setopt($netRequest, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		// curl_setopt($netRequest, CURLOPT_USERPWD, "username:password");
 
-		try {
-			curl_setopt($curl, CURLOPT_URL, $url);
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		} catch (\Throwable $err) {
-			throw $err;
-			throw new Exception("Failed to set URL", 1);
-		}
-
-		try {
-			$result = curl_exec($curl);
-		} catch(\Throwable $err) {
-			throw new Exception("An error occured", 1);
-		}
-		
-		curl_close($curl);
-
-		return $this->saveResult($result);
+		$this->saveResult(curl_exec($netRequest));
+		curl_close($netRequest);
 	}
 
 	function resolve() {

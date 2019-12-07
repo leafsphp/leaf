@@ -20,6 +20,7 @@
     "require": {
         "illuminate/database": "^6.0",
         "illuminate/container": "^6.0",
-        "illuminate/events": "^6.0"
+        "illuminate/events": "^6.0",
+        "leafs/veins": "^1.2.0"
     }
 }

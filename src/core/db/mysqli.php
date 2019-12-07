@@ -1,10 +1,23 @@
 <?php
     namespace Leaf\Core\Db;
 
+	/**
+	 * Leaf Core MYSQLI
+	 * -----------------------
+	 * Leaf's adaptation of **mysqli**
+	 */
     class Mysqli {
         protected $connection;
         protected $queryResult;
 
+		/**
+		 * Connect to database
+		 * 
+		 * @param string $host: Host Name
+		 * @param string $user: Database username
+		 * @param string $password: Database password
+		 * @param string $dbname: Database name
+		 */
         public function connect($host, $user, $password, $dbname) {
             try {
                 $connection = mysqli_connect($host, $user, $password, $dbname);
@@ -15,6 +28,13 @@
             }
 		}
 		
+		/**
+		 * MYSQLI Query
+		 * 
+		 * @param string $sql: Query
+		 * @param array $params: prepared statement params if any
+		 * @param string $types: Database password
+		 */
         public function query(string $sql, $params = [], string $types = ''): self {
 			if ($this->connection == null) {
 				echo "Initialise your database first with connect()";
@@ -36,6 +56,7 @@
 			return $this;
 		}
 
+		
 		public function select(string $table, string $items = "*", string $options = "", array $params = []) {
 			if (strlen($options) > 1) {
 				$this->query("SELECT $items FROM $table WHERE $options", $params);
@@ -85,10 +106,10 @@
         }
 
         public function fetchAll($type = MYSQLI_ASSOC) {
-			if ($type = "num") {
+			if ($type == "num") {
 				$type = MYSQLI_NUM;
 			}
-			if ($type != "num" && $type != "assoc" && $type = MYSQLI_NUM) {
+			if ($type != "num" && $type != MYSQLI_NUM || $type == "assoc") {
 				$type = MYSQLI_ASSOC;
 			}
             return mysqli_fetch_all($this->queryResult, $type);

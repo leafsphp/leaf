@@ -108,9 +108,18 @@ class Form extends Request {
 	}
 
 	/**
+     * Return the form fields+data
+     *
+     * @return string
+     */
+	public function returnFields() {
+		return $this->getBody();
+	}
+
+	/**
      * Return the form errors
      *
-     * @return string, $message: The to add to the errors array
+     * @return string
      */
 	public function returnErrors() {
 		return $this->errors;

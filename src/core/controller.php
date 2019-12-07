@@ -17,7 +17,6 @@
 				"veins_dir" => "app/views/",
                 "cache_dir" => "storage/framework/views/"
 			]);
-			$this->veins->registerPlugin(new \Leaf\Veins\Template\Plugin\PathReplace);
 			$this->form = new Form;
 		}
 
@@ -61,7 +60,7 @@
 		 * @return void
 		 */
 		public function set($vars) {
-			$this->veins->assign($vars);
+			$this->veins->set($vars);
 		}
 
 		/**
