@@ -71,7 +71,7 @@ class Form extends Request {
 		$fields = [];
 		
 		foreach ($rules as $param => $rule) {
-			array_push($fields, ["name" => $param, "value" => $this->getParam($param), "rule" => strtolower($rule)]);
+			array_push($fields, ["name" => $param, "value" => $this->get($param), "rule" => strtolower($rule)]);
 		}
 		
 		foreach ($fields as $field) {

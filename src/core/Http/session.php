@@ -21,7 +21,7 @@
 		 *
 		 * @return string, string: session variable
 		 */
-        public function getParam($param) {
+        public function get($param) {
 			if (isset($_SESSION)) {
 				return $_SESSION[$param];
 			} else {
@@ -125,7 +125,7 @@
 			if ($id != null) {
 				$this->regenrate();
 			}
-			return $this->getParam("id");
+			return $this->get("id");
 		}
 
 		/**

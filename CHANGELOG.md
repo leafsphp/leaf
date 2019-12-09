@@ -6,7 +6,9 @@
 - Added Form->validate😅
 - Added Form->validate and return errors to base controllers
 - Added Leaf\Core\Str: equivalent of Illuminate\Support\Str with added methods
-- Finished Mysqli and started PDO
+- Added Leaf Mysqli🤔
+- Added Leaf PDO🤔
+- Added Leaf\Core\Auth: simple login and signup
 
 
 #### Fixed
@@ -24,6 +26,8 @@
 - Renamed renameDir to renameFolder
 - Changed vein file extension from .vein to .vein.php
 - Split Leaf\Config\Db between Leaf\Core\Db\Mysqli and Leaf\Core\Db\PDO
+- Changed `renderHtml` to `renderPage`
+- Changed all `getParam`s to `get`
 
 
 #### Removed

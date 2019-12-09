@@ -44,7 +44,7 @@ $leaf->get('/', function () use($response) {
 });
 
 $leaf->post('/users/add', function () use($response, $request) {
-    $name = $request->getParam('name');
+    $name = $request->get('name');
     $response->respond(["message" => $name." has been added"]);
 });
 

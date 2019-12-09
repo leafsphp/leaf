@@ -35,9 +35,10 @@
 		 * @param array $params: prepared statement params if any
 		 * @param string $types: Database password
 		 */
-        public function query(string $sql, $params = [], string $types = ''): self {
+        public function query(string $sql, array $params = [], string $types = ''): self {
 			if ($this->connection == null) {
 				echo "Initialise your database first with connect()";
+				exit();
 			}
 
 			if(!is_array($params)) $params = [$params];

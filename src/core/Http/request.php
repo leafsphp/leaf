@@ -8,7 +8,7 @@
           $this->request = stream_get_contents($handler);
         }
 
-        public function getParam($param) {
+        public function get($param) {
             if ($this->requestMethod == "POST") {
               if (isset($_POST[$param])) {
                 return $_POST[$param];
