@@ -1,5 +1,5 @@
 ## Changelog
-### v1.4.3 - 10th December, 2019
+### v1.5.8 - 11th December, 2019
 #### Added
 - Added FS->deleteFolder
 - Added FS->deleteFile

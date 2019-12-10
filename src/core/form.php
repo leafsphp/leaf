@@ -9,7 +9,7 @@ use Leaf\Core\Http\Request;
  *  Simple Form Validation with Leaf
  */
 class Form extends Request {
-	public $errors = array();
+	public $errorsArray = array();
 	/**
      * make sure that the form data is safe to work with
      *
@@ -85,23 +85,23 @@ class Form extends Request {
 				$this->errors[$field["name"]] = $field["name"]." is required";
 			}
 
-			if ($field["rule"] == "number" && ($field["value"] == "" || !preg_match('/^[0-9]+$/', $field["value"]))) {
+			if ($field["rule"] == "number" && ($field["value"] == "" || $field["value"] == null || !preg_match('/^[0-9]+$/', $field["value"]))) {
 				$this->errors[$field["name"]] = $field["name"]." must only contain numbers";
 			}
 
-			if ($field["rule"] == "textonly" && ($field["value"] == "" || !preg_match('/^[_a-zA-Z]+$/', $field["value"]))) {
+			if ($field["rule"] == "textonly" && ($field["value"] == "" || $field["value"] == null || !preg_match('/^[_a-zA-Z]+$/', $field["value"]))) {
 				$this->errors[$field["name"]] = $field["name"]." must only contain text";
 			}
 
-			if ($field["rule"] == "validusername" && ($field["value"] == "" || !preg_match('/^[_a-zA-Z0-9]+$/', $field["value"]))) {
+			if ($field["rule"] == "validusername" && ($field["value"] == "" || $field["value"] == null || !preg_match('/^[_a-zA-Z0-9]+$/', $field["value"]))) {
 				$this->errors[$field["name"]] = $field["name"]." must only contain characters 0-9, A-Z and _";
 			}
 
-			if ($field["rule"] == "email" && ($field["value"] == "" || !!filter_var($field["value"], 274) == false)) {
+			if ($field["rule"] == "email" && ($field["value"] == "" || $field["value"] == null || !!filter_var($field["value"], 274) == false)) {
 				$this->errors[$field["name"]] = $field["name"]." must be a valid email";
 			}
 
-			if ($field["rule"] == "nospaces" && ($field["value"] == "" || !preg_match('/^[ ]+$/', $field["value"]))) {
+			if ($field["rule"] == "nospaces" && ($field["value"] == "" || $field["value"] == null || !preg_match('/^[ ]+$/', $field["value"]))) {
 				$this->errors[$field["name"]] = $field["name"]." can't contain any spaces";
 			}
 		}
@@ -121,7 +121,7 @@ class Form extends Request {
      *
      * @return string
      */
-	public function returnErrors() {
-		return $this->errors;
+	public function errors() {
+		return $this->errorsArray;
 	}
 }

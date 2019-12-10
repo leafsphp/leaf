@@ -166,6 +166,10 @@
         public function result() {
             return $this->queryResult;
 		}
+
+		public function get() {
+            return $this->queryResult;
+		}
 		
 		/**
 		 * Closes MySQL connection
