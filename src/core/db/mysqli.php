@@ -94,6 +94,11 @@
 			return $this;
 		}
 
+		/**
+		 * Get number of rows from SELECT
+		 *
+		 * @return int $connection->num_rows
+		 */
 		public function count() {
 			return mysqli_num_rows($this->queryResult);
 		}
@@ -114,15 +119,6 @@
 				$type = MYSQLI_ASSOC;
 			}
             return mysqli_fetch_all($this->queryResult, $type);
-		}
-
-		/**
-		 * Get number of rows from SELECT
-		 *
-		 * @return int $connection->num_rows
-		 */
-		public function numRows(): int {
-			return $this->connection->num_rows;
 		}
 		
 		/**
@@ -167,7 +163,7 @@
             return $this->queryResult;
 		}
 
-		public function get() {
+		public function fetch() {
             return $this->queryResult;
 		}
 		

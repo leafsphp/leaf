@@ -31,9 +31,14 @@ class Auth extends Mysqli {
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function basicLogin(string $username, string $password, string $password_encode = "md5") {
+	public function basicLogin($username, $password, $password_encode = "md5") {
+		if ($username == null || $password == null) {
+			$this->response->respond([
+				"errors" => "Username and password required"
+			]);
+		}
 		$this->form->validate([
-			"username" => "required",
+			"username" => "validusername",
 			"password" => "required"
 		]);
 		if (!empty($this->form->returnErrors())) {
@@ -55,10 +60,10 @@ class Auth extends Mysqli {
         }
 	}
 
-	public function basicRegister(string $username, string $email, string $password, string $confirm_password, string $password_encode = "md5") {
+	public function basicRegister($username, $email, $password, $confirm_password, $password_encode = "md5") {
 		$this->form->validate([
-			"username" => "required",
-			"email" => "required",
+			"username" => "validUsername",
+			"email" => "email",
 			"password" => "required",
 			"confirm_password" => "required"
 		]);
