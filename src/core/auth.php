@@ -65,6 +65,85 @@ class Auth extends Mysqli {
         }
 	}
 
+	/**
+	 * Simple user login
+	 * 
+	 * @param string username: Username
+	 * @param string password: Password in md5
+	 * @param string password_encode: Password encode type, should match password
+	 * 
+	 * @return array user: all user info + tokens + session data
+	 */
+	public function emailLogin($email, $password, $password_encode = "md5") {
+		$this->form->validate([
+			"email" => "email",
+			"password" => "required"
+		]);
+		if (!$this->select("users", "*", "email = ?", [$email])->fetchObj()) {
+			$this->form->errorsArray["email"] = "Email doesn't exist";
+		}
+		if (!empty($this->form->errors())) {
+            $this->response->respond([
+                "errors" => $this->form->errors()
+			]);
+			exit();
+        } else {
+			if ($password_encode == "md5") {
+				$password = md5($password);
+			} else {
+				$password = \base64_encode($password);
+			}
+			$user = $this->select("users", "*", "email = ? AND password = ?", [$email, $password])->fetchObj();
+			if (!$user) {
+				$this->response->respond([
+					"errors" => "Password is incorrect"
+				]);
+				exit();
+			}
+			$token = $this->token->generateSimpleToken($user->id, "User secret key");
+			$user->token = $token;
+			unset($user->password);
+
+			return $user;
+        }
+	}
+
+	/**
+	 * Simple user login
+	 * 
+	 * @param string condition: Conditions to be met for login
+	 * @param string password_encode: Password encode type, should match password
+	 * 
+	 * @return array user: all user info + tokens + session data
+	 */
+	public function login($condition, $params) {
+		// $this->form->getBody();
+		// $this->form->validate([
+		// 	"username" => "validusername",
+		// 	"password" => "required"
+		// ]);
+		if (!empty($this->form->errors())) {
+            $this->response->respond([
+                "errors" => $this->form->errors()
+			]);
+			exit();
+        } else {
+			$user = $this->select("users", "*", $condition, $params)->fetchObj();
+			if (!$user) {
+				$this->response->respond([
+					"errors" => "Incorrect credentials, please check and try again",
+
+				]);
+				exit();
+			}
+			$token = $this->token->generateSimpleToken($user->id, "User secret key");
+			$user->token = $token;
+			unset($user->password);
+
+			return $user;
+        }
+	}
+
 	public function basicRegister($username, $email, $password, $confirm_password, $password_encode = "md5") {
 		$this->form->validate([
 			"username" => "validUsername",
