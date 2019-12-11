@@ -36,10 +36,14 @@ class Auth extends Mysqli {
 			"username" => "validusername",
 			"password" => "required"
 		]);
+		if (!$this->select("users", "*", "username = ?", [$username])->fetchObj()) {
+			$this->form->errorsArray["username"] = "Username doesn't exist";
+		}
 		if (!empty($this->form->errors())) {
             $this->response->respond([
                 "errors" => $this->form->errors()
-            ]);
+			]);
+			exit();
         } else {
 			if ($password_encode == "md5") {
 				$password = md5($password);
@@ -47,6 +51,12 @@ class Auth extends Mysqli {
 				$password = \base64_encode($password);
 			}
 			$user = $this->select("users", "*", "username = ? AND password = ?", [$username, $password])->fetchObj();
+			if (!$user) {
+				$this->response->respond([
+					"errors" => "Password is incorrect"
+				]);
+				exit();
+			}
 			$token = $this->token->generateSimpleToken($user->id, "User secret key");
 			$user->token = $token;
 			unset($user->password);
@@ -62,13 +72,20 @@ class Auth extends Mysqli {
 			"password" => "required",
 			"confirm_password" => "required"
 		]);
+		if ($this->select("users", "*", "username = ?", [$username])->fetchObj()) {
+			$this->form->errorsArray["username"] = "Username already exists";
+		}
+		if ($this->select("users", "*", "email = ?", [$email])->fetchObj()) {
+			$this->form->errorsArray["email"] = "Email is already registered";
+		}
 		if ($password != $confirm_password) {
-			$this->form->errors["password"] = "Your passwords don't match";
+			$this->form->errorsArray["password"] = "Your passwords don't match";
 		}
 		if (!empty($this->form->errors())) {
             $this->response->respond([
                 "errors" => $this->form->errors()
-            ]);
+			]);
+			exit();
         } else {
 			if ($password_encode == "md5") {
 				$password = md5($password);

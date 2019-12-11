@@ -41,8 +41,6 @@
 				exit();
 			}
 
-			if(!is_array($params)) $params = [$params];
-
 			if(!$types) $types = str_repeat('s', count($params));
 
 			if(!$params) {
