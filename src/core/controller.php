@@ -49,7 +49,7 @@
 		 * @return string, $message: The to add to the errors array
 		 */
 		public function returnErrors() {
-			return $this->form->returnErrors();
+			return $this->form->errors();
 		}
         
         /**

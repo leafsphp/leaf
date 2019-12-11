@@ -32,18 +32,13 @@ class Auth extends Mysqli {
 	 * @return array user: all user info + tokens + session data
 	 */
 	public function basicLogin($username, $password, $password_encode = "md5") {
-		if ($username == null || $password == null) {
-			$this->response->respond([
-				"errors" => "Username and password required"
-			]);
-		}
 		$this->form->validate([
 			"username" => "validusername",
 			"password" => "required"
 		]);
-		if (!empty($this->form->returnErrors())) {
+		if (!empty($this->form->errors())) {
             $this->response->respond([
-                "errors" => $this->form->returnErrors()
+                "errors" => $this->form->errors()
             ]);
         } else {
 			if ($password_encode == "md5") {
@@ -70,9 +65,9 @@ class Auth extends Mysqli {
 		if ($password != $confirm_password) {
 			$this->form->errors["password"] = "Your passwords don't match";
 		}
-		if (!empty($this->form->returnErrors())) {
+		if (!empty($this->form->errors())) {
             $this->response->respond([
-                "errors" => $this->form->returnErrors()
+                "errors" => $this->form->errors()
             ]);
         } else {
 			if ($password_encode == "md5") {
