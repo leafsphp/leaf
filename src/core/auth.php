@@ -75,13 +75,13 @@ class Auth extends Mysqli {
 	 * @return array user: all user info + tokens + session data
 	 */
 	public function emailLogin($email, $password, $password_encode = "md5") {
+		if (!$this->select("users", "*", "email = ?", [$email])->fetchObj()) {
+			$this->form->errorsArray["email"] = "Email doesn't exist";
+		}
 		$this->form->validate([
 			"email" => "email",
 			"password" => "required"
 		]);
-		if (!$this->select("users", "*", "email = ?", [$email])->fetchObj()) {
-			$this->form->errorsArray["email"] = "Email doesn't exist";
-		}
 		if (!empty($this->form->errors())) {
             $this->response->respond([
                 "errors" => $this->form->errors()
