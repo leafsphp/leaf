@@ -1,5 +1,5 @@
 <?php
-  	namespace Leaf\Core\Http;
+	namespace Leaf\Core\Http;
   
 	  /**
 	 *  Leaf Session
@@ -12,6 +12,7 @@
 			if (!isset($_SESSION['id'])) {
 				$this->set("id", session_id());
 			}
+			$response = new Response;
 		}
 		
 		/**
@@ -70,7 +71,7 @@
 		 */
 		public function remove($key) {
 			if (!isset($_SESSION)) {
-				echo "There's no active session";
+				$this->response->throwErr("There's no active session");
 				exit();
 			}
 			unset($_SESSION[$key]);
@@ -85,7 +86,7 @@
 			if (isset($_SESSION)) {
 				session_destroy();
 			} else {
-				echo "No active session";
+				$this->response->throwErr("There's no active session");
 				exit();
 			}
 		}
