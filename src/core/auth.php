@@ -40,9 +40,7 @@ class Auth extends Mysqli {
 			$this->form->errorsArray["username"] = "Username doesn't exist";
 		}
 		if (!empty($this->form->errors())) {
-            $this->response->respond([
-                "errors" => $this->form->errors()
-			]);
+            $this->response->throwErr($this->form->errors());
 			exit();
         } else {
 			if ($password_encode == "md5") {
@@ -52,9 +50,7 @@ class Auth extends Mysqli {
 			}
 			$user = $this->select("users", "*", "username = ? AND password = ?", [$username, $password])->fetchObj();
 			if (!$user) {
-				$this->response->respond([
-					"errors" => "Password is incorrect"
-				]);
+				$this->response->throwErr("Password is incorrect");
 				exit();
 			}
 			$token = $this->token->generateSimpleToken($user->id, "User secret key");
@@ -83,9 +79,7 @@ class Auth extends Mysqli {
 			"password" => "required"
 		]);
 		if (!empty($this->form->errors())) {
-            $this->response->respond([
-                "errors" => $this->form->errors()
-			]);
+            $this->response->throwErr($this->form->errors());
 			exit();
         } else {
 			if ($password_encode == "md5") {
@@ -95,9 +89,7 @@ class Auth extends Mysqli {
 			}
 			$user = $this->select("users", "*", "email = ? AND password = ?", [$email, $password])->fetchObj();
 			if (!$user) {
-				$this->response->respond([
-					"errors" => "Password is incorrect"
-				]);
+				$this->response->throwErr("Password is incorrect");
 				exit();
 			}
 			$token = $this->token->generateSimpleToken($user->id, "User secret key");
@@ -123,17 +115,12 @@ class Auth extends Mysqli {
 		// 	"password" => "required"
 		// ]);
 		if (!empty($this->form->errors())) {
-            $this->response->respond([
-                "errors" => $this->form->errors()
-			]);
+            $this->response->throwErr($this->form->errors());
 			exit();
         } else {
 			$user = $this->select("users", "*", $condition, $params)->fetchObj();
 			if (!$user) {
-				$this->response->respond([
-					"errors" => "Incorrect credentials, please check and try again",
-
-				]);
+				$this->response->throwErr("Incorrect credentials, please check and try again");
 				exit();
 			}
 			$token = $this->token->generateSimpleToken($user->id, "User secret key");
@@ -161,9 +148,7 @@ class Auth extends Mysqli {
 			$this->form->errorsArray["password"] = "Your passwords don't match";
 		}
 		if (!empty($this->form->errors())) {
-            $this->response->respond([
-                "errors" => $this->form->errors()
-			]);
+            $this->response->throwErr($this->form->errors());
 			exit();
         } else {
 			if ($password_encode == "md5") {
