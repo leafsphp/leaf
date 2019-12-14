@@ -61,7 +61,7 @@ Leaf has recently added a new package to it's collection: LeafMVC.
 It's an MVC framework built with this package at it's core that let's you create clean, simple but powerful web applications and APIs quickly and easily.
 
 
-Ckeckout LeafMVC [here](https://github.com/leafsphp/leafMVC)
+Checkout LeafMVC [here](https://github.com/leafsphp/leafMVC)
 
 
 # Working with API
