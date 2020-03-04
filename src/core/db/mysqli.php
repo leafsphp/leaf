@@ -55,12 +55,21 @@
 			return $this;
 		}
 
-		
 		public function select(string $table, string $items = "*", string $options = "", array $params = []) {
 			if (strlen($options) > 1) {
 				$this->query("SELECT $items FROM $table WHERE $options", $params);
 			} else {
 				$this->query("SELECT $items FROM $table", $params);
+			}
+			
+			return $this;
+		}
+
+		public function choose($limit, string $table, string $items = "*", string $options = "", array $params = []) {
+			if (strlen($options) > 1) {
+				$this->query("SELECT $items FROM $table WHERE $options LIMIT $limit", $params);
+			} else {
+				$this->query("SELECT $items FROM $table LIMIT $limit", $params);
 			}
 			
 			return $this;
