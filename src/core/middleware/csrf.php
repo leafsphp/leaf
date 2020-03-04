@@ -1,7 +1,7 @@
 <?php
 	declare(strict_types=1);
 
-	namespace Leaf\Core;
+	namespace Leaf\Core\Middleware;
 
 	use Leaf\Core\MiddleWare\MiddleWareInterface;
 	use Leaf\Core\Http\Response;

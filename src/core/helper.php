@@ -3,7 +3,7 @@
 
     use Leaf\Helpers\JWT;
 
-    class BaseHelper extends Controller {
+    class Helper extends Controller {
         public function __construct() {
             parent::__construct();
         }

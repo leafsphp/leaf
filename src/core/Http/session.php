@@ -124,7 +124,7 @@
 				$this->set("id", session_id($id));
 			}
 			if ($id != null) {
-				$this->regenrate();
+				$this->regenerate();
 			}
 			return $this->get("id");
 		}
