@@ -152,6 +152,80 @@
 		}
 
 		/**
+		 * DB Add
+		 * 
+		 * A simpler, more concise syntax for db->insert. Uses prepared statements by default.
+		 * 
+		 * @param string table: Table to select from
+		 * 
+		 * @return array
+		 */
+		public function add(string $table, array $items, array $uniques, $default_checks = true, array $validate = []) {
+			$data = [];
+			$keys = [];			
+
+			foreach ($items as $key => $value) {
+				try {
+					!$this->select($table, "*", "$key = ?", [$value]);
+				} catch (\Throwable $th) {
+					$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+					exit();
+				}
+
+				array_push($keys, $key);
+				array_push($data, $value);
+
+				if ($default_checks == true) {
+					if ($key == "email") $this->form->validate(["email" => "email"]); 
+					else if ($key == "username") $this->form->validate(["username" => "validusername"]); 
+					else $this->form->validate([$key => "required"]);
+				}
+
+				if (count($validate) > 0) {
+					$this->form->validate($validate);
+				}
+			}
+
+			$keys_length = count($keys);
+			$data_length = count($data);
+
+			if ($uniques != null) {
+			foreach ($uniques as $unique) {
+				if (!isset($items[$unique])) {
+					$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
+					exit();
+				} else {
+					if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
+						$this->form->errorsArray[$unique] = "$unique already exists";
+					}
+				}
+			}
+		}
+
+			if (!empty($this->form->errors())) {
+				$this->response->throwErr($this->form->errors());
+				exit();
+			} else {
+				$table_names = "";
+				$table_values = "";
+
+				for ($i=0; $i < $keys_length; $i++) { 
+					$table_names = $table_names.$keys[$i];
+					if ($i < $keys_length - 1) {
+						$table_names = $table_names.", ";
+					}
+
+					$table_values = $table_values."?";
+					if ($i < $keys_length - 1) {
+						$table_values = $table_values.", ";
+					}
+				}
+
+				$this->insert($table, $table_names, $table_values, $data);
+			}
+		}
+
+		/**
 		 * Db SelectFew
 		 * 
 		 * retrieve a limited number of rows from table
