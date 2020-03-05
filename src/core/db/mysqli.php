@@ -8,7 +8,14 @@
 	 */
     class Mysqli {
         protected $connection;
-        protected $queryResult;
+		protected $queryResult;
+		
+		public function __construct($host = null, $user = null, $password = null, $dbname = null) {
+			if ($host != null || $user != null || $password != null || $dbname != null) {
+				return $this->connect($host, $user, $password, $dbname);
+			}
+			return;
+		}
 
 		/**
 		 * Connect to database
@@ -55,6 +62,16 @@
 			return $this;
 		}
 
+		/**
+		 * Db Select
+		 * 
+		 * retrieve a row from table
+		 * 
+		 * @param string $table: Db Table
+		 * @param string $items: Specific table columns to fetch
+		 * @param string $options: Condition to fetch on
+		 * @param array $params: prepared statement params if any
+		 */
 		public function select(string $table, string $items = "*", string $options = "", array $params = []) {
 			if (strlen($options) > 1) {
 				$this->query("SELECT $items FROM $table WHERE $options", $params);
@@ -65,6 +82,16 @@
 			return $this;
 		}
 
+		/**
+		 * Db Choose
+		 * 
+		 * retrieve a limited number of rows from table
+		 * 
+		 * @param string $table: Db Table
+		 * @param string $items: Specific table columns to fetch
+		 * @param string $options: Condition to fetch on
+		 * @param array $params: prepared statement params if any
+		 */
 		public function choose($limit, string $table, string $items = "*", string $options = "", array $params = []) {
 			if (strlen($options) > 1) {
 				$this->query("SELECT $items FROM $table WHERE $options LIMIT $limit", $params);
