@@ -1,5 +1,8 @@
 <?php
-    namespace Leaf\Core\Db;
+	namespace Leaf\Core\Db;
+	
+	use Leaf\Core\Form;
+	use Leaf\Core\Http\Response;
 
 	/**
 	 * Leaf Core MYSQLI
@@ -11,6 +14,9 @@
 		protected $queryResult;
 		
 		public function __construct($host = null, $user = null, $password = null, $dbname = null) {
+			$this->form = new Form;
+			$this->response = new Response;
+
 			if ($host != null || $user != null || $password != null || $dbname != null) {
 				return $this->connect($host, $user, $password, $dbname);
 			}
@@ -83,7 +89,70 @@
 		}
 
 		/**
-		 * Db Choose
+		 * DB Choose
+		 * 
+		 * A simpler, more concise syntax for db->select. Uses prepared statements by default.
+		 * 
+		 * @param string table: Table to select from
+		 * 
+		 * @return array
+		 */
+		public function choose(string $table, string $items = "*", array $condition = [], string $options = null, $default_checks = true, $validate = []) {
+			$data = [];
+			if (count($condition) > 0) {
+				$keys = [];			
+
+				foreach ($condition as $key => $value) {
+					try {
+						!$this->select($table, "*", "$key = ?", [$value]);
+					} catch (\Throwable $th) {
+						$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+						exit();
+					}
+
+					array_push($keys, $key);
+					array_push($data, $value);
+
+					if ($default_checks == true) {
+						if ($key == "email") $this->form->validate(["email" => "email"]); 
+						else if ($key == "username") $this->form->validate(["username" => "validusername"]); 
+						else $this->form->validate([$key => "required"]);
+					}
+
+					if (count($validate) > 0) {
+						$this->form->validate($validate);
+					}
+				}
+
+				$keys_length = count($keys);
+				$data_length = count($data);
+			}
+
+			if (!empty($this->form->errors())) {
+				$this->response->throwErr($this->form->errors());
+				exit();
+			} else {
+				$query = "";
+
+				if (count($condition) > 0) {
+					for ($i=0; $i < $keys_length; $i++) { 
+						$query = $query.$keys[$i]." = ?";
+						if ($i < $keys_length - 1) {
+							$query = $query." AND ";
+						}
+					}
+				}
+
+				$query = $options == null ? $query : "$query $options";
+
+				$this->select($table, $items, $query, $data);
+
+				return $this;
+			}
+		}
+
+		/**
+		 * Db SelectFew
 		 * 
 		 * retrieve a limited number of rows from table
 		 * 
@@ -92,7 +161,7 @@
 		 * @param string $options: Condition to fetch on
 		 * @param array $params: prepared statement params if any
 		 */
-		public function choose($limit, string $table, string $items = "*", string $options = "", array $params = []) {
+		public function selectFew($limit, string $table, string $items = "*", string $options = "", array $params = []) {
 			if (strlen($options) > 1) {
 				$this->query("SELECT $items FROM $table WHERE $options $limit", $params);
 			} else {
