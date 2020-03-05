@@ -39,6 +39,13 @@ class Auth extends Mysqli {
 		$data = [];
 
 		foreach ($credentials as $key => $value) {
+			try {
+				!$this->select($table, "*", "$key = ?", [$value]);
+			} catch (\Throwable $th) {
+				$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+				exit();
+			}
+
 			array_push($keys, $key);
 			array_push($data, $value);
 
@@ -54,15 +61,6 @@ class Auth extends Mysqli {
             $this->response->throwErr($this->form->errors());
 			exit();
         } else {
-			foreach ($credentials as $key => $value) {
-				try {
-					!$this->select($table, "*", "$key = ?", [$value]);
-				} catch (\Throwable $th) {
-					$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-					exit();
-				}
-			}
-
 			$condition = "";
 
 			for ($i=0; $i < $keys_length; $i++) { 
