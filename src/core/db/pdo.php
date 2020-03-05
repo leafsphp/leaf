@@ -90,9 +90,9 @@
 		 */
 		public function choose($limit, string $table, string $items = "*", string $options = "", array $params = []) {
 			if (strlen($options) > 1) {
-				$this->query("SELECT $items FROM $table WHERE $options LIMIT $limit", $params);
+				$this->query("SELECT $items FROM $table WHERE $options $limit", $params);
 			} else {
-				$this->query("SELECT $items FROM $table LIMIT $limit", $params);
+				$this->query("SELECT $items FROM $table $limit", $params);
 			}
 			
 			return $this;
