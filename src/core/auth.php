@@ -25,84 +25,6 @@ class Auth extends Mysqli {
 	/**
 	 * Simple user login
 	 * 
-	 * @param string username: Username
-	 * @param string password: Password in md5
-	 * @param string password_encode: Password encode type, should match password
-	 * 
-	 * @return array user: all user info + tokens + session data
-	 */
-	public function basicLogin($username, $password, $password_encode = "md5") {
-		$this->form->validate([
-			"username" => "validusername",
-			"password" => "required"
-		]);
-		if (!$this->select("users", "*", "username = ?", [$username])->fetchObj()) {
-			$this->form->errorsArray["username"] = "Username doesn't exist";
-		}
-		if (!empty($this->form->errors())) {
-            $this->response->throwErr($this->form->errors());
-			exit();
-        } else {
-			if ($password_encode == "md5") {
-				$password = md5($password);
-			} else {
-				$password = \base64_encode($password);
-			}
-			$user = $this->select("users", "*", "username = ? AND password = ?", [$username, $password])->fetchObj();
-			if (!$user) {
-				$this->response->throwErr("Password is incorrect");
-				exit();
-			}
-			$token = $this->token->generateSimpleToken($user->id, "User secret key");
-			$user->token = $token;
-			unset($user->password);
-
-			return $user;
-        }
-	}
-
-	/**
-	 * Simple user login
-	 * 
-	 * @param string username: Username
-	 * @param string password: Password in md5
-	 * @param string password_encode: Password encode type, should match password
-	 * 
-	 * @return array user: all user info + tokens + session data
-	 */
-	public function emailLogin($email, $password, $password_encode = "md5") {
-		if (!$this->select("users", "*", "email = ?", [$email])->fetchObj()) {
-			$this->form->errorsArray["email"] = "Email doesn't exist";
-		}
-		$this->form->validate([
-			"email" => "email",
-			"password" => "required"
-		]);
-		if (!empty($this->form->errors())) {
-            $this->response->throwErr($this->form->errors());
-			exit();
-        } else {
-			if ($password_encode == "md5") {
-				$password = md5($password);
-			} else {
-				$password = \base64_encode($password);
-			}
-			$user = $this->select("users", "*", "email = ? AND password = ?", [$email, $password])->fetchObj();
-			if (!$user) {
-				$this->response->throwErr("Password is incorrect");
-				exit();
-			}
-			$token = $this->token->generateSimpleToken($user->id, "User secret key");
-			$user->token = $token;
-			unset($user->password);
-
-			return $user;
-        }
-	}
-
-	/**
-	 * Simple user login
-	 * 
 	 * @param string condition: Conditions to be met for login
 	 * @param string password_encode: Password encode type, should match password
 	 * 
@@ -141,7 +63,11 @@ class Auth extends Mysqli {
 				}
 			}
 
-			$user = $this->select("users", "*", $condition, $data)->fetchObj();
+			try {
+				$user = $this->select($table, "*", $condition, $data)->fetchObj();
+			} catch (\Throwable $th) {
+				$this->response->respond(["error" => "You supplied an invalid selector to \$auth->login, correct and try again"]);
+			}
 
 			if (!$user) {
 				$this->response->throwErr("Incorrect credentials, please check and try again");
@@ -155,33 +81,69 @@ class Auth extends Mysqli {
 		}
 	}
 
-	public function basicRegister($username, $email, $password, $confirm_password, $password_encode = "md5") {
-		$this->form->validate([
-			"username" => "validUsername",
-			"email" => "email",
-			"password" => "required",
-			"confirm_password" => "required"
-		]);
-		if ($this->select("users", "*", "username = ?", [$username])->fetchObj()) {
-			$this->form->errorsArray["username"] = "Username already exists";
+	/**
+	 * Simple user registration
+	 * 
+	 * @param string table: Table to store user in
+	 * @param string condition: Conditions to be met for login
+	 * @param string password_encode: Password encode type, should match password
+	 * 
+	 * @return array user: all user info + tokens + session data
+	 */
+	public function register($table, $credentials, $uniques = null, $password_encode = null) {
+		if ($password_encode == "md5" && isset($credentials["password"])) {
+			$credentials["password"] = md5($credentials["password"]);
 		}
-		if ($this->select("users", "*", "email = ?", [$email])->fetchObj()) {
-			$this->form->errorsArray["email"] = "Email is already registered";
+
+		$keys = [];
+		$data = [];
+
+		foreach ($credentials as $key => $value) {
+			array_push($keys, $key);
+			array_push($data, $value);
+
+			if ($key == "email") $this->form->validate(["email" => "email"]); 
+			else if ($key == "username") $this->form->validate(["username" => "validusername"]); 
+			else $this->form->validate([$key => "required"]);
 		}
-		if ($password != $confirm_password) {
-			$this->form->errorsArray["password"] = "Your passwords don't match";
+
+		$keys_length = count($keys);
+		$data_length = count($data);
+
+		if ($uniques != null) {
+			foreach ($uniques as $unique) {
+				if (!isset($credentials[$unique])) {
+					$this->response->respond(["error" => "$unique not found, Add $unique to your \$auth->register credentials or check your spelling."]);
+					exit();
+				} else {
+					if ($this->select($table, "*", "$unique = ?", [$credentials[$unique]])->fetchObj()) {
+						$this->form->errorsArray[$unique] = "$unique already exists";
+					}
+				}
+			}
 		}
+
 		if (!empty($this->form->errors())) {
             $this->response->throwErr($this->form->errors());
 			exit();
         } else {
-			if ($password_encode == "md5") {
-				$password = md5($password);
-			} else {
-				$password = \base64_encode($password);
+			$table_names = "";
+			$table_values = "";
+
+			for ($i=0; $i < $keys_length; $i++) { 
+				$table_names = $table_names.$keys[$i];
+				if ($i < $keys_length - 1) {
+					$table_names = $table_names.", ";
+				}
+
+				$table_values = $table_values."?";
+				if ($i < $keys_length - 1) {
+					$table_values = $table_values.", ";
+				}
 			}
-            $this->insert("users", "username, email, password", "?, ?, ?", [$username, $email, $password]);
-        }
+
+			$this->insert($table, $table_names, $table_values, $data);
+		}
 	}
 
 	public function validateToken() {

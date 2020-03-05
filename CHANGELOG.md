@@ -1,4 +1,28 @@
 ## Changelog
+### v2.0 - 11th March, 2020
+#### Added
+- Added DB->choose
+- Added Auth->login
+- Added Auth->register
+
+
+#### Fixed
+- Fixed SESSION->id
+
+
+#### Changed
+- 
+
+
+#### Removed
+- Added Auth->basicLogin
+- Added Auth->emailLogin
+- Added Auth->basicRegister
+
+
+
+
+
 ### v1.5.0 - 11th December, 2019
 #### Added
 - Added FS->deleteFolder
