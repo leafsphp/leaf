@@ -66,7 +66,7 @@ class Form extends Request {
      * @return void
 	 */
 	public function validate(array $rules, array $messages = []) {
-		$supportedRules = ["required", "number", "textonly", "validusername", "email", "nospaces"];
+		$supportedRules = ["required", "number", "text", "textonly", "validusername", "email", "nospaces"];
 
 		$fields = [];
 		
@@ -89,6 +89,10 @@ class Form extends Request {
 				$this->errors[$field["name"]] = $field["name"]." must only contain numbers";
 			}
 
+			if ($field["rule"] == "text" && ($field["value"] == "" || $field["value"] == null || !preg_match('/^[_a-zA-Z ]+$/', $field["value"]))) {
+				$this->errors[$field["name"]] = $field["name"]." must only contain text and spaces";
+			}
+			
 			if ($field["rule"] == "textonly" && ($field["value"] == "" || $field["value"] == null || !preg_match('/^[_a-zA-Z]+$/', $field["value"]))) {
 				$this->errors[$field["name"]] = $field["name"]." must only contain text";
 			}
@@ -105,6 +109,10 @@ class Form extends Request {
 				$this->errors[$field["name"]] = $field["name"]." can't contain any spaces";
 			}
 		}
+	}
+
+	public function isEmail($value) {
+		return !!filter_var($value, 274);
 	}
 
 	/**
