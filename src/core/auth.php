@@ -54,6 +54,15 @@ class Auth extends Mysqli {
             $this->response->throwErr($this->form->errors());
 			exit();
         } else {
+			foreach ($credentials as $key => $value) {
+				try {
+					!$this->select($table, "*", "$key = ?", [$value]);
+				} catch (\Throwable $th) {
+					$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+					exit();
+				}
+			}
+
 			$condition = "";
 
 			for ($i=0; $i < $keys_length; $i++) { 
@@ -66,7 +75,7 @@ class Auth extends Mysqli {
 			try {
 				$user = $this->select($table, "*", $condition, $data)->fetchObj();
 			} catch (\Throwable $th) {
-				$this->response->respond(["error" => "You supplied an invalid selector to \$auth->login, correct and try again"]);
+				$this->response->throwErr(["error" => "You supplied an invalid selector to \$auth->login, correct and try again"]);
 			}
 
 			if (!$user) {
@@ -127,6 +136,15 @@ class Auth extends Mysqli {
             $this->response->throwErr($this->form->errors());
 			exit();
         } else {
+			foreach ($credentials as $key => $value) {
+				try {
+					!$this->select($table, "*", "$key = ?", [$value]);
+				} catch (\Throwable $th) {
+					$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+					exit();
+				}
+			}
+
 			$table_names = "";
 			$table_values = "";
 
