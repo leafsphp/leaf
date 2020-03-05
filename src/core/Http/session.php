@@ -69,7 +69,7 @@
 		 *
 		 * @return void
 		 */
-		public function remove($key) {
+		public function unset($key) {
 			if (!isset($_SESSION)) {
 				$this->response->throwErr("There's no active session");
 				exit();

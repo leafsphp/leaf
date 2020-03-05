@@ -2,9 +2,11 @@
 ### v2.0 - 11th March, 2020
 #### Added
 - Added DB->choose
+- Added DB->add
 - Added DB->selectFew
 - Added Auth->login
 - Added Auth->register
+- Added Session->unset
 
 
 #### Fixed
@@ -12,7 +14,7 @@
 
 
 #### Changed
-- 
+- Changed Session->remove to Session->unset
 
 
 #### Removed
