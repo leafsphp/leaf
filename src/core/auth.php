@@ -25,12 +25,13 @@ class Auth extends Mysqli {
 	/**
 	 * Simple user login
 	 * 
+	 * @param string table: Table to look for users
 	 * @param string condition: Conditions to be met for login
 	 * @param string password_encode: Password encode type, should match password
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function login($table, $credentials, $password_encode = null) {
+	public function login(string $table, array $credentials, string $password_encode = null) {
 		if ($password_encode == "md5" && isset($credentials["password"])) {
 			$credentials["password"] = md5($credentials["password"]);
 		}
@@ -70,11 +71,7 @@ class Auth extends Mysqli {
 				}
 			}
 
-			try {
-				$user = $this->select($table, "*", $condition, $data)->fetchObj();
-			} catch (\Throwable $th) {
-				$this->response->throwErr(["error" => "You supplied an invalid selector to \$auth->login, correct and try again"]);
-			}
+			$user = $this->select($table, "*", $condition, $data)->fetchObj();
 
 			if (!$user) {
 				$this->response->throwErr("Incorrect credentials, please check and try again");
@@ -97,7 +94,7 @@ class Auth extends Mysqli {
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function register($table, $credentials, $uniques = null, $password_encode = null) {
+	public function register(string $table, array $credentials, array $uniques = null, string $password_encode = null) {
 		if ($password_encode == "md5" && isset($credentials["password"])) {
 			$credentials["password"] = md5($credentials["password"]);
 		}

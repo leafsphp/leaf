@@ -2,6 +2,7 @@
 ### v2.0 - 11th March, 2020
 #### Added
 - Added DB->choose
+- Added DB->selectFew
 - Added Auth->login
 - Added Auth->register
 
@@ -15,9 +16,9 @@
 
 
 #### Removed
-- Added Auth->basicLogin
-- Added Auth->emailLogin
-- Added Auth->basicRegister
+- Removed Auth->basicLogin
+- Removed Auth->emailLogin
+- Removed Auth->basicRegister
 
 
 
