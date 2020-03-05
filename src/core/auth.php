@@ -108,17 +108,41 @@ class Auth extends Mysqli {
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function login($condition, $params) {
-		// $this->form->getBody();
-		// $this->form->validate([
-		// 	"username" => "validusername",
-		// 	"password" => "required"
-		// ]);
+	public function login($table, $credentials, $password_encode = null) {
+		if ($password_encode == "md5" && isset($credentials["password"])) {
+			$credentials["password"] = md5($credentials["password"]);
+		}
+
+		$keys = [];
+		$data = [];
+
+		foreach ($credentials as $key => $value) {
+			array_push($keys, $key);
+			array_push($data, $value);
+
+			if ($key == "email") $this->form->validate(["email" => "email"]); 
+			else if ($key == "username") $this->form->validate(["username" => "validusername"]); 
+			else $this->form->validate([$key => "required"]);
+		}
+
+		$keys_length = count($keys);
+		$data_length = count($data);
+
 		if (!empty($this->form->errors())) {
             $this->response->throwErr($this->form->errors());
 			exit();
         } else {
-			$user = $this->select("users", "*", $condition, $params)->fetchObj();
+			$condition = "";
+
+			for ($i=0; $i < $keys_length; $i++) { 
+				$condition = $condition.$keys[$i]." = ?";
+				if ($i < $keys_length - 1) {
+					$condition = $condition." AND ";
+				}
+			}
+
+			$user = $this->select("users", "*", $condition, $data)->fetchObj();
+
 			if (!$user) {
 				$this->response->throwErr("Incorrect credentials, please check and try again");
 				exit();
@@ -128,7 +152,7 @@ class Auth extends Mysqli {
 			unset($user->password);
 
 			return $user;
-        }
+		}
 	}
 
 	public function basicRegister($username, $email, $password, $confirm_password, $password_encode = "md5") {
@@ -158,6 +182,17 @@ class Auth extends Mysqli {
 			}
             $this->insert("users", "username, email, password", "?, ?, ?", [$username, $email, $password]);
         }
+	}
+
+	public function validateToken() {
+		try {
+			$bearerToken = $this->token->getBearerToken();
+			$payload = $this->token->decode($bearerToken, JWT_KEY, ['HS256']);
+			return $payload;
+		} catch (Exception $e) {
+			$this->response->respond([ "auth_error" => "Authentication failed. ".$e ]);;
+			exit();
+		}
 	}
 
 	public function get($param) {

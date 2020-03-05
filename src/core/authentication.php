@@ -21,24 +21,6 @@
 			return $this->encode($payload, $secret_phrase);
 		}
 
-		public function validateToken() {
-			try {
-				$token = $this->getBearerToken();
-				$payload = $this->decode($token, SECRET_KEY, ['HS256']);
-
-				// $stmt = $this->dbConn->prepare("SELECT * FROM users WHERE id = :userId");
-				// $stmt->bindParam(":userId", $payload->userId);
-				// $stmt->execute();
-				// $user = $stmt->fetch(PDO::FETCH_ASSOC);
-				// if(!is_array($user)) {
-				// 	$this->returnResponse(INVALID_USER_PASS, "This user is not found in our database.");
-				// }
-				// $this->userId = $payload->userId;
-			} catch (Exception $e) {
-				// $this->throwError($e->getMessage(), ACCESS_TOKEN_ERRORS);
-			}
-		}
-
 		/**
 	     * get access token from header
 	     * */
