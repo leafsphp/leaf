@@ -1,8 +1,6 @@
 {
     "name": "leafs/leaf",
     "description": "Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly.",
-    "keywords": ["microframework","rest","router", "leaf", "php", "framework"],
-    "homepage": "https://leaf-docs.netlify.com",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -13,19 +11,16 @@
             "role": "Developer"
         }
     ],
-    "require": {
-        "php": ">=5.3.0",
-        "jenssegers/blade": "^1.2",
-        "illuminate/database": "^6.0",
-        "illuminate/container": "^6.0",
-        "illuminate/events": "^6.0"
+    "autoload": {
+        "psr-4": {
+            "Leaf\\": "src"
+        }
     },
     "minimum-stability": "stable",
-    "suggest": {
-        "ext-mcrypt": "Required for HTTP cookie encryption",
-        "phpseclib/mcrypt_compat": "Polyfil for mcrypt extension"
-    },
-    "autoload": {
-        "psr-0": { "Leaf": "." }
+    "require": {
+        "illuminate/database": "^6.0",
+        "illuminate/container": "^6.0",
+        "illuminate/events": "^6.0",
+        "leafs/veins": "^1.2.0"
     }
 }

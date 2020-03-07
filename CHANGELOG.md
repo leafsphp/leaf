@@ -7,35 +7,13 @@
 - Added Auth->login
 - Added Auth->register
 - Added Session->unset
-- Added custom constructor to response
-- Added Response->messages(Http codes)
-- Added Response->setStatus/getStatus/status
-- Added Response->setHeader/getHeader/header
-- Added Response->setCookie/deleteCookie
-- Added Response->redirect
-- Added Request type checks
-- Added Request->cookies
-- Added Request->headers
-- Added Response Helpers
-- Added Leaf\Headers
-- Added Leaf\Cookies
-- Added ContentTypes Middleware
-- Added Flash messaging Middleware
-- Added PrettyExceptions Middleware
-- Added Logwriter and Log
-- Added Leaf View
-- Merged the Leaf Veins Templating engine and Leaf Core
-- Added \Jenssegers\Blade\Blade to composer dependencies
 
 
 #### Fixed
 - Fixed SESSION->id
-- Fixed headers bug with Response->respondWithCode
-- Fixed headers bug with Response->throwErr
 
 
 #### Changed
-- Changed Leaf\Core namespace to Leaf
 - Changed Session->remove to Session->unset
 
 
