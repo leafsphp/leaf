@@ -22,34 +22,38 @@ It's recommended that you use [Composer](https://getcomposer.org/) to install Le
 ```bash
 $ composer require leafs/leaf
 ```
-
 This will install Leaf in your project directory.
 
+If you don't want this method, you can simply clone this repo and run `composer install` to download any dependencies. You can then start your server and build your leaf app.
+
 ## Basic Usage
-This is a simple demmonstration of Leaf's simplicity.
+This is a simple demonstration of Leaf's simplicity.
 After [installing](#installation) Leaf, create an _index.php_ file.
 
 ```php
 <?php
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . 'vendor/autoload.php';
 
 // Instantiate Leaf
 $leaf = new Leaf\Leaf;
-$request = new Leaf\Http\Request;
-$response = new Leaf\Http\Response;
+
+// In v2.0, the request and response objects are directly tied to the Leaf Object, so you don't have to instanciate them if you don't want to
 
 // Add routes
-$leaf->get('/', function () use($response) {
-   $response->renderMarkup('<h5>My first Leaf app</h5>');
+$leaf->get('/', function () use($leaf) {
+    // since the response object is directly tied to the leaf instance
+   $leaf->response->renderMarkup('<h5>My first Leaf app</h5>');
 });
 
 $leaf->post('/users/add', function () use($response, $request) {
-    $name = $request->get('name');
-    $response->respond(["message" => $name." has been added"]);
+    $name = $leaf->request->get('name');
+    $leaf->response->respond(["message" => $name." has been added"]);
 });
 
+// Don't forget to call leaf run
 $leaf->run();
 ```
+You can view the full documentation [here](https://leaf-docs.netlify.com)
 
 You may quickly test this using the built-in PHP server:
 ```bash
