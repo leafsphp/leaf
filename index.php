@@ -23,11 +23,9 @@ require 'vendor/autoload.php';
  * of setting names and values into the application constructor.
  */
 $app = new \Leaf\Leaf();
-$response = new \Leaf\Http\Response();
-$request = new \Leaf\Http\Request();
 $form = new \Leaf\Form();
 $auth = new \Leaf\Auth();
-// $blade = new \Jenssegers\Blade\Blade("pages", "pages/cache");
+// $blade = new \Jenssegers\Blade\Blade("app/pages", "app/pages/cache");
 
 $app->set404();
 
@@ -44,8 +42,8 @@ require 'app/Component.php';
 // GET route
 $app->get('/', function () use($app) {
     $app->veins->configure([
-        'veins_dir' => 'pages/',
-        'cache_dir' => 'pages/cache/'
+        'veins_dir' => 'app/pages/',
+        'cache_dir' => 'app/pages/cache/'
     ]);
     $app->veins->set([
         "title" => "Leaf PHP Framework",
@@ -62,7 +60,7 @@ $app->get("/component", "Component@trigger");
 
 $app->get('/form/', function() use($app) {
     $app->response->renderMarkup("
-        <form method='POST' action='/app/login'>
+        <form method='POST' action='/login'>
             <input name='username' placeholder='username'>
             <input name='password' placeholder='password'>
             <button>submit</button>
@@ -90,12 +88,12 @@ $app->get('/posts', function() use($app) {
 });
 
 // POST route
-$app->post( '/post', function () use($app, $request, $form) {
+$app->post( '/post', function () use($app, $form) {
     $form->validate([
         "username" => "ValidUsername",
         "password" => "required"
     ]);
-    $app->session->set("user", $request->getBody());
+    $app->session->set("user", $app->request->getBody());
     $app->response->respond($app->session->getBody());
 });
 
