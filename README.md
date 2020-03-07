@@ -46,7 +46,7 @@ $leaf->get('/', function () use($leaf) {
    $leaf->response->renderMarkup('<h5>My first Leaf app</h5>');
 });
 
-$leaf->post('/users/add', function () use($response, $request) {
+$leaf->post('/users/add', function () use($leaf) {
     $name = $leaf->request->get('name');
     $leaf->response->respond(["message" => $name." has been added"]);
 });
