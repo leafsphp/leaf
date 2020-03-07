@@ -1,6 +1,3 @@
 vendor
 cache
-test
-views
-articleController.php
-index.php
+test/

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ab05e7b3828e0d4bca44f13f55f5022",
+    "content-hash": "06ae1a173459faf2e39bedd284de1089",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -327,6 +327,48 @@
             "description": "The Illuminate Support package.",
             "homepage": "https://laravel.com",
             "time": "2019-10-27T15:36:15+00:00"
+        },
+        {
+            "name": "leafs/veins",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/leafsphp/veins.git",
+                "reference": "bbca666f306317cf676b9bbf7047461dd7a2230d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/leafsphp/veins/zipball/bbca666f306317cf676b9bbf7047461dd7a2230d",
+                "reference": "bbca666f306317cf676b9bbf7047461dd7a2230d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.4.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Leaf\\Veins\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Darko",
+                    "email": "mickdd22@gmail.com",
+                    "homepage": "https://mychi.netlify.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Official templating engine for Veins PHP Framework",
+            "homepage": "https://leaf-docs.netlify.com/v1.4.2/",
+            "time": "2019-12-11T05:45:40+00:00"
         },
         {
             "name": "nesbot/carbon",
