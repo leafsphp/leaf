@@ -15,7 +15,7 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "jenssegers/blade": "^1.2",
+        "leafs/blade": "^1.2.3",
         "illuminate/database": "^6.0",
         "illuminate/container": "^6.0",
         "illuminate/events": "^6.0"
