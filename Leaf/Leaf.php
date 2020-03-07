@@ -175,6 +175,11 @@ class Leaf
             return new \Leaf\Veins();
         });
 
+        //  Veins Templating
+        $this->container->singleton('blade', function ($c) {
+            return new \Leaf\Blade();
+        });
+
 
         // Default view
         $this->container->singleton('view', function ($c) {

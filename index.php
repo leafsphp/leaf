@@ -25,7 +25,6 @@ require 'vendor/autoload.php';
 $app = new \Leaf\Leaf();
 $form = new \Leaf\Form();
 $auth = new \Leaf\Auth();
-// $blade = new \Jenssegers\Blade\Blade("app/pages", "app/pages/cache");
 
 $app->set404();
 
@@ -52,9 +51,10 @@ $app->get('/', function () use($app) {
     $app->veins->render("index");
 });
 
-// $app->get("/blade/test", function() use($blade) {
-//     echo $blade->render('test', ['name' => 'John Doe']);
-// });
+$app->get("/blade/test", function() use($app) {
+    $app->blade->configure("app/pages", "app/pages/cache");
+    echo $app->blade->render('test', ['name' => 'Michael Darko']);
+});
 
 $app->get("/component", "Component@trigger");
 
