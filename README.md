@@ -37,7 +37,8 @@ require __DIR__ . 'vendor/autoload.php';
 // Instantiate Leaf
 $leaf = new Leaf\Leaf;
 
-// In v2.0, the request and response objects are directly tied to the Leaf Object, so you don't have to instanciate them if you don't want to
+// In v2.0, the request and response objects are directly tied to the Leaf Object, 
+// so you don't have to instanciate them if you don't want to
 
 // Add routes
 $leaf->get('/', function () use($leaf) {
