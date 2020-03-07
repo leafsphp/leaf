@@ -23,11 +23,23 @@ require 'vendor/autoload.php';
  * of setting names and values into the application constructor.
  */
 $app = new \Leaf\Leaf();
+/**
+ * Initialise the Leaf Form package
+ */
 $form = new \Leaf\Form();
+/**
+ * Initialise the Leaf Auth package
+ */
 $auth = new \Leaf\Auth();
 
+/**
+ * Leaf's 404 Handler, you can pass in a custom HTML page or text as a function
+ */
 $app->set404();
 
+/**
+ * Bringing in a component("controller")
+ */
 require 'app/Component.php';
 /**
  * Step 3: Define the Leaf application routes
@@ -38,7 +50,7 @@ require 'app/Component.php';
  * is an anonymous function.
  */
 
-// GET route
+// Home Route with Leaf Vein Templating
 $app->get('/', function () use($app) {
     $app->veins->configure([
         'veins_dir' => 'app/pages/',
@@ -51,11 +63,13 @@ $app->get('/', function () use($app) {
     $app->veins->render("index");
 });
 
+// Blade Templating
 $app->get("/blade/test", function() use($app) {
     $app->blade->configure("app/pages", "app/pages/cache");
     echo $app->blade->render('test', ['name' => 'Michael Darko']);
 });
 
+// Using a Component(controller)
 $app->get("/component", "Component@trigger");
 
 $app->get('/form/', function() use($app) {
@@ -69,16 +83,23 @@ $app->get('/form/', function() use($app) {
 });
 
 $app->post("/login", function() use($app, $auth) {
+    // connect to the database
     $auth->connect("localhost", "root", "", "test");
+    // return json encoded data
     $app->response->respond(
+        // sign a user in, in literally 1 line
         $auth->login("users", $app->request->getBody(), "md5")
     );
 });
 
 $app->get('/posts', function() use($app) {
+    //  connect to database
     $app->db->connect("localhost", "root", "", "mvc");
+
+    // sql select
     $posts = $app->db->select("posts")->fetchAll();
     $data = [];
+
     foreach ($posts as $post) {
         $post["created_at"] = $post["created_at"] == null ? null : $app->date->getEnglishTimestampFromTimestamp($post["created_at"]);
         $post["updated_at"] = $post["updated_at"] == null ? null : $app->date->getEnglishTimestampFromTimestamp($post["updated_at"]);
@@ -88,11 +109,14 @@ $app->get('/posts', function() use($app) {
 });
 
 // POST route
-$app->post( '/post', function () use($app, $form) {
+$app->post( '/post', function() use($app, $form) {
+    // form validate
     $form->validate([
         "username" => "ValidUsername",
         "password" => "required"
     ]);
+
+    // set session variables
     $app->session->set("user", $app->request->getBody());
     $app->response->respond($app->session->getBody());
 });
