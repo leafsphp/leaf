@@ -25,6 +25,7 @@
 - Added Logwriter and Log
 - Added Leaf View
 - Merged the Leaf Veins Templating engine and Leaf Core
+- Added \Jenssegers\Blade\Blade to composer dependencies
 
 
 #### Fixed
