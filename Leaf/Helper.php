@@ -1,5 +1,5 @@
 <?php
-    namespace Leaf\Core;
+    namespace Leaf;
 
     use \Leaf\Helpers\JWT;
 

@@ -7,11 +7,11 @@
  *
  * If you are using Composer, you can skip this step.
  */
-require '../Leaf/Leaf.php';
+require 'Leaf/Leaf.php';
 /**
  * Composer autoloader for extra packages
  */
-require '../vendor/autoload.php';
+require 'vendor/autoload.php';
 
 \Leaf\Leaf::registerAutoloader();
 /**
@@ -27,11 +27,11 @@ $response = new \Leaf\Http\Response();
 $request = new \Leaf\Http\Request();
 $form = new \Leaf\Form();
 $auth = new \Leaf\Auth();
-$blade = new \Jenssegers\Blade\Blade("pages", "pages/cache");
+// $blade = new \Jenssegers\Blade\Blade("pages", "pages/cache");
 
 $app->set404();
 
-require 'Component.php';
+require 'app/Component.php';
 /**
  * Step 3: Define the Leaf application routes
  *
@@ -54,9 +54,9 @@ $app->get('/', function () use($app) {
     $app->veins->render("index");
 });
 
-$app->get("/blade/test", function() use($blade) {
-    echo $blade->render('test', ['name' => 'John Doe']);
-});
+// $app->get("/blade/test", function() use($blade) {
+//     echo $blade->render('test', ['name' => 'John Doe']);
+// });
 
 $app->get("/component", "Component@trigger");
 

@@ -1,8 +1,8 @@
 <?php
 	namespace Leaf;
 
-	use \Leaf\Core\Http\Response;
-	use \Leaf\Core\Form;
+	use \Leaf\Http\Response;
+	use \Leaf\Form;
 	
 	/**
 	*	Leaf PHP base controller
