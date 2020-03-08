@@ -136,11 +136,11 @@ class Form extends Request {
 		$form_fields = "";
 
 		foreach ($fields as $key => $value) {
-			$form_fields = $form_fields."<input type=\"hidden\" name=\"$key\" value=".htmlspecialchars($valuue, ENT_QUOTES, 'UTF-8').">";
+			$form_fields = $form_fields."<input type=\"hidden\" name=\"$key\" value=".htmlspecialchars($value, ENT_QUOTES, 'UTF-8').">";
 		}
 
 		echo "
-			<form action=\"$action\" method=\"$method\" id=\"leaf_submit_form\">".$form_fields."</form>
+			<form action=\"$action\" method=\"$method\" id=\"leaf_submit_form\">$form_fields</form>
 			<script>document.getElementById(\"leaf_submit_form\").submit();</script>
 		";
 	}

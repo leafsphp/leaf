@@ -29,6 +29,7 @@
 - Added support for more request types on Leaf::Request
 - Added Form::validateField
 - Provided security against XSS
+- Added Form::submit
 
 
 #### Fixed
