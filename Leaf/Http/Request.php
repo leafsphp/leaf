@@ -179,15 +179,15 @@ class Request
      * @param  string           $key
      */
     public function get($param) {
-        if ($this->requestMethod == "POST") {
+        if ($this->requestMethod == "POST" || $this->requestMethod == "PUT" || $this->requestMethod == "PATCH" || $this->requestMethod == "DELETE") {
             if (isset($_POST[$param])) {
-                return $_POST[$param];
+                return htmlspecialchars($_POST[$param], ENT_QUOTES, 'UTF-8');
             } else {
                 $data = json_decode($this->request, true);
-                return isset($data[$param]) ? $data[$param] : null;
+                return isset($data[$param]) ? htmlspecialchars($data[$param], ENT_QUOTES, 'UTF-8') : null;
             }
         } else {
-            return isset($_GET[$param]) ? $_GET[$param] : null;
+            return isset($_GET[$param]) ? htmlspecialchars($_GET[$param], ENT_QUOTES, 'UTF-8') : null;
         }
     }
 
@@ -200,21 +200,21 @@ class Request
         if($this->requestMethod === "GET") {
             $body = array();
             foreach($_GET as $key => $value) {
-                $body[$key] = $value;
+                $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
             }
             return count($body) > 0 ? $body : null;
         }
-        if ($this->requestMethod == "POST") {
+        if ($this->requestMethod == "POST" || $this->requestMethod == "PUT" || $this->requestMethod == "PATCH" || $this->requestMethod == "DELETE") {
             if (isset($_POST)) {
                 $body = array();
                 foreach($_POST as $key => $value) {
-                    $body[$key] = $value;
+                    $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
                 }
                 return count($body) > 0 ? $body : null;
             } else {
                 $body = array();
                 foreach($data as $key => $value) {
-                    $body[$key] = $value;
+                    $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
                 }
                 return count($body) > 0 ? $body : null;
             }
