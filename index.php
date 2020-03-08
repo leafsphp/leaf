@@ -7,13 +7,13 @@
  *
  * If you are using Composer, you can skip this step.
  */
-require 'Leaf/Leaf.php';
+require 'Leaf/App.php';
 /**
  * Composer autoloader for extra packages
  */
 require 'vendor/autoload.php';
 
-\Leaf\Leaf::registerAutoloader();
+\Leaf\App::registerAutoloader();
 /**
  * Step 2: Instantiate a Leaf application
  *
@@ -22,7 +22,7 @@ require 'vendor/autoload.php';
  * your Leaf application now by passing an associative array
  * of setting names and values into the application constructor.
  */
-$app = new \Leaf\Leaf();
+$app = new \Leaf\App();
 /**
  * Initialise the Leaf Form package
  */

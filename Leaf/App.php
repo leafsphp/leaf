@@ -25,7 +25,7 @@ if (!defined('MCRYPT_RIJNDAEL_256')) define('MCRYPT_RIJNDAEL_256', 0);
  * @property \Leaf\Http\Response $response
  * @property \Leaf\Http\Request  $request
  */
-class Leaf
+class App
 {
     /**
      * @const string
@@ -113,7 +113,7 @@ class Leaf
      */
     public static function registerAutoloader()
     {
-        spl_autoload_register(__NAMESPACE__ . "\\Leaf::autoload");
+        spl_autoload_register(__NAMESPACE__ . "\\App::autoload");
     }
 
     /********************************************************************************
@@ -267,7 +267,7 @@ class Leaf
     /**
      * Get application instance by name
      * @param  string    $name The name of the Leaf application
-     * @return \Leaf\Leaf|null
+     * @return \Leaf\App|null
      */
     public static function getInstance($name = 'default')
     {
@@ -1453,7 +1453,7 @@ class Leaf
      * @return bool
      */
     public function run($callback = null)  {
-        set_error_handler(array('\Leaf\Leaf', 'handleErrors'));
+        set_error_handler(array('\Leaf\App', 'handleErrors'));
 
         //Apply final outer middleware layers
         if ($this->config('debug')) {
