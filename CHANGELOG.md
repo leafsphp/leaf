@@ -26,6 +26,9 @@
 - Added Leaf View
 - Merged the Leaf Veins Templating engine and Leaf Core
 - Added Support for blade templating with Leaf Blade
+- Added support for more request types on Leaf::Request
+- Added Form::validateField
+- Provided security against XSS
 
 
 #### Fixed

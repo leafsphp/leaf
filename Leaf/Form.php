@@ -84,7 +84,7 @@ class Form extends Request {
 						echo "Supported rules are ".json_encode($supportedRules);
 						exit();
 					}
-					$this->validateField($rule, $field["name"], $field["value"]);
+					$this->validateField($field["name"], $field["value"], $rule);
 				}
 			} else {
 				$field["rule"] = strtolower($field["rule"]);
@@ -94,12 +94,12 @@ class Form extends Request {
 					echo "Supported rules are ".json_encode($supportedRules);
 					exit();
 				}
-				$this->validateField($field["rule"], $field["name"], $field["value"]);
+				$this->validateField($field["name"], $field["value"], $field["rule"]);
 			}
 		}
 	}
 
-	public function validateField($rule, $fieldName, $fieldValue) {
+	public function validateField($fieldName, $fieldValue, $rule) {
 		if ($rule == "required" && ($fieldValue == "" || $fieldValue == null)) {
 			$this->errorsArray[$fieldName] = $fieldName." is required";
 		}
@@ -127,6 +127,22 @@ class Form extends Request {
 		if ($rule == "nospaces" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[ ]+$/', $fieldValue))) {
 			$this->errorsArray[$fieldName] = $fieldName." can't contain any spaces";
 		}
+	}
+
+	/**
+	 * Directly "submit" a form without having to work with any mark-up
+	 */
+	public function submit(string $method, string $action, array $fields) {
+		$form_fields = "";
+
+		foreach ($fields as $key => $value) {
+			$form_fields = $form_fields."<input type=\"hidden\" name=\"$key\" value=".htmlspecialchars($valuue, ENT_QUOTES, 'UTF-8').">";
+		}
+
+		echo "
+			<form action=\"$action\" method=\"$method\" id=\"leaf_submit_form\">".$form_fields."</form>
+			<script>document.getElementById(\"leaf_submit_form\").submit();</script>
+		";
 	}
 
 	public function isEmail($value) {

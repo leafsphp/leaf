@@ -111,22 +111,26 @@ $app->get('/posts', function() use($app) {
 // POST route
 $app->post( '/post', function() use($app, $form) {
     // form validate
-    // $form->validate([
-    //     "username" => ["ValidUsername", "TextOnly"],
-    //     "password" => "required"
-    // ]);
+    $form->validate([
+        "username" => ["ValidUsername", "TextOnly"],
+        "password" => "required"
+    ]);
 
-    // // set session variables
-    // if (count($form->errors()) == 0) {
-    //     $app->session->set("user", $app->request->getBody());
-    //     $app->response->respond($app->session->getBody());
-    // } else {
-    //     $app->response->respondWithCode($form->errors());
-    // }
+    // set session variables
+    if (count($form->errors()) == 0) {
+        $app->session->set("user", $app->request->getBody());
+        $app->response->respond($app->session->getBody());
+    } else {
+        $app->response->respondWithCode($form->errors());
+    }
+});
 
-    echo $form->get("username");
-
-    // echo $_POST["username"];
+// Leaf Form Submit Test
+$app->get("/submit/test", function() use($form) {
+    $form->submit("POST", "/post", [
+        "username" => "mychi",
+        "password" => "test"
+    ]);
 });
 
 // PUT route
