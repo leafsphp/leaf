@@ -74,7 +74,7 @@ $app->get("/component", "Component@trigger");
 
 $app->get('/form/', function() use($app) {
     $app->response->renderMarkup("
-        <form method='POST' action='/login'>
+        <form method='POST' action='/post'>
             <input name='username' placeholder='username'>
             <input name='password' placeholder='password'>
             <button>submit</button>
@@ -112,13 +112,17 @@ $app->get('/posts', function() use($app) {
 $app->post( '/post', function() use($app, $form) {
     // form validate
     $form->validate([
-        "username" => "ValidUsername",
+        "username" => ["ValidUsername", "TextOnly"],
         "password" => "required"
     ]);
 
     // set session variables
-    $app->session->set("user", $app->request->getBody());
-    $app->response->respond($app->session->getBody());
+    if (count($form->errors()) == 0) {
+        $app->session->set("user", $app->request->getBody());
+        $app->response->respond($app->session->getBody());
+    } else {
+        $app->response->respondWithCode($form->errors());
+    }
 });
 
 // PUT route
