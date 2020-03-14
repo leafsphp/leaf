@@ -168,6 +168,51 @@ class FS {
 		touch($this->baseDirectory."/".$filename);
 	}
 
+	public function file_upload($path, $file, $file_category = "image"): Array {
+		// get file details
+		$name = strtolower(strtotime(date("Y-m-d H:i:s")).'_'.str_replace(" ", "",$file["name"]));
+		$temp = $file["tmp_name"];
+		$size = $file["size"];
+
+		$target_dir = $path; // destination path
+		$target_file = $target_dir . basename($name); // destination file
+		$upload_ok = true; // upload checker
+		$file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION)); // file type
+
+			
+		if (!file_exists($path)):
+			mkdir($path, 0777, true);
+		endif;
+		
+		// Check if file already exists
+		if (file_exists($target_file)) {
+			return [true, $name];
+		}
+		// Check file size
+		if ($size > 2000000) {
+			return [false, "file too big"];
+		}
+		// Allow certain file formats
+		switch ($file_category) {
+			case 'image':
+				$extensions = ['jpg', 'jpeg', 'png', 'gif'];
+				break;
+			
+			case 'audio':
+				$extensions = ['wav', 'mp3', 'ogg', 'wav', 'm4a'];
+				break;
+		}
+
+		if (!in_array($file_type, $extensions)) {
+			return [false, $file['name']." format not acceptable for $file_category"];
+		}
+		// Check if $upload_ok is set to 0 by an error
+		if (move_uploaded_file($temp, $target_file)) {
+			return [true, $name];
+		} else {
+			return [false, "Wasn't able to upload {$file_category}"];
+		}
+	}
 
 	/**
 	* Write content to a file in the base directory

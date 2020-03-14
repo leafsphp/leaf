@@ -91,7 +91,7 @@
 			<p>
 				Other Leaf projects include Templating with Leaf Veins, Leaf MVC and Leaf API
 			</p>
-			<p><a href="https://leafphp.netlify.com/#/v1.5.0/projects.html" target="_blank">View other Leaf projects</a></p>
+			<p><a href="https://github.com/leafsphp" target="_blank">View other Leaf projects</a></p>
 		</section>
 	</body>
 </html>

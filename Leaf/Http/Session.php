@@ -7,12 +7,14 @@
 	 *  Session management made simple
 	 */
     class Session {
+		public $response;
+
         public function __construct() {
+			$this->response = new \Leaf\Http\Response;
 			!isset($_SESSION) ? session_start() : null;
 			if (!isset($_SESSION['id'])) {
-				$this->set("id", session_id());
+				$this->id();
 			}
-			$this->response = new Response;
 		}
 		
 		/**
@@ -46,10 +48,6 @@
 				return null;
 			}
 		}
-
-		protected function add_new_session_var($key, $value) {
-			$_SESSION[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-		}
 		
 		/**
 		 * Set a new session variable
@@ -65,13 +63,18 @@
 			}
 			if (is_array($key)) {
 				foreach ($key as $name => $val) {
-					$this->add_new_session_var($name, $val);
+					$_SESSION[$name] = htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
 				}
 			} else {
-				if ($value == null) {
-					$this->response->throwErr('$value can\'t be null in Session set()');
+				if (is_array($value)) {
+					$_SESSION[$key] = [];
+
+					foreach ($value as $name => $var) {
+						$_SESSION[$key][$name] = htmlspecialchars($var, ENT_QUOTES, 'UTF-8');
+					}
+				} else {
+					$_SESSION[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 				}
-				$this->add_new_session_var($key, $value);
 			}
 		}
 
@@ -145,9 +148,6 @@
 			}
 			if (!isset($_SESSION['id'])) {
 				$this->set("id", session_id($id));
-			}
-			if ($id != null) {
-				$this->regenerate();
 			}
 			return $this->get("id");
 		}

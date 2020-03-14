@@ -12,6 +12,8 @@ use \Leaf\Authentication;
  * Perform simple authentication tasks.
  */
 class Auth extends Mysqli {
+	protected $errorsArray = [];
+
 	public function __construct() {
 		$this->form = new Form;
 		$this->response = new Response;
@@ -40,12 +42,12 @@ class Auth extends Mysqli {
 		$data = [];
 
 		foreach ($credentials as $key => $value) {
-			try {
-				!$this->select($table, "*", "$key = ?", [$value]);
-			} catch (\Throwable $th) {
-				$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-				exit();
-			}
+			// try {
+			// 	!$this->select($table, "*", "$key = ?", [$value]);
+			// } catch (\Throwable $th) {
+			// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+			// 	exit();
+			// }
 
 			array_push($keys, $key);
 			array_push($data, $value);
@@ -59,8 +61,10 @@ class Auth extends Mysqli {
 		$data_length = count($data);
 
 		if (!empty($this->form->errors())) {
-            $this->response->throwErr($this->form->errors());
-			exit();
+			foreach ($this->form->errors() as $key => $value) {
+				$this->errorsArray[$key] = $value;
+			}
+			return false;
         } else {
 			$condition = "";
 
@@ -74,10 +78,19 @@ class Auth extends Mysqli {
 			$user = $this->select($table, "*", $condition, $data)->fetchObj();
 
 			if (!$user) {
-				$this->response->throwErr("Incorrect credentials, please check and try again");
-				exit();
+				$this->errorsArray["auth"] = "Incorrect credentials, please check and try again";
+				return false;
 			}
+
 			$token = $this->token->generateSimpleToken($user->id, "User secret key");
+
+			if ($token == false) {
+				foreach ($this->token->errors() as $key => $value) {
+					$this->errorsArray[$key] = $value;
+				}
+				return false;
+			}
+
 			$user->token = $token;
 			unset($user->password);
 
@@ -103,12 +116,12 @@ class Auth extends Mysqli {
 		$data = [];
 
 		foreach ($credentials as $key => $value) {
-			try {
-				!$this->select($table, "*", "$key = ?", [$value]);
-			} catch (\Throwable $th) {
-				$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-				exit();
-			}
+			// try {
+			// 	$this->select($table, "*", "$key = ?", [$value]);
+			// } catch (\Throwable $th) {
+			// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+			// 	exit();
+			// }
 
 			array_push($keys, $key);
 			array_push($data, $value);
@@ -135,8 +148,8 @@ class Auth extends Mysqli {
 		}
 
 		if (!empty($this->form->errors())) {
-            $this->response->throwErr($this->form->errors());
-			exit();
+			array_push($this->errorsArray, $this->form->errors());
+			return false;
         } else {
 			$table_names = "";
 			$table_values = "";
@@ -153,22 +166,74 @@ class Auth extends Mysqli {
 				}
 			}
 
-			$this->insert($table, $table_names, $table_values, $data);
+			try {
+				$this->insert($table, $table_names, $table_values, $data);
+			} catch (\Throwable $th) {
+				$this->errorsArray["error"] = $th;
+				return false;
+			}
 		}
 	}
 
+	/**
+	 * Validate Json Web Token
+	 */
+	public function validate($token) {
+		$payload = $this->token->validate($token);
+
+		if ($payload == false) {
+			foreach ($this->token->errors() as $key => $value) {
+				$this->errorsArray[$key] = $value;
+			}
+			return false;
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * Validate Bearer Token
+	 */
 	public function validateToken() {
-		try {
-			$bearerToken = $this->token->getBearerToken();
-			$payload = $this->token->decode($bearerToken, JWT_KEY, ['HS256']);
-			return $payload;
-		} catch (Exception $e) {
-			$this->response->respond([ "auth_error" => "Authentication failed. ".$e ]);;
-			exit();
+		$payload = $this->token->validateToken();
+
+		if ($payload == false) {
+			foreach ($this->token->errors() as $key => $value) {
+				$this->errorsArray[$key] = $value;
+			}
+			return false;
 		}
+
+		return $payload;
 	}
 
+	/**
+	 * Get Bearer token
+	 */
+	public function getBearerToken() {
+		$token = $this->token->getBearerToken();
+
+		if ($token == false) {
+			foreach ($this->token->errors() as $key => $value) {
+				$this->errorsArray[$key] = $value;
+			}
+			return false;
+		}
+
+		return $token;
+	}
+
+	/**
+	 * Return form field
+	 */
 	public function get($param) {
 		return $this->form->get($param);
+	}
+
+	/**
+	 * Get all authentication errors as associative array
+	 */
+	public function errors() {
+		return $this->errorsArray;
 	}
 }

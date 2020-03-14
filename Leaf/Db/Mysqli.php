@@ -12,6 +12,7 @@
     class Mysqli {
         protected $connection;
 		protected $queryResult;
+		protected $errorsArray;
 		
 		public function __construct($host = null, $user = null, $password = null, $dbname = null) {
 			$this->form = new Form;
@@ -103,12 +104,12 @@
 				$keys = [];			
 
 				foreach ($condition as $key => $value) {
-					try {
-						!$this->select($table, "*", "$key = ?", [$value]);
-					} catch (\Throwable $th) {
-						$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-						exit();
-					}
+					// try {
+					// 	!$this->select($table, "*", "$key = ?", [$value]);
+					// } catch (\Throwable $th) {
+					// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+					// 	exit();
+					// }
 
 					array_push($keys, $key);
 					array_push($data, $value);
@@ -129,8 +130,10 @@
 			}
 
 			if (!empty($this->form->errors())) {
-				$this->response->throwErr($this->form->errors());
-				exit();
+				foreach ($this->form->errors() as $key => $value) {
+					$this->errorsArray[$key] = $value;
+				}
+				return $this;
 			} else {
 				$query = "";
 
@@ -165,12 +168,12 @@
 			$keys = [];			
 
 			foreach ($items as $key => $value) {
-				try {
-					!$this->select($table, "*", "$key = ?", [$value]);
-				} catch (\Throwable $th) {
-					$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-					exit();
-				}
+				// try {
+				// 	!$this->select($table, "*", "$key = ?", [$value]);
+				// } catch (\Throwable $th) {
+				// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+				// 	exit();
+				// }
 
 				array_push($keys, $key);
 				array_push($data, $value);
@@ -190,21 +193,23 @@
 			$data_length = count($data);
 
 			if ($uniques != null) {
-			foreach ($uniques as $unique) {
-				if (!isset($items[$unique])) {
-					$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
-					exit();
-				} else {
-					if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
-						$this->form->errorsArray[$unique] = "$unique already exists";
+				foreach ($uniques as $unique) {
+					if (!isset($items[$unique])) {
+						$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
+						exit();
+					} else {
+						if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
+							$this->form->errorsArray[$unique] = "$unique already exists";
+						}
 					}
 				}
 			}
-		}
 
 			if (!empty($this->form->errors())) {
-				$this->response->throwErr($this->form->errors());
-				exit();
+				foreach ($this->form->errors() as $key => $value) {
+					$this->errorsArray[$key] = $value;
+				}
+				return $this;
 			} else {
 				$table_names = "";
 				$table_values = "";
@@ -289,10 +294,9 @@
         }
 
         public function fetchAll($type = MYSQLI_ASSOC) {
-			if ($type == "num") {
+			if ($type == "num" || $type == "obj") {
 				$type = MYSQLI_NUM;
-			}
-			if ($type != "num" && $type != MYSQLI_NUM || $type == "assoc") {
+			} else {
 				$type = MYSQLI_ASSOC;
 			}
             return mysqli_fetch_all($this->queryResult, $type);
@@ -350,5 +354,9 @@
 		 */
 		public function close(): void {
 			$this->connection->close();
+		}
+
+		public function errors() {
+			return $this->errorsArray;
 		}
     }

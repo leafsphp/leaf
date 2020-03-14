@@ -31,6 +31,10 @@ $form = new \Leaf\Form();
  * Initialise the Leaf Auth package
  */
 $auth = new \Leaf\Auth();
+/**
+ * Initialise the Leaf Session package
+ */
+$session = new \Leaf\Http\Session;
 
 /**
  * Leaf's 404 Handler, you can pass in a custom HTML page or text as a function
@@ -85,10 +89,13 @@ $app->get('/form/', function() use($app) {
 $app->post("/login", function() use($app, $auth) {
     // connect to the database
     $auth->connect("localhost", "root", "", "test");
+
+    // sign a user in, in literally 1 line
+    $user = $auth->login("users", $app->request->getBody(), "md5");
+
     // return json encoded data
     $app->response->respond(
-        // sign a user in, in literally 1 line
-        $auth->login("users", $app->request->getBody(), "md5")
+        !$user ? $auth->errors() : $user
     );
 });
 
@@ -109,7 +116,7 @@ $app->get('/posts', function() use($app) {
 });
 
 // POST route
-$app->post( '/post', function() use($app, $form) {
+$app->post( '/post', function() use($app, $form, $session) {
     // form validate
     $form->validate([
         "username" => ["ValidUsername", "TextOnly"],
@@ -118,17 +125,21 @@ $app->post( '/post', function() use($app, $form) {
 
     // set session variables
     if (count($form->errors()) == 0) {
-        $app->session->set("user", $app->request->getBody());
-        $app->response->respond($app->session->getBody());
+        $session->set("user", [
+            "username" => "mychi",
+            "password" => "test"
+        ]);
+        $app->response->respond($session->getBody());
     } else {
         $app->response->respondWithCode($form->errors());
     }
+    // $session->destroy();
 });
 
 // Leaf Form Submit Test
 $app->get("/submit/test", function() use($form) {
-    $form->submit("POST", "/post", [
-        "username" => "mychi",
+    $form->submit("POST", "/login", [
+        "username" => "...",
         "password" => "test"
     ]);
 });
