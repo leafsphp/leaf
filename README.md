@@ -1,6 +1,6 @@
 <p align="center">
     <br><br>
-    <img src="https://leaf-docs.netlify.com/images/logo.png" height="100"/>
+    <img src="https://leafphp.netlify.com/#/images/logo.png" height="100"/>
     <h1 align="center">Leaf PHP Framework</h1>
     <br>
     <br><br><br>
@@ -54,7 +54,7 @@ $leaf->post('/users/add', function () use($leaf) {
 // Don't forget to call leaf run
 $leaf->run();
 ```
-You can view the full documentation [here](https://leaf-docs.netlify.com)
+You can view the full documentation [here](https://leafphp.netlify.com/#/)
 
 You may quickly test this using the built-in PHP server:
 ```bash
@@ -79,4 +79,4 @@ Checkout the LeafAPI package [here](https://github.com/leafsphp/leafAPI)
 Of course, with this core package, you can build your app in any way that you wish to as Leaf contains all the required functionality to do so
 
 
-## View Leaf's docs [here](https://leaf-docs.netlify.com/v1.3.0)
+## View Leaf's docs [here](https://leafphp.netlify.com/#/v1.3.0)

@@ -3,7 +3,6 @@
 #### Added
 - Added DB->choose
 - Added DB->add
-- Added DB->selectFew
 - Added Auth->login
 - Added Auth->register
 - Added Session->unset

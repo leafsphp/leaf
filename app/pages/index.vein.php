@@ -49,8 +49,8 @@
 	</head>
 	<body>
 		<header>
-			<a href="https://leaf-docs.netlify.com" style="text-decoration: none">
-				<img src="https://leaf-docs.netlify.com/images/logo.png" alt="Leaf PHP Framework" style="width: 110px;">
+			<a href="https://leafphp.netlify.com/#/" style="text-decoration: none">
+				<img src="https://leafphp.netlify.com/#/images/logo.png" alt="Leaf PHP Framework" style="width: 110px;">
 			</a>
 		</header>
 		<h1>
@@ -60,13 +60,13 @@
 		</h1>
 		<p>
 			Congratulations! Your Leaf application is running. If this is
-			your first time using Leaf, start with this <a href="https://leaf-docs.netlify.com/v2.0/introduction/getting-started.html" target="_blank">"Hello World" Tutorial</a>.
+			your first time using Leaf, start with this <a href="https://leafphp.netlify.com/#/2.0/intro/first" target="_blank">"Hello World" Tutorial</a>.
 		</p>
 		<section>
 			<h2>Get Started</h2>
 			<ol>
 				<li>The application code is in <code>index.php</code></li>
-				<li>Read the <a href="https://leaf-docs.netlify.com/" target="_blank">docs</a></li>
+				<li>Read the <a href="https://leafphp.netlify.com/#/" target="_blank">docs</a></li>
 				<li>Follow <a href="http://www.twitter.com/leafphp" target="_blank">@leafphp</a> on Twitter</li>
 			</ol>
 		</section>
@@ -91,7 +91,7 @@
 			<p>
 				Other Leaf projects include Templating with Leaf Veins, Leaf MVC and Leaf API
 			</p>
-			<p><a href="https://leaf-docs.netlify.com/v1.5.0/projects.html" target="_blank">View other Leaf projects</a></p>
+			<p><a href="https://leafphp.netlify.com/#/v1.5.0/projects.html" target="_blank">View other Leaf projects</a></p>
 		</section>
 	</body>
 </html>

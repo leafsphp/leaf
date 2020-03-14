@@ -12,7 +12,7 @@
 			if (!isset($_SESSION['id'])) {
 				$this->set("id", session_id());
 			}
-			$response = new Response;
+			$this->response = new Response;
 		}
 		
 		/**
@@ -23,10 +23,10 @@
 		 * @return string, string: session variable
 		 */
         public function get($param) {
-			if (isset($_SESSION)) {
+			if (isset($_SESSION[$param])) {
 				return $_SESSION[$param];
 			} else {
-				return null;
+				$this->response->throwErr("$param not found in session, initialise it or check your spelling");
 			}
 		}
 		
@@ -46,6 +46,10 @@
 				return null;
 			}
 		}
+
+		protected function add_new_session_var($key, $value) {
+			$_SESSION[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+		}
 		
 		/**
 		 * Set a new session variable
@@ -55,11 +59,24 @@
 		 *
 		 * @return void
 		 */
-		public function set($key, $value) {
+		public function set($key, $value = null) {
 			if (!isset($_SESSION)) {
 				session_start();
 			}
-			$_SESSION[$key] = $value;
+			if (is_array($key)) {
+				foreach ($key as $name => $val) {
+					$this->add_new_session_var($name, $val);
+				}
+			} else {
+				if ($value == null) {
+					$this->response->throwErr('$value can\'t be null in Session set()');
+				}
+				$this->add_new_session_var($key, $value);
+			}
+		}
+
+		protected function unset_session_var($key) {
+			unset($_SESSION[$key]);
 		}
 
 		/**
@@ -74,7 +91,13 @@
 				$this->response->throwErr("There's no active session");
 				exit();
 			}
-			unset($_SESSION[$key]);
+			if (is_array($key)) {
+				foreach ($key as $field) {
+					$this->unset_session_var($field);
+				}
+			} else {
+				$this->unset_session_var($key);
+			}
 		}
 		
 		/**

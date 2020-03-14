@@ -2,10 +2,10 @@
 /**
  * Leaf - a micro PHP 5 framework
  *
- * @author      Michael Darko <info@leaf-docs.netlify.com>
+ * @author      Michael Darko <info@leafphp.netlify.com/#/>
  * @copyright   2019-2020 Michael Darko
- * @link        http://www.leaf-docs.netlify.com
- * @license     http://www.leaf-docs.netlify.com/license
+ * @link        http://www.leafphp.netlify.com/#/
+ * @license     http://www.leafphp.netlify.com/#/license
  * @version     2.6.4
  * @package     Leaf
  *

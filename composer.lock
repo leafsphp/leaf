@@ -469,7 +469,7 @@
                 }
             ],
             "description": "Leaf PHP Framework adaptation of jenssegers/blade package",
-            "homepage": "https://leaf-docs.netlify.com/v2.0/views/blade.html",
+            "homepage": "https://leafphp.netlify.com/#/v2.0/views/blade.html",
             "keywords": [
                 "blade",
                 "laravel",
