@@ -525,7 +525,7 @@ class App
      */
     public function redirect($from, $to, $status = 302) {
         $handler = function() use ($to, $status) {
-            return header('location: '.$to, true, $code);
+            return header('location: '.$to, true, $status);
         };
 
         return $this->get($from, $handler);
@@ -789,63 +789,63 @@ class App
         $this->serverBasePath = $serverBasePath;
     }
 
-    // /**
-    //  * Error Handler
-    //  *
-    //  * This method defines or invokes the application-wide Error handler.
-    //  * There are two contexts in which this method may be invoked:
-    //  *
-    //  * 1. When declaring the handler:
-    //  *
-    //  * If the $argument parameter is callable, this
-    //  * method will register the callable to be invoked when an uncaught
-    //  * Exception is detected, or when otherwise explicitly invoked.
-    //  * The handler WILL NOT be invoked in this context.
-    //  *
-    //  * 2. When invoking the handler:
-    //  *
-    //  * If the $argument parameter is not callable, Leaf assumes you want
-    //  * to invoke an already-registered handler. If the handler has been
-    //  * registered and is callable, it is invoked and passed the caught Exception
-    //  * as its one and only argument. The error handler's output is captured
-    //  * into an output buffer and sent as the body of a 500 HTTP Response.
-    //  *
-    //  * @param  mixed $argument Callable|\Exception
-    //  */
-    // public function error($argument = null)
-    // {
-    //     if (is_callable($argument)) {
-    //         //Register error handler
-    //         $this->error = $argument;
-    //     } else {
-    //         //Invoke error handler
-    //         $this->response->status(500);
-    //         $this->response->body('');
-    //         $this->response->write($this->callErrorHandler($argument));
-    //         $this->stop();
-    //     }
-    // }
+    /**
+     * Error Handler
+     *
+     * This method defines or invokes the application-wide Error handler.
+     * There are two contexts in which this method may be invoked:
+     *
+     * 1. When declaring the handler:
+     *
+     * If the $argument parameter is callable, this
+     * method will register the callable to be invoked when an uncaught
+     * Exception is detected, or when otherwise explicitly invoked.
+     * The handler WILL NOT be invoked in this context.
+     *
+     * 2. When invoking the handler:
+     *
+     * If the $argument parameter is not callable, Leaf assumes you want
+     * to invoke an already-registered handler. If the handler has been
+     * registered and is callable, it is invoked and passed the caught Exception
+     * as its one and only argument. The error handler's output is captured
+     * into an output buffer and sent as the body of a 500 HTTP Response.
+     *
+     * @param  mixed $argument Callable|\Exception
+     */
+    public function error($argument = null)
+    {
+        if (is_callable($argument)) {
+            //Register error handler
+            $this->error = $argument;
+        } else {
+            //Invoke error handler
+            $this->response->status(500);
+            $this->response->body('');
+            $this->response->write($this->callErrorHandler($argument));
+            $this->stop();
+        }
+    }
 
-    // /**
-    //  * Call error handler
-    //  *
-    //  * This will invoke the custom or default error handler
-    //  * and RETURN its output.
-    //  *
-    //  * @param  \Exception|null $argument
-    //  * @return string
-    //  */
-    // protected function callErrorHandler($argument = null)
-    // {
-    //     ob_start();
-    //     if (is_callable($this->error)) {
-    //         call_user_func_array($this->error, array($argument));
-    //     } else {
-    //         call_user_func_array(array($this, 'defaultError'), array($argument));
-    //     }
+    /**
+     * Call error handler
+     *
+     * This will invoke the custom or default error handler
+     * and RETURN its output.
+     *
+     * @param  \Exception|null $argument
+     * @return string
+     */
+    protected function callErrorHandler($argument = null)
+    {
+        ob_start();
+        if (is_callable($this->error)) {
+            call_user_func_array($this->error, array($argument));
+        } else {
+            call_user_func_array(array($this, 'defaultError'), array($argument));
+        }
 
-    //     return ob_get_clean();
-    // }
+        return ob_get_clean();
+    }
 
     /********************************************************************************
     * Application Accessors
@@ -1260,18 +1260,6 @@ class App
     public function status($code)
     {
         $this->response->setStatus($code);
-    }
-
-    /**
-     * RedirectTo
-     *
-     * Redirects to a specific named route
-     *
-     * @param string    $route      The route name
-     * @param array     $params     Associative array of URL parameters and replacement values
-     */
-    public function redirectTo($route, $params = array(), $status = 302){
-        $this->redirect($this->urlFor($route, $params), $status);
     }
 
     /********************************************************************************
