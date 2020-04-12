@@ -1,28 +1,33 @@
 <?php
+
 namespace Leaf;
 
 use \DateTime;
 
-class Date {
-	public function randomTimestamp($start=1149095981, $end=1749095981) {
+/**
+ * Leaf Date
+ * ----------------------
+ * Quick date/time manipulation with Leaf
+ * 
+ * @author Michael Darko
+ * @since 1.1.0
+ */
+class Date
+{
+	/**
+	 * Get a random timestamp
+	 */
+	public function random_timestamp($start = 1149095981, $end = 1749095981)
+	{
 		$random = mt_rand($start,  $end);
 		return date("Y-m-d H:i:s", $random);
 	}
 
-	public function setTimeZone($timezone="Africa/Accra") {
-		date_default_timezone_set($timezone);
-		return;
-	}
-
-	public function getTimeZone() {
-		return date_default_timezone_get();
-	}
-
-	public function now() {
-		return date('Y-m-d h:i:s a', time());
-	}
-
-	public function randomDate($start=1149095981, $end=1749095981) {
+	/**
+	 * Get a random date
+	 */
+	public function random_date($start = 1149095981, $end = 1749095981)
+	{
 		$timestamp = mt_rand($start,  $end);
 		$randomDate = new DateTime();
 		$randomDate->setTimestamp($timestamp);
@@ -30,54 +35,148 @@ class Date {
 		return $randomDate['date'];
 	}
 
-	# date stuff
-	public function GetDateFromTimeStamp($timestamp) {
+	/**
+	 * Set the current timezone
+	 */
+	public function set_timezone(String $timezone = "Africa/Accra")
+	{
+		date_default_timezone_set($timezone);
+	}
+
+	/**
+	 * Get the current timezone
+	 */
+	public function get_timezone()
+	{
+		return date_default_timezone_get();
+	}
+
+	/**
+	 * Return current date(timestamp)
+	 */
+	public function now()
+	{
+		return date('Y-m-d h:i:s a', time());
+	}
+
+	/**
+	 * Get the date from some 'days ago'
+	 */
+	public function days_ago(int $days_ago)
+	{
+		return date('Y-m-d', strtotime("-$days_ago days", strtotime($this->ts_to_date($this->now()))));
+	}
+
+	/**
+	 * Get the date from some 'months ago'
+	 */
+	public function months_ago(int $months_ago)
+	{
+		return date('Y-m-d', strtotime("-$months_ago months", strtotime($this->ts_to_date($this->now()))));
+	}
+
+	/**
+	 * Get the date from some 'years ago'
+	 */
+	public function years_ago(int $years_ago)
+	{
+		return date('Y-m-d', strtotime("-$years_ago years", strtotime($this->ts_to_date($this->now()))));
+	}
+
+	/**
+	 * Get a date from a timestamp
+	 */
+	public function ts_to_date($timestamp)
+	{
 		$timestamp = new DateTime($timestamp);
 		$date = $timestamp;
 		return $date->format('Y-m-d');
 	}
 
-	public function GetMonthFromNumber($number) {
+	/**
+	 * Get an english date from a timestamp
+	 */
+	public function ts_to_english_date($timestamp)
+	{
+		$timestamp = new DateTime($timestamp);
+		$day = $timestamp->format('d');
+		$month = $timestamp->format('m');
+		$month = ltrim($month, 0);
+		$month = $this->int_to_month($month);
+		$year = $timestamp->format('Y');
+		$date = $month . ' ' . $day . ', ' . $year;
+		return $date;
+	}
+
+	/**
+	 * Get an english readable version of a timestamp
+	 */
+	public function ts_to_english_ts($timestamp)
+	{
+		$timestampp = new DateTime($timestamp);
+		$day = $timestampp->format('d');
+		$month = $timestampp->format('m');
+		$month = ltrim($month, '0');
+		$month = $this->int_to_month($month);
+		$year = $timestampp->format('Y');
+		$time = $this->ts_to_time($timestamp);
+		$english_timeStamp = $day . ' ' . $month . ' ' . $year . ' ' . $time;
+		return $english_timeStamp;
+	}
+
+	/**
+	 * Get Time From a TimeStamp
+	 */
+	public function ts_to_time($timestamp)
+	{
+		$timestamp = new DateTime($timestamp);
+		$time = $timestamp;
+		return $time->format('G:i:s');
+	}
+
+	/**
+	 * Get the current year
+	 */
+	public function year()
+	{
+		return date('Y', time());
+	}
+
+	/**
+	 * Get current month
+	 */
+	public function month()
+	{
+		return date('m', time());
+	}
+
+	/**
+	 * Get current day
+	 */
+	public function day()
+	{
+		return date('m', time());
+	}
+
+	/**
+	 * Get month in words from a number
+	 */
+	public function int_to_month(int $number)
+	{
 		$number = ltrim($number, '0');
 		$months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 		$month = $months[$number - 1];
 		return $month;
 	}
 
-	public function GetDayFromNumber($number) {
+	/**
+	 * Get day in words from a number
+	 */
+	public function int_to_day(int $number)
+	{
 		$number = ltrim($number, '0');
 		$days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 		$day = $days[$number - 1];
 		return $day;
-	}
-
-	public function GetEnglishDateFromTimeStamp($timestamp) {
-		$timestamp = new DateTime($timestamp);
-		$day = $timestamp->format('d');
-		$month = $timestamp->format('m');
-		$month = ltrim($month, 0);
-		$month = $this->GetMonthFromNumber($month);
-		$year = $timestamp->format('Y');
-		$date = $month.' '.$day.', '.$year;
-		return $date;
-	}
-
-	public function GetEnglishTimeStampFromTimeStamp($timestamp) {
-		$timestampp = new DateTime($timestamp);
-		$day = $timestampp->format('d');
-		$month = $timestampp->format('m');
-		$month = ltrim($month, '0');
-		$month = $this->GetMonthFromNumber($month);
-		$year = $timestampp->format('Y');
-		$time = $this->GetTimeFromTimeStamp($timestamp);
-		$english_timeStamp = $day.' '.$month.' '.$year.' '.$time;
-		return $english_timeStamp;
-	}
-
-	# time stuff
-	public function GetTimeFromTimeStamp($timestamp) {
-		$timestamp = new DateTime($timestamp);
-		$time = $timestamp;
-		return $time->format('G:i:s');
 	}
 }

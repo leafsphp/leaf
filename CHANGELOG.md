@@ -1,5 +1,29 @@
 ## Changelog
-### v2.0 - 11th March, 2020
+### v2.0 - final-beta - 12th April, 2020
+#### Added
+- Added Leaf Mail
+- Added Date::days_ago
+- Added Date::months_ago
+- Added Date::years_ago
+- Added Date::day
+- Added Date::month
+- Added Date::year
+
+
+#### Fixed
+- Fixed Request::params
+- Fixed Request::getBody
+- Fixed Request Method Tests
+
+#### Changed
+- Renamed Request `getBody` to `body`
+- Switched all `Date` methods to `snake_case`
+- Renamed `Date` methods
+
+#### Removed
+
+
+### v2.0 - beta - 11th March, 2020
 #### Added
 - Added DB->choose
 - Added DB->add
