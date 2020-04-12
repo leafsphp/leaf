@@ -21,6 +21,9 @@
 - Renamed `Date` methods
 
 #### Removed
+- Removed Response::count
+- Removed Response::getIterator
+- Removed Response header offeset methods
 
 
 ### v2.0 - beta - 11th March, 2020

@@ -6,6 +6,7 @@ require 'vendor/autoload.php';
 $app = new \Leaf\App;
 $date = new Leaf\Date;
 $form = new Leaf\Form;
+$auth = new \Leaf\Auth;
 
 $app->get("/lol", function() use($form) {
 	$form->submit("POST", "/post", [
@@ -15,11 +16,10 @@ $app->get("/lol", function() use($form) {
 	]);
 });
 
-$app->post("/post", function() use($app) {
-	$app->response->respond([
-		$app->request->body(),
-		$app->request->headers()
-	]);
+$app->post("/post", function() use($app, $auth) {
+	$app->response->respondWithCode([
+		$app->request->body()
+	], 511, true);
 });
 
 $app->run();
