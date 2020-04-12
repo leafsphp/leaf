@@ -9,8 +9,10 @@ namespace Leaf;
 class FS {
 	private $baseDirectory;
 
-	public function __construct($baseDirectory) {
-		$this->baseDirectory = $baseDirectory;
+	public function __construct($baseDirectory = "") {
+		if (strlen($baseDirectory) > 0) {
+			$this->baseDirectory = $baseDirectory;
+		}
 	}
 
 	/**

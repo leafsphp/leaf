@@ -4,9 +4,12 @@ require 'vendor/autoload.php';
 \Leaf\App::registerAutoloader();
 
 $app = new \Leaf\App;
+
 $date = new Leaf\Date;
 $form = new Leaf\Form;
 $auth = new \Leaf\Auth;
+
+$app->fs->createFolder("./tags");
 
 $app->get("/lol", function() use($form) {
 	$form->submit("POST", "/post", [
