@@ -32,8 +32,8 @@
 		 */
         public function connect($host, $dbname, $user, $password) {
             try {
-                $connection = new PDO("mysql:host=$host;dbname=$dbname", $user, $password);
-                $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $connection = new \PDO("mysql:host=$host;dbname=$dbname", $user, $password);
+                $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 $this->connection = $connection;
                 return $connection;
             } catch (\Exception $e) {
@@ -272,25 +272,30 @@
 		}
 
 		public function count() {
-			// 
+			return \count($this->fetchAll());
 		}
 
+		/**
+		 * Fetch Query Results as object
+		 */
 		public function fetchObj() {
-			return $this->queryResult->fetch(PDO::FETCH_OBJ);
+			return $this->queryResult->fetch(\PDO::FETCH_OBJ);
 		}
-
+		
+		/**
+		 * Fetch Query Results as assoc array
+		 */
         public function fetchAssoc() {
-            return $this->queryResult->fetch(PDO::FETCH_ASSOC);
+            return $this->queryResult->fetch(\PDO::FETCH_ASSOC);
         }
 
-        public function fetchAll($type = FETCH_OBJ) {
-            if ($type == "obj" || $type == "object" || $type == FETCH_OBJ) {
-				$type = FETCH_OBJ;
+        public function fetchAll($type = "object") {
+            if ($type == "obj" || $type == "object") {
+				return $this->queryResult->fetchAll(\PDO::FETCH_OBJ);
 			}
-			if ($type != "obj" && $type != FETCH_OBJ || $type == "assoc") {
-				$type = FETCH_ASSOC;
+			if ($type != "obj" && $type != "object") {
+				return $this->queryResult->fetchAll(\PDO::FETCH_ASSOC);
             }
-            $this->queryResult->fetchAll(PDO::$type);
         }
 
         public function result() {
