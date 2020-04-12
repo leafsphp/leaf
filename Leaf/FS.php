@@ -115,7 +115,7 @@ class FS {
     }
 
 	/**
-	* Create a new file in the base directory
+	* Create a new file
 	*
 	* @param string $filename: the name of the file to create
 	*
@@ -179,7 +179,7 @@ class FS {
 	}
 
 	/**
-	* Write content to a file in the base directory
+	* Write content to a file
 	*
 	* @param string $filename: the name of the file to write to
 	* @param $content: the name of the file to write to
@@ -194,22 +194,22 @@ class FS {
 	}
 
 	/**
-	* Read the content of a file in the base directory
+	* Read the content of a file into a string
 	*
-	* @param string $dirname: the name of the file to read
+	* @param String $filename: the name of the file to read
 	*
-	* @return string file content
+	* @return String|false file content
 	*/
-	public function read_file($filename) {
+	public function read_file(String $filename) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
 		return file_get_contents($filename);
 	}
 
 	/**
-	* Rename a file in the base directory
+	* Rename a file
 	*
 	* @param string $filename: the name of the file to rename
 	* @param string $newfilename: the new name of the file
@@ -218,14 +218,14 @@ class FS {
 	*/
 	public function rename_file($filename, $newfilename) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
 		rename($filename, $newfilename);
 	}
 
 	/**
-	 * Delete a file in the base directory
+	 * Delete a file
 	 *
 	 * @param string $dirname: the name of the file to delete
 	 *
@@ -234,7 +234,7 @@ class FS {
 	public function delete_file($filename)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
 		unlink($filename);
@@ -252,7 +252,7 @@ class FS {
 	public function copy_file($filename, $to, $rename = true)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
 		$newfilename = $filename;
@@ -262,7 +262,7 @@ class FS {
 		try {
 			copy($filename, $to . "/" . $newfilename);
 		} catch (\Throwable $err) {
-			throw "Unable to copy file: " . $err;
+			throw "Unable to copy file: $err";
 		}
 	}
 
@@ -277,7 +277,7 @@ class FS {
 	public function copy_to_file($filename, $to)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
 		try {
@@ -297,15 +297,15 @@ class FS {
 	public function move_file($filename, $to)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
 
-		rename($this->baseDirectory . "/" . $filename, $to);
+		rename($filename, $to);
 	}
 
 	/**
-	* Prepend data to a file in the base directory
+	* Prepend data to a file
 	*
 	* @param string $filename: the name of the file to write to
 	* @param string $content: the file content
@@ -314,19 +314,18 @@ class FS {
 	*/
 	public function prepend($filename, $content) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
-		// append data to file
-		// read file
+
 		$fileContent = $this->read_file($filename);
-		// write to file
 		$data = $content."\n".$fileContent;
+
 		$this->write_file($filename, $data);
 	}
 
 	/**
-	 * Add to the content of a file in the base directory
+	 * Add to the content of a file
 	 *
 	 * @param string $filename: the name of the file to write to
 	 * @param string $content: the file content
@@ -335,8 +334,8 @@ class FS {
 	 */
 	public function append($filename, $content)
 	{
-		if (!file_exists($this->baseDirectory . "/" . $filename)) {
-			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+		if (!file_exists($filename)) {
+			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
 			exit();
 		}
 		
