@@ -18,7 +18,8 @@
         "leafs/blade": "^1.2.3",
         "illuminate/database": "^6.0",
         "illuminate/container": "^6.0",
-        "illuminate/events": "^6.0"
+        "illuminate/events": "^6.0",
+        "phpmailer/phpmailer": "^6.1"
     },
     "minimum-stability": "stable",
     "suggest": {

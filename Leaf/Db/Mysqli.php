@@ -98,7 +98,7 @@
 		 * 
 		 * @return array
 		 */
-		public function choose(string $table, string $items = "*", array $condition = [], string $options = null, $default_checks = true, $validate = []) {
+		public function choose(string $table, string $items = "*", array $condition = [], string $options = null, $default_checks = false, $validate = []) {
 			$data = [];
 			if (count($condition) > 0) {
 				$keys = [];			
@@ -163,7 +163,7 @@
 		 * 
 		 * @return array
 		 */
-		public function add(string $table, array $items, array $uniques, $default_checks = true, array $validate = []) {
+		public function add(string $table, array $items, array $uniques = null, $default_checks = false, array $validate = []) {
 			$data = [];
 			$keys = [];			
 
@@ -209,7 +209,7 @@
 				foreach ($this->form->errors() as $key => $value) {
 					$this->errorsArray[$key] = $value;
 				}
-				return $this;
+				return false;
 			} else {
 				$table_names = "";
 				$table_values = "";
@@ -350,7 +350,6 @@
 		
 		/**
 		 * Closes MySQL connection
-		 *
 		 */
 		public function close(): void {
 			$this->connection->close();

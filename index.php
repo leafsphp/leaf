@@ -76,7 +76,7 @@ $app->get("/blade/test", function() use($app) {
 // Using a Component(controller)
 $app->get("/component", "Component@trigger");
 
-$app->get('/form/', function() use($app) {
+$app->get('/form', function() use($app) {
     $app->response->renderMarkup("
         <form method='POST' action='/post'>
             <input name='username' placeholder='username'>
