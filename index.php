@@ -9,7 +9,8 @@ $date = new Leaf\Date;
 $form = new Leaf\Form;
 $auth = new \Leaf\Auth;
 
-$app->fs->createFolder("./tags");
+$app->fs->setBaseDirectory(__DIR__);
+$app->fs->deleteFile("txt.log");
 
 $app->get("/lol", function() use($form) {
 	$form->submit("POST", "/post", [
@@ -20,9 +21,10 @@ $app->get("/lol", function() use($form) {
 });
 
 $app->post("/post", function() use($app, $auth) {
-	$app->response->respondWithCode([
-		$app->request->body()
-	], 511, true);
+	$app->response->respond([
+		$app->request->body(),
+		$app->fs->listDir("./")
+	]);
 });
 
 $app->run();

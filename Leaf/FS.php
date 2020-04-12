@@ -51,7 +51,7 @@ class FS {
 	*/
 	public function createFolder($dirname) {
 		if (is_dir($dirname)) {
-			echo "$dirname already exists in ".dirname($dirname);
+			echo "$dirname already exists in " . dirname($dirname);
 			exit();
 		}
 		mkdir($dirname);
@@ -220,7 +220,7 @@ class FS {
 	* Write content to a file in the base directory
 	*
 	* @param string $filename: the name of the file to write to
-	* @param $contant: the name of the file to write to
+	* @param $content: the name of the file to write to
 	*
 	* @return void
 	*/
@@ -267,13 +267,14 @@ class FS {
 	}
 
 	/**
-	* Add to the content of a file in the base directory
+	* Prepend data to a file in the base directory
 	*
-	* @param string $dirname: the name of the file to write to
+	* @param string $filename: the name of the file to write to
+	* @param string $content: the file content
 	*
 	* @return void
 	*/
-	public function appendFile($filename, $content) {
+	public function prepend($filename, $content) {
 		if (!file_exists($this->baseDirectory."/".$filename)) {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
 			exit();
@@ -282,11 +283,44 @@ class FS {
 		// read file
 		$fileContent = $this->readFile($filename);
 		// write to file
-		$data = $fileContent."\n".$content;
+		$data = $content."\n".$fileContent;
 		$this->writeFile($filename, $data);
 	}
 
-	// having few issues here
+	/**
+	 * Add to the content of a file in the base directory
+	 *
+	 * @param string $filename: the name of the file to write to
+	 * @param string $content: the file content
+	 *
+	 * @return void
+	 */
+	public function append($filename, $content)
+	{
+		if (!file_exists($this->baseDirectory . "/" . $filename)) {
+			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
+			exit();
+		}
+		
+		file_put_contents($filename, $content, FILE_APPEND);
+	}
+
+	/**
+	 * Get or set UNIX mode of a file or directory.
+	 *
+	 * @param  string  $path
+	 * @param  int|null  $mode
+	 * @return mixed
+	 */
+	public function chmod($path, $mode = null)
+	{
+		if ($mode) {
+			return chmod($path, $mode);
+		}
+
+		return substr(sprintf('%o', fileperms($path)), -4);
+	}
+
 	/**
 	* Delete a file in the base directory
 	*
@@ -348,8 +382,6 @@ class FS {
 		}
 	}
 
-
-	// having issues here
 	/**
 	* Move a file from the base directory
 	*
@@ -362,6 +394,7 @@ class FS {
 			echo "$filename not found in $this->baseDirectory. Change the base directory if you're sure the file exists.";
 			exit();
 		}
-		move_uploaded_file($this->baseDirectory."/".$filename, $to);
+
+		rename($this->baseDirectory . "/" . $filename, $to);
 	}
 }
