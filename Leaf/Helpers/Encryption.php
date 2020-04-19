@@ -2,7 +2,7 @@
 namespace Leaf\Helpers;
 
 /**
- * Leaf Encryption Helper
+ * Leaf Encryption Helper [BETA]
  * ------------------------------------------------
  * Easy encryptions
  * 
@@ -18,7 +18,7 @@ class Encryption {
 
 	public function __construct()
 	{
-		$this->setKeys(random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES), random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES));
+		$this->setKeys(random_bytes(32), random_bytes(24));
 	}
 
 	/**

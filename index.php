@@ -61,6 +61,13 @@ $app->get("/blade/test", function() use($app) {
     echo $app->blade->render('test', ['name' => 'Michael Darko']);
 });
 
+$app->get("/token", function () use ($app) {
+    $token = new \Leaf\Token;
+    $token->generateSimpleToken("mychi", 1);
+    echo $token;
+});
+
+
 // POST route
 $app->post('/post', function () use ($app) {
     $app->response->respond("This is a POST route");

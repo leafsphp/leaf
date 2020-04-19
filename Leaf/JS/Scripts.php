@@ -2,7 +2,7 @@
 namespace Leaf\JS;
 
 /**
- * Leaf JS Scripts
+ * Leaf JS Scripts [BETA]
  * ------------------------
  * Methods which render JavaScript methods/objects
  */
