@@ -74,3 +74,15 @@ if (Leaf\Helpers\Password::argon2_verify($password)) {
     // handle user login here
 }
 ```
+
+## CRUX Encryption
+
+Crux, instead of a functionality, is more of a new "designed" added in the Encryption Helper. Crux is a one-way encryption method that takes produces a hash from pairing a weaker, faster encryption method with a stronger but slower one, eg: Pairing up BCRYPT with MD5 or ARGON2 with BASE64. To handle such operations, Leaf has prepared the `crux` method.
+
+### crux
+
+```js
+$password->crux($data, $password->ARGON2, $password->MD5);
+```
+
+We'd always advice you to use MD5 as the second encryption method because, MD5 strings are shorter and much easier to work with, compared to a lot of other encryption methods.
