@@ -8,12 +8,16 @@
 - Added Date::day
 - Added Date::month
 - Added Date::year
+- Added Auth::setSecretKey
+- Added Auth::getSecretKey
+- Added Auth::validate
 
 
 #### Fixed
 - Fixed Request::params
 - Fixed Request::getBody
 - Fixed Request Method Tests
+- Fixes to Auth::validateToken
 
 #### Changed
 - Renamed Request `getBody` to `body`

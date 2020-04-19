@@ -155,7 +155,7 @@ class Form extends Request {
      * @return string
      */
 	public function returnFields() {
-		return $this->getBody();
+		return $this->body();
 	}
 
 	/**

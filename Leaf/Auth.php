@@ -285,9 +285,9 @@ class Auth extends Mysqli
 	/**
 	 * Validate Json Web Token
 	 */
-	public function validate($token)
+	public function validate($token, $secret_key)
 	{
-		$payload = $this->token->validate($token);
+		$payload = $this->token->validate($token, $secret_key);
 
 		if ($payload == false) {
 			foreach ($this->token->errors() as $key => $value) {

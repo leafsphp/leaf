@@ -136,6 +136,21 @@ class Request
     }
 
     /**
+     * Find if request has a particular header
+     * 
+     * @param string $header  Header to check for
+     * @return bool
+     */
+    public function hasHeader(String $header)
+    {
+        if (isset($this->headers[$header])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Is this an AJAX request?
      * @return bool
      */

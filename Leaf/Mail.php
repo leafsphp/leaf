@@ -196,6 +196,16 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 	}
 
 	/**
+	 * Finalise and send an email
+	 */
+	// public function send() {
+	// 	if (strlen($this->Subject) == 0) {
+	// 		$this->errs = "Email Subject not found, this is required";
+	// 		return false;
+	// 	}
+	// }
+
+	/**
 	 * Return any errors
 	 */
 	public function errors() {

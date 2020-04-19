@@ -11,6 +11,8 @@
  */
 namespace Leaf;
 
+// require_once "./app_methods.php";
+
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
 if (!defined('MCRYPT_MODE_CBC')) define('MCRYPT_MODE_CBC', 0);
 if (!defined('MCRYPT_RIJNDAEL_256')) define('MCRYPT_RIJNDAEL_256', 0);

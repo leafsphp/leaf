@@ -62,25 +62,25 @@ class Date
 	/**
 	 * Get the date from some 'days ago'
 	 */
-	public function days_ago(int $days_ago)
+	public function days_ago(int $days_ago, $date = null)
 	{
-		return date('Y-m-d', strtotime("-$days_ago days", strtotime($this->ts_to_date($this->now()))));
+		return date('Y-m-d', strtotime("-$days_ago days", strtotime($this->ts_to_date($date ? $date : $this->now()))));
 	}
 
 	/**
 	 * Get the date from some 'months ago'
 	 */
-	public function months_ago(int $months_ago)
+	public function months_ago(int $months_ago, $date = null)
 	{
-		return date('Y-m-d', strtotime("-$months_ago months", strtotime($this->ts_to_date($this->now()))));
+		return date('Y-m-d', strtotime("-$months_ago months", strtotime($this->ts_to_date($date ? $date : $this->now()))));
 	}
 
 	/**
 	 * Get the date from some 'years ago'
 	 */
-	public function years_ago(int $years_ago)
+	public function years_ago(int $years_ago, $date = null)
 	{
-		return date('Y-m-d', strtotime("-$years_ago years", strtotime($this->ts_to_date($this->now()))));
+		return date('Y-m-d', strtotime("-$years_ago years", strtotime($this->ts_to_date($date ? $date : $this->now()))));
 	}
 
 	/**
@@ -116,8 +116,7 @@ class Date
 		$timestampp = new DateTime($timestamp);
 		$day = $timestampp->format('d');
 		$month = $timestampp->format('m');
-		$month = ltrim($month, '0');
-		$month = $this->int_to_month($month);
+		$month = $this->int_to_month(ltrim($month, '0'));
 		$year = $timestampp->format('Y');
 		$time = $this->ts_to_time($timestamp);
 		$english_timeStamp = $day . ' ' . $month . ' ' . $year . ' ' . $time;
@@ -127,11 +126,19 @@ class Date
 	/**
 	 * Get Time From a TimeStamp
 	 */
-	public function ts_to_time($timestamp)
+	public function ts_to_time($ts)
 	{
-		$timestamp = new DateTime($timestamp);
-		$time = $timestamp;
-		return $time->format('G:i:s');
+		$ts = new DateTime($ts);
+		return $ts->format('G:i:s');
+	}
+
+	/**
+	 * Format a TimeStamp
+	 */
+	public function format($ts, $format = "Y-m-d")
+	{
+		$ts = new DateTime($ts);
+		return $ts->format($format);
 	}
 
 	/**

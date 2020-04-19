@@ -89,13 +89,28 @@ class FS {
      * @param  bool  $hidden
      * @return \Symfony\Component\Finder\SplFileInfo[]
      */
-    public function list_dir_files($directory, $hidden = false)
+    public function list_files($directory, $hidden = false)
     {
         return iterator_to_array(
-            Finder::create()->files()->ignoreDotFiles(! $hidden)->in($directory)->depth(0)->sortByName(),
+            Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->depth(0)->sortByName(),
             false
         );
-    }
+	}
+
+	/**
+	 * Get all of the files from the given directory (recursive).
+	 *
+	 * @param  string  $directory
+	 * @param  bool  $hidden
+	 * @return \Symfony\Component\Finder\SplFileInfo[]
+	 */
+	public function allFiles($directory, $hidden = false)
+	{
+		return iterator_to_array(
+			Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->sortByName(),
+			false
+		);
+	}
 
     /**
      * Get all of the directories within a given directory.
@@ -103,7 +118,7 @@ class FS {
      * @param  string  $directory
      * @return array
      */
-    public function list_dir_folders($directory)
+    public function list_folders($directory)
     {
         $directories = [];
 
@@ -122,8 +137,8 @@ class FS {
 	* @return void
 	*/
 	public function create_file($filename) {
-		if (!is_dir($this->baseDirectory)) {
-			$this->create_folder($this->baseDirectory);
+		if (!is_dir(dirname($filename))) {
+			$this->create_folder(dirname($filename));
 		}
 		if (file_exists($filename)) {
 			touch(time().".".$filename);
@@ -179,18 +194,19 @@ class FS {
 	}
 
 	/**
-	* Write content to a file
-	*
-	* @param string $filename: the name of the file to write to
-	* @param $content: the name of the file to write to
-	*
-	* @return void
-	*/
-	public function write_file($filename, $content) {
+	 * Write content to a file
+	 *
+	 * @param string $filename the name of the file to write to
+	 * @param mixed $content the name of the file to write to
+	 * @param bool $lock Lock file?
+	 *
+	 * @return void
+	 */
+	public function write_file($filename, $content, $lock = false) {
 		if (!file_exists($filename)) {
 			$this->create_file($filename);
 		}
-		file_put_contents($filename, $content);
+		file_put_contents($filename, $content, $lock ? LOCK_EX : 0);
 	}
 
 	/**
@@ -202,7 +218,7 @@ class FS {
 	*/
 	public function read_file(String $filename) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename);
 			exit();
 		}
 		return file_get_contents($filename);
@@ -218,7 +234,7 @@ class FS {
 	*/
 	public function rename_file($filename, $newfilename) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename);
 			exit();
 		}
 		rename($filename, $newfilename);
@@ -234,25 +250,25 @@ class FS {
 	public function delete_file($filename)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename);
 			exit();
 		}
 		unlink($filename);
 	}
 
 	/**
-	 * Copy and paste a file from the base directory
+	 * Copy and paste a file
 	 *
 	 * @param string $filename: the name of the file to copy
 	 * @param string $to: the directory to copy file to
-	 * @param bool $rename: rename the file in dir after copyinng or override
+	 * @param bool $rename: rename the file if another file exists with the same name
 	 *
 	 * @return void
 	 */
 	public function copy_file($filename, $to, $rename = true)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename);
 			exit();
 		}
 		$newfilename = $filename;
@@ -261,23 +277,24 @@ class FS {
 		}
 		try {
 			copy($filename, $to . "/" . $newfilename);
+			return $newfilename;
 		} catch (\Throwable $err) {
 			throw "Unable to copy file: $err";
 		}
 	}
 
 	/**
-	 * Copy and paste a file from the base directory into a new file
+	 * Clone a file into a new file
 	 *
 	 * @param string $filename: the name of the file to copy
 	 * @param string $to: the name of the new file to copy file to
 	 *
 	 * @return void
 	 */
-	public function copy_to_file($filename, $to)
+	public function clone_file($filename, $to)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename);
 			exit();
 		}
 		try {
@@ -288,7 +305,7 @@ class FS {
 	}
 
 	/**
-	 * Move a file from the base directory
+	 * Move a file
 	 *
 	 * @param string $dirname: the name of the file to move
 	 *
@@ -297,7 +314,7 @@ class FS {
 	public function move_file($filename, $to)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename);
 			exit();
 		}
 
@@ -314,7 +331,7 @@ class FS {
 	*/
 	public function prepend($filename, $content) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			echo "$filename not found in " . dirname($filename);
 			exit();
 		}
 
