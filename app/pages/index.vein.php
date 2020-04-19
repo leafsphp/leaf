@@ -50,7 +50,7 @@
 	<body>
 		<header>
 			<a href="https://leafphp.netlify.com/#/" style="text-decoration: none">
-				<img src="https://leafphp.netlify.com/#/images/logo.png" alt="Leaf PHP Framework" style="width: 110px;">
+				<img src="https://leafdocs.netlify.com/#/images/logo.png" alt="Leaf PHP Framework" style="width: 110px;">
 			</a>
 		</header>
 		<h1>
@@ -68,6 +68,7 @@
 				<li>The application code is in <code>index.php</code></li>
 				<li>Read the <a href="https://leafphp.netlify.com/#/" target="_blank">docs</a></li>
 				<li>Follow <a href="http://www.twitter.com/leafphp" target="_blank">@leafphp</a> on Twitter</li>
+				<li>Checkout <a href="https://leafphp.netlify.com/codelabs" target="_blank">Leaf Codelabs</a> for real examples and use cases</li>
 			</ol>
 		</section>
 		<section>

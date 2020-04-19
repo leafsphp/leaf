@@ -2,7 +2,7 @@
 namespace Leaf;
 
 /**
- * Leaf Vein Component
+ * Leaf Vein Component [BETA]
  * ---------------------
  * A "reactive" component that mimics frontend frameworks
  */

@@ -2,12 +2,12 @@
 namespace Leaf\Helpers;
 
 /**
- * Leaf Password Helper
+ * Leaf Password Helper [BETA]
  * ---------------------------------------------
  * Work easier and faster with passwords
  * 
  * @author Michael Darko <mychi.darko@gmail.com>
- * @since 2.0.1
+ * @since 2.0.0
  */
 class Password {
 	const BIN2HEX = "BIN2HEX";
