@@ -10,12 +10,14 @@ class Scripts {
 	/**
 	 * Console.log() with PHP
 	 */
-	public static function c_log($data, $otherData = null, $moreData = null) {
-		if (is_array($data)) $data = json_encode($data);
-		if (is_array($otherData)) $otherData = json_encode($otherData);
-		if (is_array($moreData)) $moreData = json_encode($moreData);
+	public static function c_log(...$data) {
+		// if (is_array($data)) $data = json_encode($data);
+		$output = "";
+		foreach ($data as $item) {
+			$output = $output === "" ? "$item" : "$output, $item";
+		}
 		echo <<<EOT
-<script>console.log($data, $otherData, $moreData);</script>
+<script>console.log(`$output`);</script>
 EOT;
 	}
 

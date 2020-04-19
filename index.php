@@ -11,21 +11,22 @@ $date = new Leaf\Date;
 $form = new Leaf\Form;
 $auth = new \Leaf\Auth;
 $mail = new Leaf\Mail;
+$password = new Leaf\Helpers\Password;
 
 // $app->fs->delete_file("txt.log");
 
-$app->get("/lol", function() use($form) {
+$app->get("/lol", function() use($form, $password) {
 	$form->submit("POST", "/post", [
 		"name" => "Mychi",
 		"age" => "18",
-		"gender" => "male"
+		"gender" => "male",
+		"password" => $password->crux('PASSWORD')
 	]);
 });
 
 $app->post("/post", function() use($app, $auth) {
 	$app->response->respond([
-		$app->request->body(),
-		$app->fs->listDir("./")
+		$app->request->body()
 	]);
 });
 

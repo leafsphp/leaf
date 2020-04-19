@@ -35,7 +35,7 @@ class Password {
 	 * 
 	 * See the [password algorithm constants](https://secure.php.net/manual/en/password.constants.php) for documentation on the supported options for each algorithm.
 	 */
-	public static function hash(string $password, int $algorithm = self::BCRYPT, array $options = null) {
+	public static function hash(string $password, int $algorithm = self::BCRYPT, array $options = []) {
 		return password_hash($password, $algorithm, $options);
 	}
 
@@ -59,7 +59,7 @@ class Password {
 	 * 
 	 * Available as of PHP 7.2.0.
 	 */
-	public static function argon2(string $password, array $options) {
+	public static function argon2(string $password, array $options = []) {
 		return password_hash($password, self::ARGON2, $options);
 	}
 
@@ -71,7 +71,56 @@ class Password {
 	}
 
 	/**
-	 * General Encryption Hash
+	 * Generate an Argon2 hashed password
+	 *  
+	 * @param string $password The user's password to hash
+	 * @param array $options Options for Argon hash
+	 */
+	public static function bcrypt(string $password, array $options = [])
+	{
+		return password_hash($password, self::BCRYPT, $options);
+	}
+
+	/** 
+	 * Checks if the given BCRYPT hash matches the given options.
+	 */
+	public static function bcrypt_verify(string $password)
+	{
+		return password_verify($password, self::BCRYPT);
+	}
+
+	/**
+	 * Encode a password based on Leaf's Crux rule
+	 * 
+	 * @param string $password The password to encrypt
+	 * @param mixed $hash_type_1 The Stronger Hash to use
+	 * @param mixed $hash_type_2 The weaker has to use
+	 * 
+	 * @return string CRUX Encoded password
+	 */
+	public function crux(string $password, $hash_type_1 = self::ARGON2, $hash_type_2 = self::MD5) {
+		$first_hash = "";
+		$second_hash = "";
+
+		if ($hash_type_1 === self::BCRYPT) {
+			$first_hash = $this->hash($password, $hash_type_1);
+		} else if ($hash_type_1 === self::ARGON2) {
+			$first_hash = $this->hash($password, $hash_type_1);
+		} else {
+			$first_hash = $this->hash($password, self::BCRYPT);
+		}
+
+		if ($hash_type_2 === self::BASE64) {
+			$second_hash = base64_encode($first_hash);
+		} else {
+			$second_hash = md5($first_hash);
+		}
+
+		return $second_hash;
+	}
+
+	/**
+	 * Weaker faster encryptions
 	 */
 	public static function encrypt($data, $hash = self::BASE64) {
 		if ($hash == self::BASE64) {
