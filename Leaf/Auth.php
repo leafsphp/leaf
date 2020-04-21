@@ -5,7 +5,7 @@ namespace Leaf;
 use \Leaf\Db\Mysqli;
 use \Leaf\Form;
 use \Leaf\Http\Response;
-use \Leaf\Authentication;
+use \Leaf\Helpers\Authentication;
 
 /**
  * Leaf Simple Auth
