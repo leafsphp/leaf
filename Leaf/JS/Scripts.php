@@ -75,39 +75,39 @@ EOT;
 	}
 
 	/**
-	 * localstorage.set() with PHP
+	 * localStorage.set() with PHP
 	 */
-	public static function local_storage_set($key, $data) {
+	public static function localstorage_set($key, $data) {
 		if (is_array($data)) $data = json_encode($data);
 		echo <<<EOT
-<script>window.localstorage.setItem($key, $data);</script>
+<script>window.localStorage.setItem(`$key`, `$data`);</script>
 EOT;
 	}
 
 	/**
-	 * localstorage.get() with PHP
+	 * localStorage.get() with PHP
 	 */
-	public static function local_storage_get($key) {
+	public static function localstorage_get($key) {
 		echo <<<EOT
-<script>window.localstorage.getItem($key);</script>
+<script>window.localStorage.getItem(`$key`);</script>
 EOT;
 	}
 
 	/**
-	 * localstorage.remove() with PHP
+	 * localStorage.remove() with PHP
 	 */
-	public static function local_storage_remove($key) {
+	public static function localstorage_remove($key) {
 		echo <<<EOT
-<script>window.localstorage.removeItem($key);</script>
+<script>window.localStorage.removeItem(`$key`);</script>
 EOT;
 	}
 
 	/**
-	 * localstorage.clear() with PHP
+	 * localStorage.clear() with PHP
 	 */
-	public static function local_storage_clear() {
+	public static function localstorage_clear() {
 		echo <<<EOT
-<script>window.localstorage.clear();</script>
+<script>window.localStorage.clear();</script>
 EOT;
 	}
 }

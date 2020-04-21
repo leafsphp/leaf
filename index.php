@@ -61,14 +61,6 @@ $app->get("/blade/test", function() use($app) {
     echo $app->blade->render('test', ['name' => 'Michael Darko']);
 });
 
-$app->get("/console", function () {
-    \Leaf\JS\Scripts::c_clear();
-    \Leaf\JS\Scripts::c_log("c_log data:", "title", ["title" => "body"], "Something else");
-    \Leaf\JS\Scripts::c_style("c_style data", "color: gold; font-size: 50px;");
-    \Leaf\JS\Scripts::c_table([["name" => "Mychi", "age" => "18"], ["name" => "seth", "age" => "18"]]);
-});
-
-
 // POST route
 $app->post('/post', function () use ($app) {
     $app->response->respond("This is a POST route");
