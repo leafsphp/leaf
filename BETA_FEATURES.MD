@@ -10,4 +10,4 @@ A lot of changes have gone on in Leaf even since the beta release a month ago, a
 
 - Encryption Helper
 
-- Leaf JS Scripts: **WORKS, BUT NOT READY**. Makes using JS in your PHP easier😵🤔. Console log and Localstorage only are currently supported
+- Leaf JS Scripts: **WORKS, BUT NOT READY**. Makes using JS in your PHP easier😵🤔. Console and Localstorage only are currently supported
