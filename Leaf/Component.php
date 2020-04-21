@@ -31,7 +31,7 @@ abstract class Component extends \Leaf\Veins {
 		// something happens when end is called
 	}
 
-	public function setState(array $data) {
+	public function setState($data) {
 		$this->state = (object) $data;
 	}
 
