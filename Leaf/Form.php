@@ -9,6 +9,13 @@ use \Leaf\Http\Request;
  *  Simple Form Validation with Leaf
  */
 class Form extends Request {
+	protected $response;
+
+	public function __construct()
+	{
+		$this->response = new \Leaf\Http\Response();
+	}
+
 	public $errorsArray = array();
 	/**
      * make sure that the form data is safe to work with
@@ -18,7 +25,6 @@ class Form extends Request {
      * @return string, string: The parsed data
      */
 	public function sanitizeInput($data) {
-		// check for sql injection possibilities
 		$data = trim($data);
 		$data = stripslashes($data);
 		$data = htmlspecialchars($data);
@@ -31,14 +37,11 @@ class Form extends Request {
      * @param string $data: The data gotten from the form field
      * @param string $key: The name of the form field
      * @param string $message: The message to add to the errors array
-     *
-     * @return void
      */
-	public function isEmpty($data, $key, $message="This field is required") {
+	public function isEmpty($data, $message="This field is required") {
 		if (empty($data)) {
-			$this->errorsArray[$key] = $message;
+			$this->response->throwErr($message);
 		}
-		return;
 	}
 
 	/**
@@ -50,11 +53,10 @@ class Form extends Request {
      *
      * @return void
      */
-	public function isNull($data, $key, $message="This field cannot be null") {
+	public function isNull($data, $message="This field cannot be null") {
 		if (is_null($data)) {
-			$this->errorsArray[$key] = $message;
+			$this->response->throwErr($message);
 		}
-		return;
 	}
 
 	/**
@@ -140,8 +142,8 @@ class Form extends Request {
 		}
 
 		echo "
-			<form action=\"$action\" method=\"$method\" id=\"leaf_submit_form\">$form_fields</form>
-			<script>document.getElementById(\"leaf_submit_form\").submit();</script>
+			<form action=\"$action\" method=\"$method\" id=\"67yeg76tug216tdg267tgd21tuygu\">$form_fields</form>
+			<script>document.getElementById(\"67yeg76tug216tdg267tgd21tuygu\").submit();</script>
 		";
 	}
 
