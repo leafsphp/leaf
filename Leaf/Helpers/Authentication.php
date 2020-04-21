@@ -1,6 +1,6 @@
 <?php
 
-namespace Leaf;
+namespace Leaf\Helpers;
 
 use \Leaf\Helpers\JWT;
 
