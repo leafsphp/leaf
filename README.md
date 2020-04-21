@@ -38,7 +38,7 @@ require __DIR__ . 'vendor/autoload.php';
 // Instantiate Leaf
 $leaf = new Leaf\App;
 
-// In v2.0, the request and response objects are directly tied to the Leaf Object, 
+// In v2.0, the request and response objects are directly tied to the Leaf Object,
 // so you don't have to instanciate them if you don't want to
 
 // Add routes
@@ -71,10 +71,9 @@ It's an MVC framework built with this package at it's core that let's you create
 
 Ckeckout LeafMVC [here](https://github.com/leafsphp/leafMVC)
 
-
 # Working with API
 
-Leaf also added a simple framework constructed in an MVCish way, but without the View layer purposely for creating APIs and Libraries. Leaf terms this construct as MRRC(Model Request Response Controller😅😅😅). This let's you seperate API logic, data and "views"(request and response) just like how it's done in MVC. 
+Leaf also added a simple framework constructed in an MVCish way, but without the View layer purposely for creating APIs and Libraries. Leaf terms this construct as MRRC(Model Request Response Controller😅😅😅). This let's you seperate API logic, data and "views"(request and response) just like how it's done in MVC.
 
 Checkout the LeafAPI package [here](https://github.com/leafsphp/leafAPI)
 

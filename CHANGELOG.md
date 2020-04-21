@@ -1,6 +1,10 @@
-## Changelog
-### v2.0 - final-beta - 12th April, 2020
-#### Added
+<!-- markdownlint-disable no-duplicate-header -->
+# Changelog
+
+## v2.0 - official - 21st April, 2020
+
+### Added
+
 - Added Leaf Mail
 - Added Date::days_ago
 - Added Date::months_ago
@@ -11,27 +15,40 @@
 - Added Auth::setSecretKey
 - Added Auth::getSecretKey
 - Added Auth::validate
+- Added Leaf JS Scripts [BETA]
+- Added Leaf Envryption Helper [BETA]
+- Added Leaf Password Helper [BETA]
+- Added secret key for token encryption in Leaf Authentication
 
+### Fixed
 
-#### Fixed
 - Fixed Request::params
 - Fixed Request::getBody
 - Fixed Request Method Tests
 - Fixes to Auth::validateToken
+- Fixed bugs with Leaf DB packages
+- Fixed bugs on Auth::login and register
+- Fixed base64 security issues on Leaf Token [BETA]
+- Fixes on Form::isEmpty and isNull
 
-#### Changed
+### Changed
+
 - Renamed Request `getBody` to `body`
 - Switched all `Date` methods to `snake_case`
-- Renamed `Date` methods
+- Switched `FS` methods to `snake_case`
+- Shortened `Date` method names (Find out more in the [docs](https://leafphp.netlify.com/))
+- Made Leaf Authentication a helper (Leaf\Helper\Authentication)
 
-#### Removed
+### Removed
+
 - Removed Response::count
 - Removed Response::getIterator
 - Removed Response header offeset methods
 
+## v2.0 - beta - 11th March, 2020
 
-### v2.0 - beta - 11th March, 2020
-#### Added
+### Added
+
 - Added DB->choose
 - Added DB->add
 - Added Auth->login
@@ -61,29 +78,27 @@
 - Provided security against XSS
 - Added Form::submit
 
+### Fixed
 
-#### Fixed
 - Fixed SESSION->id
 - Fixed headers bug with Response->respondWithCode
 - Fixed headers bug with Response->throwErr
 
+### Changed
 
-#### Changed
 - Changed Leaf\Core namespace to Leaf
 - Changed Session->remove to Session->unset
 
+### Removed
 
-#### Removed
 - Removed Auth->basicLogin
 - Removed Auth->emailLogin
 - Removed Auth->basicRegister
 
+## v1.5.0 - 11th December, 2019
 
+### Added
 
-
-
-### v1.5.0 - 11th December, 2019
-#### Added
 - Added FS->deleteFolder
 - Added FS->deleteFile
 - Added Form->validate😅
@@ -93,15 +108,15 @@
 - Added Leaf PDO🤔
 - Added Leaf\Core\Auth: simple login and signup
 
+### Fixed
 
-#### Fixed
 - Fixed FS->deleteFile
 - Fixed FS->listDir
 - Fixed Leaf DB
 - Fixed init bug with session
 
+### Changed
 
-#### Changed
 - Renamed Veins->renderTemplate to render
 - Rename veins->assign to set()
 - Renamed mkdir to createFolder
@@ -112,39 +127,38 @@
 - Changed `renderHtml` to `renderPage`
 - Changed all `getParam`s to `get`
 
+### Removed
 
-#### Removed
 Nothing was removed
 
+## v1.4.2 - 13th November, 2019
 
+### Added
 
-### v1.4.2 - 13th November, 2019
-#### Added
 - Added FileSystem module
 - Added `mysqliQuery` method to `leaf\config\db`
 - Added a bunch of handy session methods
 - Added leaf token
 - Added leaf form
 
+### Fixed
 
-#### Fixed
 - Fixed  a few problems with `leaf\config\db`;
 - Fixed tiny bug with `response->throwErr`
 
+### Changed
 
-#### Changed
 - Changed `leaf\config\db`: connection variables and connection type are set on db init. `$db = new db($host, $user, $password, $dbname, "PDO")`
 - Renamed renderHtmlPage to renderHtml
 
+### Removed
 
-#### Removed
 - Leaf\Config\DB has been depricated for now
 
+## v1.4.1 - 1st November, 2019
 
+### Added
 
-
-### v1.4.1 - 1st November, 2019
-#### Added
 - Added base Leaf Controller `Leaf\Core\Controller`
 - Added base controller for APIs: `Leaf\Core\ApiController`
 - Added base Leaf Model `Leaf\Core\Model`
@@ -153,16 +167,16 @@ Nothing was removed
 - Added Error Handling for development and production
 - Added a base database layer connected with custom environment variables
 
+### Fixed
 
-#### Fixed
 - Fixed bug with `Response::renderHtmlPage()`
 - Fixed the HTTP code rendering in the browser from `Response::respondWithCode`
 
+### Changed
 
-#### Changed
 - Changed `Validation` to `Form`
 
+### Removed
 
-#### Removed
 - Removed Leaf `Exceptions`
 - Removed Middleware interfaces
