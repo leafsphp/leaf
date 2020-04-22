@@ -71,9 +71,10 @@ class Form extends Request {
 		$supportedRules = ["required", "number", "text", "textonly", "validusername", "email", "nospaces"];
 
 		$fields = [];
+		$req = new \Leaf\Http\Request;
 		
 		foreach ($rules as $param => $rule) {
-			array_push($fields, ["name" => $param, "value" => $this->get($param), "rule" => $rule ]);
+			array_push($fields, ["name" => $param, "value" => $req->get($param), "rule" => $rule ]);
 		}
 		
 		foreach ($fields as $field) {
@@ -86,7 +87,7 @@ class Form extends Request {
 						echo "Supported rules are ".json_encode($supportedRules);
 						exit();
 					}
-					$this->validateField($field["name"], $field["value"], $rule);
+					return $this->validateField($field["name"], $field["value"], $rule);
 				}
 			} else {
 				$field["rule"] = strtolower($field["rule"]);
@@ -96,39 +97,50 @@ class Form extends Request {
 					echo "Supported rules are ".json_encode($supportedRules);
 					exit();
 				}
-				$this->validateField($field["name"], $field["value"], $field["rule"]);
+				return $this->validateField($field["name"], $field["value"], $field["rule"]);
 			}
 		}
 	}
 
 	public function validateField($fieldName, $fieldValue, $rule) {
+		$isValid = true;
+
 		if ($rule == "required" && ($fieldValue == "" || $fieldValue == null)) {
 			$this->errorsArray[$fieldName] = $fieldName." is required";
+			$isValid = false;
 		}
 
 		if ($rule == "number" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[0-9]+$/', $fieldValue))) {
 			$this->errorsArray[$fieldName] = $fieldName." must only contain numbers";
+			$isValid = false;
 		}
 
 		if ($rule == "text" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[_a-zA-Z ]+$/', $fieldValue))) {
 			$this->errorsArray[$fieldName] = $fieldName." must only contain text and spaces";
+			$isValid = false;
 		}
 		
 		if ($rule == "textonly" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[_a-zA-Z]+$/', $fieldValue))) {
 			$this->errorsArray[$fieldName] = $fieldName." must only contain text";
+			$isValid = false;
 		}
 
 		if ($rule == "validusername" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[_a-zA-Z0-9]+$/', $fieldValue))) {
 			$this->errorsArray[$fieldName] = $fieldName." must only contain characters 0-9, A-Z and _";
+			$isValid = false;
 		}
 
 		if ($rule == "email" && ($fieldValue == "" || $fieldValue == null || !!filter_var($fieldValue, 274) == false)) {
 			$this->errorsArray[$fieldName] = $fieldName." must be a valid email";
+			$isValid = false;
 		}
 
 		if ($rule == "nospaces" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[ ]+$/', $fieldValue))) {
 			$this->errorsArray[$fieldName] = $fieldName." can't contain any spaces";
+			$isValid = false;
 		}
+
+		return $isValid;
 	}
 
 	/**
