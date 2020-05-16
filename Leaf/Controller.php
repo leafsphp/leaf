@@ -10,26 +10,26 @@
 	*	Base controller for Leaf PHP Framework
 	*/
 	class Controller extends Response {
-		public $veins;
+		public $blade;
 		public $form;
+		public $request;
 		public function __construct() {
-			$this->veins = new \Leaf\Veins;
-			$this->veins->configure([
-				"veins_dir" => "app/views/",
-                "cache_dir" => "storage/framework/views/"
-			]);
+			$this->blade = new \Leaf\Blade;
+			$this->blade->configure("app/views/", "storage/framework/views/");
 			$this->form = new Form;
+			$this->request = new \Leaf\Http\Request;
 		}
 
         /**
 		 * Configure the Views and templating engine
 		 *
-		 * @param array $config: An array of data to be passed into template file
+		 * @param array $views: Path to locate templates
+		 * @param array $cache: Path to save templating cache
 		 *
 		 * @return void
 		 */
-		public function configure($config = ["veins_dir" => "app/views/", "cache_dir" => "storage/framework/views/"]) {
-			$this->veins->configure($config);
+		public function configure($views = "app/views/", $cache ="storage/framework/views/") {
+			$this->blade->configure($views, $cache);
 		}
 
 		/**
@@ -52,17 +52,6 @@
 		public function returnErrors() {
 			return $this->form->errors();
 		}
-        
-        /**
-		 * Set the data to be passed into the template
-		 *
-		 * @param array $vars: An array of data to be passed into template file
-		 *
-		 * @return void
-		 */
-		public function set($vars) {
-			$this->veins->set($vars);
-		}
 
 		/**
 		 * Render the template
@@ -71,8 +60,8 @@
 		 *
 		 * @return void
 		 */
-		public function render($templateName) {
-			$this->veins->render($templateName);
+		public function render(string $templateName, array $data = [], array $merge_data = []) {
+			$this->blade->render($templateName, $data, $merge_data);
 		}
 
 		public function file_upload($path, $file, $file_category = "image"): Array {

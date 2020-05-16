@@ -6,7 +6,7 @@ namespace Leaf;
  * ---------------------
  * A "reactive" component that mimics frontend frameworks
  */
-abstract class Component extends \Leaf\Veins {
+abstract class Component extends \Leaf\Blade {
 	//  state variable to be used
 	public $state;
 
