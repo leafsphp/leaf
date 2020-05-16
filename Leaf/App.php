@@ -1,6 +1,6 @@
 <?php
 /**
- * Leaf PHP Framework - a PHP micro-framework
+ * Leaf PHP Framework - A PHP micro-framework
  *
  * @author        Michael Darko <mickdd22@gmail.com>
  * @copyright   2019-2020 Michael Darko
@@ -32,7 +32,7 @@ class App
     /**
      * @const string
      */
-    const VERSION = '2.0.0';
+    const VERSION = '2.0.1';
 
     /**
      * @var \Leaf\Helpers\Set
@@ -173,24 +173,8 @@ class App
         });
 
         //  Veins Templating
-        $this->container->singleton('veins', function ($c) {
-            return new \Leaf\Veins();
-        });
-
-        //  Veins Templating
         $this->container->singleton('blade', function ($c) {
             return new \Leaf\Blade();
-        });
-
-
-        // Default view
-        $this->container->singleton('view', function ($c) {
-            $viewClass = $c['settings']['view'];
-            $templatesPath = $c['settings']['templates.path'];
-
-            $view = ($viewClass instanceOf \Leaf\View) ? $viewClass : new $viewClass;
-            $view->setTemplatesDirectory($templatesPath);
-            return $view;
         });
 
         // Default log writer
@@ -310,9 +294,6 @@ class App
             'log.writer' => null,
             'log.level' => \Leaf\Log::DEBUG,
             'log.enabled' => true,
-            // View
-            'templates.path' => './templates',
-            'view' => '\Leaf\View',
             // Cookies
             'cookies.encrypt' => false,
             'cookies.lifetime' => '20 minutes',
@@ -325,9 +306,7 @@ class App
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             // HTTP
-            'http.version' => '1.1',
-            // Routing
-            'routes.case_sensitive' => true
+            'http.version' => '1.1'
         );
     }
 
@@ -594,6 +573,31 @@ class App
      */
     public function options($pattern, $fn) {
         $this->match('OPTIONS', $pattern, $fn);
+    }
+    /**
+     * Create a resource route for using controllers.
+     * 
+     * This creates a routes that implement CRUD functionality in a controller
+     * `/posts` creates:
+     * - `/posts` - GET | HEAD - Controller@index
+     * - `/posts` - POST - Controller@store
+     * - `/posts/{id}` - GET | HEAD - Controller@show
+     * - `/posts/create` - GET | HEAD - Controller@create
+     * - `/posts/{id}/edit` - GET | HEAD - Controller@edit
+     * - `/posts/{id}/edit` - POST | PUT | PATCH - Controller@update
+     * - `/posts/{id}/delete` - POST | DELETE - Controller@destroy
+     * 
+     * @param string $pattern The base route to use eg: /post
+     * @param string $controller to handle route eg: PostController
+     */
+    public function resource(string $pattern, string $controller) {
+        $this->match("GET|HEAD", $pattern, "$controller@index");
+        $this->post("$pattern", "$controller@store");
+        $this->match("GET|HEAD", "$pattern/create", "$controller@create");
+        $this->match("POST|DELETE", "$pattern/{id}/delete", "$controller@destroy");
+        $this->match("POST|PUT|PATCH", "$pattern/{id}/edit", "$controller@update");
+        $this->match("GET|HEAD", "$pattern/{id}/edit", "$controller@edit");
+        $this->match("GET|HEAD", "$pattern/{id}", "$controller@show");
     }
     /**
      * Mounts a collection of callbacks onto a base route.
@@ -880,71 +884,6 @@ class App
         return $this->response;
     }
 
-    /**
-     * Get the Router object
-     * @return \Leaf\Router
-     */
-    // public function router()
-    // {
-    //     return $this->router;
-    // }
-
-    /**
-     * Get and/or set the View
-     *
-     * This method declares the View to be used by the Leaf application.
-     * If the argument is a string, Leaf will instantiate a new object
-     * of the same class. If the argument is an instance of View or a subclass
-     * of View, Leaf will use the argument as the View.
-     *
-     * If a View already exists and this method is called to create a
-     * new View, data already set in the existing View will be
-     * transferred to the new View.
-     *
-     * @param  string|\Leaf\View $viewClass The name or instance of a \Leaf\View subclass
-     * @return \Leaf\View
-     */
-    public function view($viewClass = null)
-    {
-        if (!is_null($viewClass)) {
-            $existingData = is_null($this->view) ? array() : $this->view->getData();
-            if ($viewClass instanceOf \Leaf\View) {
-                $this->view = $viewClass;
-            } else {
-                $this->view = new $viewClass();
-            }
-            $this->view->appendData($existingData);
-            $this->view->setTemplatesDirectory($this->config('templates.path'));
-        }
-
-        return $this->view;
-    }
-
-    /********************************************************************************
-    * Rendering
-    *******************************************************************************/
-
-    /**
-     * Render a template
-     *
-     * Call this method within a GET, POST, PUT, PATCH, DELETE, NOT FOUND, or ERROR
-     * callable to render a template whose output is appended to the
-     * current HTTP response body. How the template is rendered is
-     * delegated to the current View.
-     *
-     * @param  string $template The name of the template passed into the view's render() method
-     * @param  array  $data     Associative array of data made available to the view
-     * @param  int    $status   The HTTP response status code to use (optional)
-     */
-    public function render($template, $data = array(), $status = null)
-    {
-        if (!is_null($status)) {
-            $this->response->status($status);
-        }
-        $this->view->appendData($data);
-        $this->view->display($template);
-    }
-
     /********************************************************************************
     * HTTP Caching
     *******************************************************************************/
@@ -1216,8 +1155,6 @@ class App
      * Stop the application and immediately send the response with a
      * specific status and body to the HTTP client. This may send any
      * type of response: info, success, redirect, client error, or server error.
-     * If you need to render a template AND customize the response status,
-     * use the application's `render()` method instead.
      *
      * @param  int      $status     The HTTP response status
      * @param  string   $message    The HTTP response body
@@ -1533,7 +1470,8 @@ class App
     {
         try {
             if (isset($this->environment['leaf.flash'])) {
-                $this->view()->setData('flash', $this->environment['leaf.flash']);
+                // pass flash data into a view
+                // ('flash', $this->environment['leaf.flash']);
             }
             $this->applyHook('leaf.before');
             ob_start();
