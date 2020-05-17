@@ -31,13 +31,35 @@
 				$this->response->throwErr("$param not found in session, initialise it or check your spelling");
 			}
 		}
+
+		/**
+		 * Returns the requested value and removes it from the session
+		 *
+		 * This is identical to calling `get` first and then `unset` for the same key
+		 *
+		 * @param string $key the key to retrieve and remove the value for
+		 * @param mixed $defaultValue the default value to return if the requested value cannot be found
+		 * 
+		 * @return mixed the requested value or the default value
+		 */
+		public function retrieve($key, $defaultValue = null)
+		{
+			if (isset($_SESSION[$key])) {
+				$value = $this->get($key);
+				$this->unset_session_var($key);
+
+				return $value;
+			} else {
+				return $defaultValue;
+			}
+		}
 		
 		/**
 		 * Get all session variables as an array
 		 *
-		 * @return array, array of session variables
+		 * @return array|null array of session variables
 		 */
-        public function getBody() {
+        public function body() {
 			if (isset($_SESSION)) {
 				$body = array();
 				foreach($_SESSION as $key => $value) {
@@ -78,6 +100,9 @@
 			}
 		}
 
+		/**
+		 * Remove a session variable
+		 */
 		protected function unset_session_var($key) {
 			unset($_SESSION[$key]);
 		}

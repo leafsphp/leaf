@@ -42,7 +42,7 @@ class Response
     /**
      * @var array HTTP response codes and messages
      */
-    protected static $messages = array(
+    protected static $messages = [
         //Informational 1xx
         100 => '100 Continue',
         101 => '101 Switching Protocols',
@@ -100,7 +100,7 @@ class Response
         506 => '506 Variant Also Negotiates',
         510 => '510 Not Extended',
         511 => '511 Network Authentication Required'
-    );
+    ];
 
     /**
      * Constructor
@@ -303,6 +303,22 @@ EOT;
     {
         // Util::setCookieHeader($this->header, $name, $value);
         $this->cookies->set($name, $value);
+    }
+
+    /**
+     * Shorthand method of setting a cookie + value + expire time
+     *
+     * @param string $name    The name of the cookie
+     * @param string $value   If string, the value of cookie; if array, properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $expire When the cookie expires. Default: 7 days
+     */
+    public function simpleCookie($name, $value, $expire = "7 days")
+    {
+        $cookie = [
+            "value" => $value,
+            "expire" => $expire
+        ];
+        $this->setCookie($name, $cookie);
     }
 
     /**

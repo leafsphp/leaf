@@ -1,20 +1,27 @@
 <?php
 namespace Leaf\Http;
 
+/**
+ * Leaf Cookies
+ * ------------------------------------
+ * Simple Cookie management with Leaf
+ */
 class Cookies extends \Leaf\Helpers\Set
 {
     /**
      * Default cookie settings
      * @var array
      */
-    protected $defaults = array(
+    protected $defaults = [
         'value' => '',
         'domain' => null,
+        'hostonly' => null,
         'path' => null,
         'expires' => null,
         'secure' => false,
-        'httponly' => false
-    );
+        'httponly' => false,
+        'samesite' => null
+    ];
 
     /**
      * Set cookie
@@ -38,6 +45,22 @@ class Cookies extends \Leaf\Helpers\Set
             $cookieSettings = array_replace($this->defaults, array('value' => $value));
         }
         parent::set($key, $cookieSettings);
+    }
+
+    /**
+     * Shorthand method of setting a cookie + value + expire time
+     *
+     * @param string $name    The name of the cookie
+     * @param string $value   If string, the value of cookie; if array, properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $expires When the cookie expires. Default: 7 days
+     */
+    public function simpleCookie($name, $value, $expires = "7 days")
+    {
+        $cookie = $this->defaults;
+        $cookie["value"] = $value;
+        $cookie["expires"] = $expires;
+
+        $this->set($name, $cookie);
     }
 
     /**
