@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>{$title}</title>
+		<title>{{ $title }}</title>
 		<style>
 			html,body,div,span,object,iframe,
 			h1,h2,h3,h4,h5,h6,p,blockquote,pre,
@@ -49,26 +49,24 @@
 	</head>
 	<body>
 		<header>
-			<a href="https://leafphp.netlify.com/#/" style="text-decoration: none">
-				<img src="https://leafdocs.netlify.com/#/images/logo.png" alt="Leaf PHP Framework" style="width: 110px;">
+			<a href="https://leafphp.netlify.app/#/" style="text-decoration: none">
+				<img src="https://leafdocs.netlify.app/#/images/logo.png" alt="Leaf PHP Framework" style="width: 110px;">
 			</a>
 		</header>
 		<h1>
-			{autoescape="off"}
-				{$welcome}
-			{/autoescape}
+			{!! $welcome !!}
 		</h1>
 		<p>
 			Congratulations! Your Leaf application is running. If this is
-			your first time using Leaf, start with this <a href="https://leafphp.netlify.com/#/2.0/intro/first" target="_blank">"Hello World" Tutorial</a>.
+			your first time using Leaf, start with this <a href="https://leafphp.netlify.app/#/2.0/intro/first" target="_blank">"Hello World" Tutorial</a>.
 		</p>
 		<section>
 			<h2>Get Started</h2>
 			<ol>
 				<li>The application code is in <code>index.php</code></li>
-				<li>Read the <a href="https://leafphp.netlify.com/#/" target="_blank">docs</a></li>
+				<li>Read the <a href="https://leafphp.netlify.app/#/" target="_blank">docs</a></li>
 				<li>Follow <a href="http://www.twitter.com/leafphp" target="_blank">@leafphp</a> on Twitter</li>
-				<li>Checkout <a href="https://leafphp.netlify.com/codelabs" target="_blank">Leaf Codelabs</a> for real examples and use cases</li>
+				<li>Checkout <a href="https://leafphp.netlify.app/codelabs" target="_blank">Leaf Codelabs</a> for real examples and use cases</li>
 			</ol>
 		</section>
 		<section>

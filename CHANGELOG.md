@@ -1,6 +1,25 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.1.0 - 20th May, 2020
+
+### Added
+
+- Added Route::resource
+- Added Session::retrieve
+- Added Leaf\UI [BETA]
+
+### Fixed
+
+### Changed
+
+- Seperated Leaf Veins from Leaf Package
+- Renamed Session::getBody to Session::body
+
+### Removed
+
+- Removed Leaf\View
+
 ## v2.0 - official - 21st April, 2020
 
 ### Added
