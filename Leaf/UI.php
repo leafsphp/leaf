@@ -268,7 +268,7 @@ class UI {
 	/**
 	 * Body Element
 	 */
-	public static function body(array $props = [], array $children = []) {
+	public static function body(array $children = [], array $props = []) {
 		if (!isset($props["id"])) {
 			$id = time()."body";
 			$props["id"] = $id;
@@ -300,12 +300,12 @@ class UI {
 		return self::create_element("aside", $props, $children);
 	}
 
-	public static function img(array $props = [], array $children = []) {
+	public static function img(array $props = []) {
 		if (!isset($props["id"])) {
 			$id = time()."img";
 			$props["id"] = $id;
 		}
-		return self::create_element("img", $props, $children, self::SINGLE_TAG);
+		return self::create_element("img", $props, [], self::SINGLE_TAG);
 	}
 
 	public static function figure(array $props = [], array $children = []) {
@@ -570,12 +570,12 @@ class UI {
 		return self::create_element("p", $props, [$children]);
 	}
 
-	public static function icon(string $children, array $props = []) {
+	public static function _icon(string $children, array $props = []) {
 		if (!isset($props["id"])) {
-			$id = time()."icon";
+			$id = time()."_icon";
 			$props["id"] = $id;
 		}
-		return self::create_element("p", $props, [$children]);
+		return self::create_element("i", $props, [$children]);
 	}
 
 	/**
