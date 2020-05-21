@@ -69,7 +69,7 @@ $app->get("/ui", function() use($ui) {
             $ui::meta("viewport", "width=device-width;initial-scale=1"),
             $ui::meta("description", "This is a really long description"),
         ]),
-        $ui::body([], [
+        $ui::body([
             $ui::custom("_avatar"),
             $ui::_column([], [
                 $ui::_text("Fill This Form", ["size" => "22px"]),
