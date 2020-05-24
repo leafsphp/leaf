@@ -1,13 +1,12 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.1.0 - 20th May, 2020
+## v2.1.0 - alpha - 24th May, 2020
 
 ### Added
 
 - Added Route::resource
 - Added Session::retrieve
-- Added Leaf\UI [BETA]
 
 ### Fixed
 

@@ -52,52 +52,6 @@ $app->get('/', function () use($app) {
     $app->response->renderMarkup($page);
 });
 
-$ui = new Leaf\UI;
-
-$ui::make("_avatar", function() {
-    $avatar = [];
-    $avatar["style"] = "border-radius: 50%; border: 1px solid black; width: 50px; height: 50px";
-    $avatar["props"] =["src" => "./img.jpg", "alt" => "xxx"];
-    $avatar["compile"] = "img";
-    return $avatar;
-});
-
-$app->get("/ui", function() use($ui) {
-    $html = $ui::html([
-        $ui::head([
-            $ui::title("Home"),
-            $ui::meta("viewport", "width=device-width;initial-scale=1"),
-            $ui::meta("description", "This is a really long description"),
-        ]),
-        $ui::body([
-            $ui::custom("_avatar"),
-            $ui::_column([], [
-                $ui::_text("Fill This Form", ["size" => "22px"]),
-                $ui::b("This is bold text"),
-                $ui::form("post", "#", [
-                    $ui::_row([], [
-                        $ui::_column(["style" => "width: 100%"], [
-                            $ui::input("text", "name", [
-                                "placeholder" => "Your Name",
-                                "label" => "Enter Your Name"
-                            ])
-                        ]),
-                        $ui::_column(["style" => "width: 100%"], [
-                            $ui::input("text", "name", [
-                                "placeholder" => "Your Name",
-                                "label" => "Enter Your Name"
-                            ])
-                        ])
-                    ]),
-                    $ui::button("LOGIN NOW", ["type" => "submit"])
-                ])
-            ])
-        ])
-    ]);
-    
-    $ui::render($html);
-});
-
 // POST route
 $app->post('/post', function () use ($app) {
     $app->response->respond("This is a POST route");
