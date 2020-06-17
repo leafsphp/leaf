@@ -12,7 +12,7 @@ namespace Leaf\Http;
  * @author    Michael Darko
  * @since       1.0.0
  */
-class Response implements \ArrayAccess, \Countable, \IteratorAggregate
+class Response
 {
     /**
      * @var int HTTP status code
@@ -42,7 +42,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * @var array HTTP response codes and messages
      */
-    protected static $messages = array(
+    protected static $messages = [
         //Informational 1xx
         100 => '100 Continue',
         101 => '101 Switching Protocols',
@@ -100,7 +100,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         506 => '506 Variant Also Negotiates',
         510 => '510 Not Extended',
         511 => '511 Network Authentication Required'
-    );
+    ];
 
     /**
      * Constructor
@@ -116,32 +116,49 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         $this->cookies = new \Leaf\Http\Cookies();
     }
 
+    /**
+     * Output neatly parsed json
+     */
     public function respond($data) {
         header('Content-Type: application/json');
         echo json_encode($data);
     }
 
-    public function respondWithCode($data, $code = 200) {
+    /**
+     * Output json encoded data with an HTTP code/message
+     */
+    public function respondWithCode($data, int $code = 200, bool $use_message = false) {
         header('Content-Type: application/json');
-        $dataToPrint = array('data' => $data, 'code' => $code);
+        if ($use_message) {
+            $dataToPrint = array('data' => $data, 'message' => isset(self::$messages[$code]) ? self::$messages[$code] : $code);
+        } else {
+            $dataToPrint = array('data' => $data, 'code' => $code);
+        }
         $this->setStatus($code);
         echo json_encode($dataToPrint);
     }
 
-    public function throwErr($error, $code = 500) {
+    /**
+     * Throw an error and break the application
+     */
+    public function throwErr($error, int $code = 500, bool $use_message = false) {
         header('Content-Type: application/json');
-        $dataToPrint = array('error' => $error, 'code' => $code);
+        if ($use_message) {
+            $dataToPrint = array('error' => $error, 'message' => isset(self::$messages[$code]) ? self::$messages[$code] : $code);
+        } else {
+            $dataToPrint = array('error' => $error, 'code' => $code);
+        }
         $this->setStatus($code);
         $this->respond($dataToPrint);
         exit();
     }
     
-    public function renderPage($file) {
+    public function renderPage(String $file) {
         header('Content-Type: text/html');
         require $file;
     }
 
-    public function renderMarkup($markup) {
+    public function renderMarkup(String $markup) {
         header('Content-Type: text/html');
         echo <<<EOT
 $markup
@@ -289,6 +306,22 @@ EOT;
     }
 
     /**
+     * Shorthand method of setting a cookie + value + expire time
+     *
+     * @param string $name    The name of the cookie
+     * @param string $value   If string, the value of cookie; if array, properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $expire When the cookie expires. Default: 7 days
+     */
+    public function simpleCookie($name, $value, $expire = "7 days")
+    {
+        $cookie = [
+            "value" => $value,
+            "expire" => $expire
+        ];
+        $this->setCookie($name, $cookie);
+    }
+
+    /**
      * Delete cookie
      *
      * Instead of using PHP's `setcookie()` function, Leaf manually constructs the HTTP `Set-Cookie`
@@ -415,70 +448,6 @@ EOT;
     public function isServerError()
     {
         return $this->status >= 500 && $this->status < 600;
-    }
-
-    /**
-     * DEPRECATION WARNING! ArrayAccess interface will be removed from \Leaf\Http\Response.
-     * Iterate `headers` or `cookies` properties directly.
-     */
-
-    /**
-     * Array Access: Offset Exists
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->headers[$offset]);
-    }
-
-    /**
-     * Array Access: Offset Get
-     */
-    public function offsetGet($offset)
-    {
-        return $this->headers[$offset];
-    }
-
-    /**
-     * Array Access: Offset Set
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->headers[$offset] = $value;
-    }
-
-    /**
-     * Array Access: Offset Unset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->headers[$offset]);
-    }
-
-    /**
-     * DEPRECATION WARNING! Countable interface will be removed from \Leaf\Http\Response.
-     * Call `count` on `headers` or `cookies` properties directly.
-     *
-     * Countable: Count
-     */
-    public function count()
-    {
-        return count($this->headers);
-    }
-
-    /**
-     * DEPRECATION WARNING! IteratorAggregate interface will be removed from \Leaf\Http\Response.
-     * Iterate `headers` or `cookies` properties directly.
-     *
-     * Get Iterator
-     *
-     * This returns the contained `\Leaf\Http\Headers` instance which
-     * is itself iterable.
-     *
-     * @return \Leaf\Http\Headers
-     */
-    public function getIterator()
-    {
-        return $this->headers->getIterator();
     }
 
     /**

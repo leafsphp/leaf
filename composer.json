@@ -2,7 +2,7 @@
     "name": "leafs/leaf",
     "description": "Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly.",
     "keywords": ["microframework","rest","router", "leaf", "php", "framework"],
-    "homepage": "https://leaf-docs.netlify.com",
+    "homepage": "https://leafphp.netlify.com/#/",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -15,10 +15,12 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "jenssegers/blade": "^1.2",
+        "leafs/blade": "^1.2.3",
         "illuminate/database": "^6.0",
         "illuminate/container": "^6.0",
-        "illuminate/events": "^6.0"
+        "illuminate/events": "^6.0",
+        "phpmailer/phpmailer": "^6.1",
+        "illuminate/view": "^6.8.0"
     },
     "minimum-stability": "stable",
     "suggest": {

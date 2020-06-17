@@ -7,12 +7,14 @@
 	 *  Session management made simple
 	 */
     class Session {
+		public $response;
+
         public function __construct() {
+			$this->response = new \Leaf\Http\Response;
 			!isset($_SESSION) ? session_start() : null;
 			if (!isset($_SESSION['id'])) {
-				$this->set("id", session_id());
+				$this->id();
 			}
-			$response = new Response;
 		}
 		
 		/**
@@ -23,19 +25,41 @@
 		 * @return string, string: session variable
 		 */
         public function get($param) {
-			if (isset($_SESSION)) {
+			if (isset($_SESSION[$param])) {
 				return $_SESSION[$param];
 			} else {
-				return null;
+				$this->response->throwErr("$param not found in session, initialise it or check your spelling");
+			}
+		}
+
+		/**
+		 * Returns the requested value and removes it from the session
+		 *
+		 * This is identical to calling `get` first and then `unset` for the same key
+		 *
+		 * @param string $key the key to retrieve and remove the value for
+		 * @param mixed $defaultValue the default value to return if the requested value cannot be found
+		 * 
+		 * @return mixed the requested value or the default value
+		 */
+		public function retrieve($key, $defaultValue = null)
+		{
+			if (isset($_SESSION[$key])) {
+				$value = $this->get($key);
+				$this->unset_session_var($key);
+
+				return $value;
+			} else {
+				return $defaultValue;
 			}
 		}
 		
 		/**
 		 * Get all session variables as an array
 		 *
-		 * @return array, array of session variables
+		 * @return array|null array of session variables
 		 */
-        public function getBody() {
+        public function body() {
 			if (isset($_SESSION)) {
 				$body = array();
 				foreach($_SESSION as $key => $value) {
@@ -55,11 +79,32 @@
 		 *
 		 * @return void
 		 */
-		public function set($key, $value) {
+		public function set($key, $value = null) {
 			if (!isset($_SESSION)) {
 				session_start();
 			}
-			$_SESSION[$key] = $value;
+			if (is_array($key)) {
+				foreach ($key as $name => $val) {
+					$_SESSION[$name] = htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+				}
+			} else {
+				if (is_array($value)) {
+					$_SESSION[$key] = [];
+
+					foreach ($value as $name => $var) {
+						$_SESSION[$key][$name] = htmlspecialchars($var, ENT_QUOTES, 'UTF-8');
+					}
+				} else {
+					$_SESSION[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+				}
+			}
+		}
+
+		/**
+		 * Remove a session variable
+		 */
+		protected function unset_session_var($key) {
+			unset($_SESSION[$key]);
 		}
 
 		/**
@@ -74,7 +119,13 @@
 				$this->response->throwErr("There's no active session");
 				exit();
 			}
-			unset($_SESSION[$key]);
+			if (is_array($key)) {
+				foreach ($key as $field) {
+					$this->unset_session_var($field);
+				}
+			} else {
+				$this->unset_session_var($key);
+			}
 		}
 		
 		/**
@@ -122,9 +173,6 @@
 			}
 			if (!isset($_SESSION['id'])) {
 				$this->set("id", session_id($id));
-			}
-			if ($id != null) {
-				$this->regenerate();
 			}
 			return $this->get("id");
 		}

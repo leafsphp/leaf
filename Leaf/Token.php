@@ -1,15 +1,18 @@
 <?php
 namespace Leaf;
 
-// Token objects from this class do not implement bin2hex, rather, base64 is used
-
 /**
- *  Leaf Tokens
+ *  Leaf Tokens [BETA]
  *  --------
  *  This is just a simple way to create tokens. Use this if you prefer not to use JWT
  */
-class Token {
+class Token extends \Leaf\Helpers\Encryption {
 	protected $token;
+
+	public function __construct()
+	{
+		parent::__construct();
+	}
 
 	/**
      * generate a simple user token
@@ -51,7 +54,7 @@ class Token {
 
 	private function createToken($token_data) {
 		$token_data = json_encode($token_data);
-		$token = base64_encode($token_data);
+		$token = $this->encrypt($token_data);
 		return $token;
 	}
 
@@ -64,7 +67,7 @@ class Token {
      */
 	public function validateToken($token) {
 		// check if the app secret is @Leaf1sGr8
-		$token = base64_decode($token);
+		$token = $this->decrypt($token, $this->key, $this->nonce);
 		$token = json_decode($token);
 		if ($token['secret_phrase' != "@Leaf1sGr8"] || !isset($token['secret_phrase'])) {
 			$this->response->throwErr(array(

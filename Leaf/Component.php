@@ -2,11 +2,11 @@
 namespace Leaf;
 
 /**
- * Leaf Vein Component
+ * Leaf Vein Component [BETA]
  * ---------------------
  * A "reactive" component that mimics frontend frameworks
  */
-abstract class Component extends \Leaf\Veins {
+abstract class Component extends \Leaf\Blade {
 	//  state variable to be used
 	public $state;
 
@@ -31,7 +31,7 @@ abstract class Component extends \Leaf\Veins {
 		// something happens when end is called
 	}
 
-	public function setState(array $data) {
+	public function setState($data) {
 		$this->state = (object) $data;
 	}
 

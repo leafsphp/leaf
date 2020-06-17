@@ -13,4 +13,7 @@ class Str extends \Illuminate\Support\Str {
 
         return $string;
 	}
+
+	// make shorthand method eg: 2000 ~ 2k, the ~ ē
+	// make shorten eg shorten("I am Michael", 6) => "I am M..."
 }

@@ -1,5 +1,9 @@
 <?php
+
 namespace Leaf\Helpers;
+
+use \Leaf\Exception\General as Exception;
+
 /**
  * JSON Web Token implementation, based on this spec:
  * https://tools.ietf.org/html/rfc7519
@@ -10,6 +14,7 @@ namespace Leaf\Helpers;
  * @package  Authentication_JWT
  * @author   Neuman Vong <neuman@twilio.com>
  * @author   Anant Narayanan <anant@php.net>
+ * @author   Michael Darko <mychi.darko@gmail.com>
  * @license  http://opensource.org/licenses/BSD-3-Clause 3-clause BSD
  * @link     https://github.com/firebase/php-jwt
  */
@@ -98,7 +103,7 @@ class JWT
         // token can actually be used. If it's not yet that time, abort.
         if (isset($payload->nbf) && $payload->nbf > ($timestamp + static::$leeway)) {
             throw new Exception(
-                'Cannot handle token prior to ' . date(DateTime::ISO8601, $payload->nbf)
+                'Cannot handle token prior to ' . date(\DateTime::ISO8601, $payload->nbf)
             );
         }
         // Check that this token has been created before 'now'. This prevents
@@ -106,12 +111,12 @@ class JWT
         // correctly used the nbf claim).
         if (isset($payload->iat) && $payload->iat > ($timestamp + static::$leeway)) {
             throw new Exception(
-                'Cannot handle token prior to ' . date(DateTime::ISO8601, $payload->iat)
+                'Cannot handle token prior to ' . date(\DateTime::ISO8601, $payload->iat)
             );
         }
         // Check if this token has expired.
         if (isset($payload->exp) && ($timestamp - static::$leeway) >= $payload->exp) {
-            throw new Exception('Expired token');   
+            throw new Exception('Expired token');
         }
         return $payload;
     }
@@ -137,7 +142,7 @@ class JWT
         if ($keyId !== null) {
             $header['kid'] = $keyId;
         }
-        if ( isset($head) && is_array($head) ) {
+        if (isset($head) && is_array($head)) {
             $header = array_merge($head, $header);
         }
         $segments = array();
@@ -158,22 +163,22 @@ class JWT
      *
      * @return string An encrypted message
      *
-     * @throws DomainException Unsupported algorithm was specified
+     * @throws \DomainException Unsupported algorithm was specified
      */
     public static function sign($msg, $key, $alg = 'HS256')
     {
         if (empty(static::$supported_algs[$alg])) {
-            throw new DomainException('Algorithm not supported');
+            throw new \DomainException('Algorithm not supported');
         }
         list($function, $algorithm) = static::$supported_algs[$alg];
-        switch($function) {
+        switch ($function) {
             case 'hash_hmac':
                 return hash_hmac($algorithm, $msg, $key, true);
             case 'openssl':
                 $signature = '';
                 $success = openssl_sign($msg, $signature, $key, $algorithm);
                 if (!$success) {
-                    throw new DomainException("OpenSSL unable to sign data");
+                    throw new \DomainException("OpenSSL unable to sign data");
                 } else {
                     return $signature;
                 }
@@ -190,15 +195,15 @@ class JWT
      *
      * @return bool
      *
-     * @throws DomainException Invalid Algorithm or OpenSSL failure
+     * @throws \DomainException Invalid Algorithm or OpenSSL failure
      */
     private static function verify($msg, $signature, $key, $alg)
     {
         if (empty(static::$supported_algs[$alg])) {
-            throw new DomainException('Algorithm not supported');
+            throw new \DomainException('Algorithm not supported');
         }
         list($function, $algorithm) = static::$supported_algs[$alg];
-        switch($function) {
+        switch ($function) {
             case 'openssl':
                 $success = openssl_verify($msg, $signature, $key, $algorithm);
                 if ($success === 1) {
@@ -207,7 +212,7 @@ class JWT
                     return false;
                 }
                 // returns 1 on success, 0 on failure, -1 on error.
-                throw new DomainException(
+                throw new \DomainException(
                     'OpenSSL error: ' . openssl_error_string()
                 );
             case 'hash_hmac':
@@ -232,7 +237,7 @@ class JWT
      *
      * @return object Object representation of JSON string
      *
-     * @throws DomainException Provided string was invalid JSON
+     * @throws \DomainException Provided string was invalid JSON
      */
     public static function jsonDecode($input)
     {
@@ -248,13 +253,13 @@ class JWT
              *them to strings) before decoding, hence the preg_replace() call.
              */
             $max_int_length = strlen((string) PHP_INT_MAX) - 1;
-            $json_without_bigints = preg_replace('/:\s*(-?\d{'.$max_int_length.',})/', ': "$1"', $input);
+            $json_without_bigints = preg_replace('/:\s*(-?\d{' . $max_int_length . ',})/', ': "$1"', $input);
             $obj = json_decode($json_without_bigints);
         }
         if (function_exists('json_last_error') && $errno = json_last_error()) {
             static::handleJsonError($errno);
         } elseif ($obj === null && $input !== 'null') {
-            throw new DomainException('Null result with non-null input');
+            throw new \DomainException('Null result with non-null input');
         }
         return $obj;
     }
@@ -265,7 +270,7 @@ class JWT
      *
      * @return string JSON representation of the PHP object or array
      *
-     * @throws DomainException Provided object could not be encoded to valid JSON
+     * @throws \DomainException Provided object could not be encoded to valid JSON
      */
     public static function jsonEncode($input)
     {
@@ -273,7 +278,7 @@ class JWT
         if (function_exists('json_last_error') && $errno = json_last_error()) {
             static::handleJsonError($errno);
         } elseif ($json === 'null' && $input !== null) {
-            throw new DomainException('Null result with non-null input');
+            throw new \DomainException('Null result with non-null input');
         }
         return $json;
     }
@@ -320,10 +325,10 @@ class JWT
             JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
             JSON_ERROR_UTF8 => 'Malformed UTF-8 characters' //PHP >= 5.3.3
         );
-        throw new DomainException(
+        throw new \DomainException(
             isset($messages[$errno])
-            ? $messages[$errno]
-            : 'Unknown JSON error: ' . $errno
+                ? $messages[$errno]
+                : 'Unknown JSON error: ' . $errno
         );
     }
     /**

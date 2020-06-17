@@ -1,42 +1,17 @@
 <?php
 	namespace Leaf;
 
-	use \Leaf\Http\Response;
 	use \Leaf\Form;
 	/**
 	*	Leaf PHP base controller
 	*	--------------------------
 	*	Loads the model and views
 	*/
-	class ApiController {
+	class ApiController extends \Leaf\Http\Response {
 		public $response;
 		public $form;
 		public function __construct() {
-			$this->response = new Response;
 			$this->form = new Form;
-		}
-
-        /**
-		 * Submit JSON encoded data to  user
-		 *
-		 * @param array $data: An array of data to be displayed to the user
-		 *
-		 * @return void
-		 */
-		public function respond($data) {
-			$this->response->respond($data);
-		}
-        
-        /**
-		 * Submit JSON encoded data to  user with an http code
-		 *
-		 * @param array $data: An array of data to be displayed to the user
-		 * @param integer $code: An array of data to be displayed to the user
-		 *
-		 * @return void
-		 */
-		public function respondWithCode($data, $code) {
-			$this->response->respondWithCode($data, $code);
 		}
 
 		/**

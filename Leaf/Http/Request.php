@@ -45,11 +45,22 @@ class Request
      */
     public $cookies;
 
+    /**
+     * The Request Method
+     */
+    public $requestMethod;
+
+    /**
+     * The Request Body
+     */
+    protected $request;
+
     public function __construct()
     {
         $this->requestMethod = $_SERVER['REQUEST_METHOD'];
         $handler = fopen('php://input', 'r');
         $this->request = stream_get_contents($handler);
+        $this->headers = new Headers();
     }
 
     /**
@@ -58,7 +69,7 @@ class Request
      */
     public function getMethod()
     {
-        return $this->env['REQUEST_METHOD'];
+        return $_SERVER['REQUEST_METHOD'];
     }
 
     /**
@@ -125,6 +136,21 @@ class Request
     }
 
     /**
+     * Find if request has a particular header
+     * 
+     * @param string $header  Header to check for
+     * @return bool
+     */
+    public function hasHeader(String $header)
+    {
+        if (isset($this->headers[$header])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Is this an AJAX request?
      * @return bool
      */
@@ -161,7 +187,7 @@ class Request
      */
     public function params($key = null, $default = null)
     {
-        $union = array_merge($this->get(), $this->post());
+        $union = $this->body();
         if ($key) {
             return isset($union[$key]) ? $union[$key] : $default;
         }
@@ -179,42 +205,41 @@ class Request
      * @param  string           $key
      */
     public function get($param) {
-        if ($this->requestMethod == "POST") {
+        if ($this->requestMethod == "POST" || $this->requestMethod == "PUT" || $this->requestMethod == "PATCH" || $this->requestMethod == "DELETE") {
             if (isset($_POST[$param])) {
-                return $_POST[$param];
+                return htmlspecialchars($_POST[$param], ENT_QUOTES, 'UTF-8');
             } else {
                 $data = json_decode($this->request, true);
-                return isset($data[$param]) ? $data[$param] : null;
+                return isset($data[$param]) ? htmlspecialchars($data[$param], ENT_QUOTES, 'UTF-8') : null;
             }
         } else {
-            return isset($_GET[$param]) ? $_GET[$param] : null;
+            return isset($_GET[$param]) ? htmlspecialchars($_GET[$param], ENT_QUOTES, 'UTF-8') : null;
         }
     }
 
     /**
      * Get all the response data as an associative array
      */
-    public function getBody() {
+    public function body() {
         $data = json_decode($this->request, true);
 
+        $body = array();
+
         if($this->requestMethod === "GET") {
-            $body = array();
             foreach($_GET as $key => $value) {
-                $body[$key] = $value;
+                $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
             }
             return count($body) > 0 ? $body : null;
         }
-        if ($this->requestMethod == "POST") {
-            if (isset($_POST)) {
-                $body = array();
+        if ($this->requestMethod == "POST" || $this->requestMethod == "PUT" || $this->requestMethod == "PATCH" || $this->requestMethod == "DELETE") {
+            if (isset($_POST) && !empty($_POST)) {
                 foreach($_POST as $key => $value) {
-                    $body[$key] = $value;
+                    $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
                 }
                 return count($body) > 0 ? $body : null;
             } else {
-                $body = array();
                 foreach($data as $key => $value) {
-                    $body[$key] = $value;
+                    $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
                 }
                 return count($body) > 0 ? $body : null;
             }

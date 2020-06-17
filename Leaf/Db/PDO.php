@@ -32,8 +32,8 @@
 		 */
         public function connect($host, $dbname, $user, $password) {
             try {
-                $connection = new PDO("mysql:host=$host;dbname=$dbname", $user, $password);
-                $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $connection = new \PDO("mysql:host=$host;dbname=$dbname", $user, $password);
+                $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 $this->connection = $connection;
                 return $connection;
             } catch (\Exception $e) {
@@ -99,12 +99,12 @@
 				$keys = [];			
 
 				foreach ($condition as $key => $value) {
-					try {
-						!$this->select($table, "*", "$key = ?", [$value]);
-					} catch (\Throwable $th) {
-						$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-						exit();
-					}
+					// try {
+					// 	!$this->select($table, "*", "$key = ?", [$value]);
+					// } catch (\Throwable $th) {
+					// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+					// 	exit();
+					// }
 
 					array_push($keys, $key);
 					array_push($data, $value);
@@ -125,8 +125,10 @@
 			}
 
 			if (!empty($this->form->errors())) {
-				$this->response->throwErr($this->form->errors());
-				exit();
+				foreach ($this->form->errors() as $key => $value) {
+					$this->errorsArray[$key] = $value;
+				}
+				return $this;
 			} else {
 				$query = "";
 
@@ -161,12 +163,12 @@
 			$keys = [];			
 
 			foreach ($items as $key => $value) {
-				try {
-					!$this->select($table, "*", "$key = ?", [$value]);
-				} catch (\Throwable $th) {
-					$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-					exit();
-				}
+				// try {
+				// 	!$this->select($table, "*", "$key = ?", [$value]);
+				// } catch (\Throwable $th) {
+				// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
+				// 	exit();
+				// }
 
 				array_push($keys, $key);
 				array_push($data, $value);
@@ -186,21 +188,23 @@
 			$data_length = count($data);
 
 			if ($uniques != null) {
-			foreach ($uniques as $unique) {
-				if (!isset($items[$unique])) {
-					$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
-					exit();
-				} else {
-					if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
-						$this->form->errorsArray[$unique] = "$unique already exists";
+				foreach ($uniques as $unique) {
+					if (!isset($items[$unique])) {
+						$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
+						exit();
+					} else {
+						if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
+							$this->form->errorsArray[$unique] = "$unique already exists";
+						}
 					}
 				}
 			}
-		}
 
 			if (!empty($this->form->errors())) {
-				$this->response->throwErr($this->form->errors());
-				exit();
+				foreach ($this->form->errors() as $key => $value) {
+					$this->errorsArray[$key] = $value;
+				}
+				return $this;
 			} else {
 				$table_names = "";
 				$table_values = "";
@@ -268,25 +272,30 @@
 		}
 
 		public function count() {
-			// 
+			return \count($this->fetchAll());
 		}
 
+		/**
+		 * Fetch Query Results as object
+		 */
 		public function fetchObj() {
-			return $this->queryResult->fetch(PDO::FETCH_OBJ);
+			return $this->queryResult->fetch(\PDO::FETCH_OBJ);
 		}
-
+		
+		/**
+		 * Fetch Query Results as assoc array
+		 */
         public function fetchAssoc() {
-            return $this->queryResult->fetch(PDO::FETCH_ASSOC);
+            return $this->queryResult->fetch(\PDO::FETCH_ASSOC);
         }
 
-        public function fetchAll($type = FETCH_OBJ) {
-            if ($type == "obj" || $type == "object" || $type == FETCH_OBJ) {
-				$type = FETCH_OBJ;
+        public function fetchAll($type = "object") {
+            if ($type == "obj" || $type == "object") {
+				return $this->queryResult->fetchAll(\PDO::FETCH_OBJ);
 			}
-			if ($type != "obj" && $type != FETCH_OBJ || $type == "assoc") {
-				$type = FETCH_ASSOC;
+			if ($type != "obj" && $type != "object") {
+				return $this->queryResult->fetchAll(\PDO::FETCH_ASSOC);
             }
-            $this->queryResult->fetchAll(PDO::$type);
         }
 
         public function result() {
