@@ -41,6 +41,18 @@
                 echo $e;
             }
 		}
+
+		/**
+		 * Connect to database using environment variables
+		 */
+		public function auto_connect() {
+			$this->connect(
+				getenv("DB_HOST"),
+				getenv("DB_USERNAME"),
+				getenv("DB_PASSWORD"),
+				getenv("DB_DATABASE")
+			);
+		}
 		
 		/**
 		 * MYSQLI Query
