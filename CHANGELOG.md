@@ -6,6 +6,7 @@
 ### Added
 
 - Added `Leaf\Auth::auto_connect`
+- Added default bypass for CORS errors
 
 ### Fixed
 

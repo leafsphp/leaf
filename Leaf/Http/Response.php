@@ -165,6 +165,11 @@ $markup
 EOT;
     }
 
+    public function cors(String $allow_origin = "*", String $allow_headers = "*") {
+        header("Access-Control-Allow-Origin: $allow_origin");
+        header("Access-Control-Allow-Headers: $allow_headers");
+    }
+
     public function getStatus()
     {
         return $this->status;
