@@ -52,6 +52,8 @@ $app->get('/', function () use($app) {
     $app->response->renderMarkup($page);
 });
 
+$app->get("/wynter", "\Wyn@render");
+
 // POST route
 $app->post('/post', function () use ($app) {
     $app->response->respond("This is a POST route");

@@ -14,9 +14,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * Leaf Wynter
  * ----------------------------------
- * Wynter is a full-stack framework for PHP that makes building dynamic interfaces simple, without leaving the comfort of PHP.
- * 
- * Wynter is built based on Caleb Porzio's [Livewire Framework](https://laravel-livewire.com/), but made available for PHP in general
+ * Wynter is a full-stack framework for PHP that makes building dynamic interfaces simple, without leaving the comfort of PHP. Wynter is built based on Caleb Porzio's [Livewire Framework](https://laravel-livewire.com/), but made available for PHP in general
  * 
  * @author  Michael Darko <mickdd22@gmail.com>
  * @version 1.0.0

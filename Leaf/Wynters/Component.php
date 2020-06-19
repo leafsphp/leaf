@@ -31,7 +31,7 @@ abstract class Component
 
 	protected $updatesQueryString = [];
 	protected $computedPropertyCache = [];
-	protected $blade;
+	public $blade;
 	protected $bladeConfig;
 	protected $app;
 
@@ -93,6 +93,7 @@ abstract class Component
 
 	public function render()
 	{
+		echo $this->blade->render($this->getName());
 		return $this->blade->render($this->getName());
 	}
 
