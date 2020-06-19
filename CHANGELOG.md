@@ -1,6 +1,20 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.1.0 - 19th June, 2020
+
+### Added
+
+- Added `Leaf\Auth::auto_connect`
+
+### Fixed
+
+### Changed
+
+### Removed
+
+- Removed Leaf\Wynter
+
 ## v2.1.0 - alpha - 24th May, 2020
 
 ### Added

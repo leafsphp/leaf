@@ -26,7 +26,17 @@ class Auth extends Mysqli
 
 	public function connect($host, $user, $password, $dbname)
 	{
-		Mysqli::connect($host, $user, $password, $dbname);
+		parent::connect($host, $user, $password, $dbname);
+	}
+
+	public function auto_connect()
+	{
+		$this->connect(
+			getenv("DB_HOST"),
+			getenv("DB_USERNAME"),
+			getenv("DB_PASSWORD"),
+			getenv("DB_DATABASE")
+		);
 	}
 
 	public function setSecretKey(string $secret_key)
