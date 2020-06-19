@@ -9,6 +9,7 @@
 - Added default bypass for CORS errors
 - Added `Mysqli::auto_connect`
 - Added optional `db_type` option to `Leaf\Db\PDO` connection
+- Added `PDO::auto_connect`
 
 ### Fixed
 

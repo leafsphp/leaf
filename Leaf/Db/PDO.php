@@ -43,6 +43,20 @@ class PDO {
 	}
 
 	/**
+	 * Connect to database using environment variables
+	 */
+	public function auto_connect()
+	{
+		$this->connect(
+			getenv("DB_HOST"),
+			getenv("DB_DATABASE"),
+			getenv("DB_USERNAME"),
+			getenv("DB_PASSWORD"),
+			getenv("DB_CONNECTION")
+		);
+	}
+
+	/**
 	 * Db Query
 	 * 
 	 * @param string $query: Query
