@@ -4,8 +4,6 @@ A lot of changes have gone on in Leaf even since the beta release a month ago, a
 
 - Leaf Password Helper: **KINDA PRODUCTION READY**. This is a simple helper for passwords which allows you to quickly and efficiently work with password (encrypting, verifying...)
 
-- Leaf Wynter Components: **NOT READY!!**. Wynter is simply PHP-JS. Wynter allows you create reactive components, work with state and other functionality just like with frontend frameworks and libraries like Vue, React...
-
 - Leaf Tokens: **STILL NOT SURE**. This is supposed to be a replacement for JWT.
 
 - Encryption Helper

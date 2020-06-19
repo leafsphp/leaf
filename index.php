@@ -27,6 +27,7 @@ $app = new \Leaf\App();
  * Initialise the Leaf Auth package
  */
 $auth = new \Leaf\Auth();
+$form = new \Leaf\Form;
 
 /**
  * Leaf's 404 Handler, you can pass in a custom HTML page or text as a function
