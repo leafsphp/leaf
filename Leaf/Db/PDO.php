@@ -7,7 +7,7 @@ use \Leaf\Http\Response;
 /**
  * Leaf PDO
  * -----------------------
- * Leaf's adaptation of **PDO**
+ * ***deprecation warning - use with care*** Leaf's adaptation of **PDO**
  */
 class PDO {
 	protected $connection;
@@ -24,13 +24,13 @@ class PDO {
 	}
 
 	/* 
-		* Connect to database
-		* 
-		* @param string $host: Host Name
-		* @param string $dbname: Database name
-		* @param string $user: Database username
-		* @param string $password: Database password
-		*/
+	* Connect to database
+	* 
+	* @param string $host: Host Name
+	* @param string $dbname: Database name
+	* @param string $user: Database username
+	* @param string $password: Database password
+	*/
 	public function connect($host, $dbname, $user, $password, $db_type = "mysql") {
 		try {
 			$connection = new \PDO("$db_type:host=$host;dbname=$dbname", $user, $password);
@@ -72,8 +72,7 @@ class PDO {
 			$this->queryResult = $this->connection->query($query);
 		} else {
 			$stmt = $this->connection->prepare($query);
-			$stmt->bindParam(...$params);
-			$this->queryResult = $stmt->execute();
+			$this->queryResult = $stmt->execute($params);
 		}
 		
 		return $this;
@@ -304,11 +303,10 @@ class PDO {
 		return $this->queryResult->fetch(\PDO::FETCH_ASSOC);
 	}
 
-	public function fetchAll($type = "object") {
+	public function fetchAll($type = "assoc") {
 		if ($type == "obj" || $type == "object") {
 			return $this->queryResult->fetchAll(\PDO::FETCH_OBJ);
-		}
-		if ($type != "obj" && $type != "object") {
+		} else {
 			return $this->queryResult->fetchAll(\PDO::FETCH_ASSOC);
 		}
 	}
@@ -318,6 +316,6 @@ class PDO {
 	}
 	
 	public function close() {
-		// 
+		echo "so";
 	}
 }

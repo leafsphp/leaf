@@ -10,6 +10,7 @@
 - Added `Mysqli::auto_connect`
 - Added optional `db_type` option to `Leaf\Db\PDO` connection
 - Added `PDO::auto_connect`
+- Added deprecation warning for `Leaf\Db\PDO`
 
 ### Fixed
 

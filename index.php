@@ -87,6 +87,16 @@ $app->delete('/delete', function () {
     echo 'This is a DELETE route';
 });
 
+$app->db->connect("localhost", "root", "", "test");
+
+$app->get("/pdo", function() use($app) {
+    $data = $app->db->choose("users", "*", [
+        "username" => "mychi",
+        "password" => md5("test")
+    ])->fetchAssoc();
+    $app->response->respond($data);
+});
+
 /**
  * Step 4: Run the Leaf application
  *
