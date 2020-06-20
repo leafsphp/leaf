@@ -87,13 +87,20 @@ $app->delete('/delete', function () {
     echo 'This is a DELETE route';
 });
 
-$app->db->connect("localhost", "root", "", "test");
-
 $app->get("/pdo", function() use($app) {
-    $data = $app->db->choose("users", "*", [
-        "username" => "mychi",
-        "password" => md5("test")
-    ])->fetchAssoc();
+    $data = [];
+    $db = new \Leaf\Db("localhost", "root", "", "test");
+    if (count($db->errors()) > 0) {
+        $app->response->throwErr($db->errors());
+    }
+    $data = $db->query("SELECT * FROM users")->limit(5)->fetchAll();
+    // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
+    // $data = $db->insert("users")->params("user")->bind("1")->fetchAll();
+    // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
+    // $data = $app->db->choose("users", "*", [
+    //     "username" => "mychi",
+    //     "password" => md5("test")
+    // ])->fetchAssoc();
     $app->response->respond($data);
 });
 

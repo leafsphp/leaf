@@ -121,6 +121,13 @@ class Db {
 		return $this;
 	}
 
+	public function insert(string $table)
+	{
+		$this->queryData["query"] .= "INSERT INTO $table";
+		$this->queryData["type"] = "insert";
+		return $this;
+	}
+
 	/**
 	 * Fetch a specific number
 	 * 
@@ -183,19 +190,19 @@ class Db {
 		$params = $this->queryData["params"];
 		$uniques = $this->queryData["uniques"];
 
-		// if (count($uniques) > 0) {
-		// 	// make sure no duplicates get inserted
-		// 	foreach ($uniques as $unique) {
-		// 		if (!isset($items[$unique])) {
-		// 			$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
-		// 			exit();
-		// 		} else {
-		// 			if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
-		// 				$this->form->errorsArray[$unique] = "$unique already exists";
-		// 			}
-		// 		}
-		// 	}
-		// }
+		if (count($uniques) > 0) {
+			// make sure no duplicates get inserted
+			// foreach ($uniques as $unique) {
+			// 	if (!isset($items[$unique])) {
+			// 		$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
+			// 		exit();
+			// 	} else {
+			// 		if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
+			// 			$this->form->errorsArray[$unique] = "$unique already exists";
+			// 		}
+			// 	}
+			// }
+		}
 
 		$types = "";
 		$bindings = [];
