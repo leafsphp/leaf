@@ -143,6 +143,10 @@ class Db {
 	 */
 	public function params(array $params) : self
 	{
+		if ($this->queryData["type"] == "query") {
+			if (strpos($this->queryData["query"], "INSERT INTO") === 0) $this->queryData["type"] = "insert";
+			if (strpos($this->queryData["query"], "UPDATE") === 0) $this->queryData["type"] = "update";
+		}
 		$query = " ";
 		$count = 0;
 		$dataToBind = [];
