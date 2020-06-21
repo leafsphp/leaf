@@ -499,13 +499,32 @@ class Db {
 	/**
 	 * Fetch all
 	 */
-	public function fetchAll($type = MYSQLI_NUM)
+	public function fetchAll()
 	{
 		if ($this->execute() === false) return false;
-		if ($type != MYSQLI_NUM && $type != "obj") {
-			$type = \MYSQLI_ASSOC;
+		$result = mysqli_fetch_all($this->queryResult, \MYSQLI_ASSOC);
+
+		$add = $this->queryData["add"];
+		$hidden = $this->queryData["hidden"];
+		$final = [];
+		if (count($add) > 0 || count($hidden) > 0) {
+			foreach ($result as $res) {
+				if (count($add) > 0) {
+					foreach ($add as $item => $value) {
+						$res[$item] = $value;
+					}
+				}
+
+				if (count($hidden) > 0) {
+					foreach ($hidden as $item) {
+						if (isset($res[$item])) unset($res[$item]);
+					}
+				}
+				$final[] = $res;
+			}
 		}
-		return mysqli_fetch_all($this->queryResult, $type);
+
+		return $final;
 	}
 
 	/**
