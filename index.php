@@ -98,6 +98,8 @@ $app->get("/pdo", function() use($app) {
     $data = $db->select("users")
                         ->where("username", "humming")
                         ->validate("username", "validusername")
+                        ->hidden("password", "created_at")
+                        ->add("token", "3yd6t283gy23f7g32tfgyu23fg623gf6y7g2f")
                         ->fetchAssoc();
     if ($data === false) $data = $db->errors();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();

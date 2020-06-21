@@ -24,7 +24,9 @@ class Db {
 		"params" => [],
 		"uniques" => [],
 		"validate" => [],
-		"values" => []
+		"values" => [],
+		"hidden" => [],
+		"add" => []
 	];
 	/**
 	 * Query result
@@ -305,6 +307,26 @@ class Db {
 			}
 		}
 		$this->queryData["uniques"] = $uniqueParams;
+		return $this;
+	}
+
+	/**
+	 * Hide particular fields from the final value returned
+	 * 
+	 * @param string $values The value(s) to hide
+	 */
+	public function hidden(...$values) : self
+	{
+		return $this;
+	}
+
+	/**
+	 * Add particular fields to the final value returned
+	 * 
+	 * @param string $values The value(s) to add
+	 */
+	public function add(...$values): self
+	{
 		return $this;
 	}
 
