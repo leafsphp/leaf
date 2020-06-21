@@ -151,6 +151,20 @@ class Db {
 	}
 
 	/**
+	 * Db Delete
+	 * 
+	 * Delete a table's records
+	 * 
+	 * @param string $table: Db Table
+	 */
+	public function delete(string $table): self
+	{
+		$this->queryData["query"] .= "DELETE FROM $table";
+		$this->queryData["type"] = "delete";
+		return $this;
+	}
+
+	/**
 	 * Pass in parameters into your query
 	 * 
 	 * @param array $params Params to pass into query
@@ -161,6 +175,7 @@ class Db {
 			if (strpos($this->queryData["query"], "INSERT INTO") === 0) $this->queryData["type"] = "insert";
 			if (strpos($this->queryData["query"], "UPDATE ") === 0) $this->queryData["type"] = "update";
 			if (strpos($this->queryData["query"], "SELECT ") === 0) $this->queryData["type"] = "select";
+			if (strpos($this->queryData["query"], "DELETE FROM ") === 0) $this->queryData["type"] = "delete";
 		}
 		$query = $this->queryData["type"] == "update" ? " SET " : " ";
 		$count = 0;
