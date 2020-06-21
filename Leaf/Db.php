@@ -296,37 +296,53 @@ class Db {
 	 * Make sure a value doesn't already exist in a table to avoid duplicates.
 	 */
 	public function unique(...$uniques) {
-		$uniqueParams = [];
+		$data = [];
 		foreach ($uniques as $unique) {
 			if (is_array($unique)) {
-				foreach ($unique as $param) {
-					$uniqueParams[] = $param;
-				}
+				$data = $unique;
 			} else {
-				$uniqueParams[] = $unique;
+				$data[] = $unique;
 			}
 		}
-		$this->queryData["uniques"] = $uniqueParams;
+		$this->queryData["uniques"] = $data;
 		return $this;
 	}
 
 	/**
 	 * Hide particular fields from the final value returned
 	 * 
-	 * @param string $values The value(s) to hide
+	 * @param mixed $values The value(s) to hide
 	 */
 	public function hidden(...$values) : self
 	{
+		$data = [];
+		foreach ($values as $value) {
+			if (is_array($value)) {
+				$data = $value;
+			} else {
+				$data[] = $value;
+			}
+		}
+		$this->queryData["hidden"] = $data;
 		return $this;
 	}
 
 	/**
 	 * Add particular fields to the final value returned
 	 * 
-	 * @param string $values The value(s) to add
+	 * @param string $name What to add
+	 * @param string $value The value to add
 	 */
-	public function add(...$values): self
+	public function add($name, $value = null): self
 	{
+		$data = [];
+		if (is_array($name)) {
+			$data = $name;
+		} else {
+			$data[$name] = $value;
+		}
+		$this->response->throwErr($data);
+		$this->queryData["hidden"] = $data;
 		return $this;
 	}
 
