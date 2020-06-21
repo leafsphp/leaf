@@ -4,7 +4,7 @@ namespace Leaf;
 /**
  * Leaf DB
  * ------------------
- * Simple query-builder powered by Mysqli
+ * Simple query-builder powered by Mysqli. This is supposed to replace the single DB\Mysqli & DB\PDO packages 
  * 
  * @author Michael Darko
  * @since v2.1.0
@@ -15,7 +15,7 @@ class Db {
 	 */
 	protected $connection;
 	/**
-	 * Raw query with any param bindings
+	 * Raw query with query options
 	 */
 	protected $queryData = [
 		"table" => "",
