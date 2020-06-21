@@ -341,8 +341,7 @@ class Db {
 		} else {
 			$data[$name] = $value;
 		}
-		$this->response->throwErr($data);
-		$this->queryData["hidden"] = $data;
+		$this->queryData["add"] = $data;
 		return $this;
 	}
 
@@ -453,7 +452,23 @@ class Db {
 	public function fetchAssoc()
 	{
 		if ($this->execute() === false) return false;
-		return mysqli_fetch_assoc($this->queryResult);
+		$result = mysqli_fetch_assoc($this->queryResult);
+		
+		$add = $this->queryData["add"];
+		if (count($add) > 0) {
+			foreach ($add as $item => $value) {
+				$result[$item] = $value;
+			}
+		}
+
+		$hidden = $this->queryData["hidden"];
+		if (count($hidden) > 0) {
+			foreach ($hidden as $item) {
+				if (isset($result[$item])) unset($result[$item]);
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -462,7 +477,23 @@ class Db {
 	public function fetchObj()
 	{
 		if ($this->execute() === false) return false;
-		return mysqli_fetch_object($this->queryResult);
+		$result = mysqli_fetch_object($this->queryResult);
+
+		$add = $this->queryData["add"];
+		if (count($add) > 0) {
+			foreach ($add as $item => $value) {
+				$result->{$item} = $value;
+			}
+		}
+
+		$hidden = $this->queryData["hidden"];
+		if (count($hidden) > 0) {
+			foreach ($hidden as $item) {
+				if (isset($result->{$item})) unset($result->{$item});
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -471,7 +502,7 @@ class Db {
 	public function fetchAll($type = MYSQLI_NUM)
 	{
 		if ($this->execute() === false) return false;
-		if ($type != MYSQLI_NUM || $type != "obj") {
+		if ($type != MYSQLI_NUM && $type != "obj") {
 			$type = \MYSQLI_ASSOC;
 		}
 		return mysqli_fetch_all($this->queryResult, $type);
