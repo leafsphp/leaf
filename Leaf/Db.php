@@ -21,7 +21,8 @@ class Db {
 		"type" => "",
 		"query" => "",
 		"params" => [],
-		"uniques" => []
+		"uniques" => [],
+		"values" => []
 	];
 	/**
 	 * Query result
@@ -121,10 +122,55 @@ class Db {
 		return $this;
 	}
 
-	public function insert(string $table)
+	/**
+	 * Db Insert
+	 * 
+	 * Retrieve a row from table
+	 * 
+	 * @param string $table: Db Table
+	 */
+	public function insert(string $table) : self
 	{
 		$this->queryData["query"] .= "INSERT INTO $table";
 		$this->queryData["type"] = "insert";
+		return $this;
+	}
+
+	/**
+	 * Pass in parameters into your query
+	 * 
+	 * @param array $params Params to pass into query
+	 */
+	public function params(array $params) : self
+	{
+		$query = " ";
+		$count = 0;
+		$dataToBind = [];
+		$keys = "";
+		$values = "";
+		foreach ($params as $key => $value) {
+			if ($this->queryData["type"] == "insert") {
+				$keys .= $key;
+				$values .= "?";
+				if ($count < count($params) - 1) {
+					$keys .= ", ";
+					$values .= ", ";
+				}
+			} else if ($this->queryData["type"] == "update") {
+				$query .= "$key = ?";
+				if ($count < count($params) - 1) {
+					$query .= ", ";
+				}
+			}
+			$dataToBind[$value] = "s";
+			$count += 1;
+		}
+		if ($this->queryData["type"] == "insert") {
+			$query .= "($keys) VALUES ($values)";
+		}
+		$this->bind($dataToBind);
+		$this->queryData["query"] .= $query;
+		$this->queryData["values"] = $params;
 		return $this;
 	}
 
@@ -168,10 +214,8 @@ class Db {
 		$params = [];
 
 		if (is_array($data)) {
-			foreach ($data as $info) {
-				$param = array_keys($info);
-				$type = array_values($info);
-				$params[] = [$param[0], $type[0]];
+			foreach ($data as $param => $type) {
+				$params[] = [$param, $type];
 			}
 		} else {
 			$params[] = [$data, $type];
@@ -185,7 +229,7 @@ class Db {
 	/**
 	 * Execute a query
 	 */
-	protected function execute() {
+	public function execute() {
 		$query = $this->queryData["query"];
 		$params = $this->queryData["params"];
 		$uniques = $this->queryData["uniques"];
@@ -211,12 +255,13 @@ class Db {
 			$types .= $data[1];
 			$bindings[] = $data[0];
 		}
-		
-		if (!$types) $types = str_repeat('s', count($bindings));
 
+		if (!$types) $types = str_repeat('s', count($bindings));
+		
 		if (!$bindings) {
 			$this->queryResult = $this->connection->query($query);
 		} else {
+			// $this->response->throwErr([$query, $bindings, $types]);
 			$stmt = $this->stmt = $this->connection->prepare($query);
 			$stmt->bind_param($types, ...$bindings);
 			$stmt->execute();

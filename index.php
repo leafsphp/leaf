@@ -93,9 +93,13 @@ $app->get("/pdo", function() use($app) {
     if (count($db->errors()) > 0) {
         $app->response->throwErr($db->errors());
     }
-    $data = $db->query("SELECT * FROM users")->limit(5)->fetchAll();
+    // $data = $db->query("SELECT * FROM users")->limit(5)->fetchAll();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
-    // $data = $db->insert("users")->params("user")->bind("1")->fetchAll();
+    $data = $db->insert("users")->params([
+        "username" => "Sety",
+        "email" => "sety@gmail.com",
+        "password" => md5("test")
+    ])->execute();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
     // $data = $app->db->choose("users", "*", [
     //     "username" => "mychi",
