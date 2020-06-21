@@ -125,7 +125,7 @@ class Db {
 	/**
 	 * Db Insert
 	 * 
-	 * Retrieve a row from table
+	 * Add a new row in a db table
 	 * 
 	 * @param string $table: Db Table
 	 */
@@ -133,6 +133,20 @@ class Db {
 	{
 		$this->queryData["query"] .= "INSERT INTO $table";
 		$this->queryData["type"] = "insert";
+		return $this;
+	}
+
+	/**
+	 * Db Update
+	 * 
+	 * Update a row in a db table
+	 * 
+	 * @param string $table: Db Table
+	 */
+	public function update(string $table): self
+	{
+		$this->queryData["query"] .= "UPDATE $table";
+		$this->queryData["type"] = "update";
 		return $this;
 	}
 
@@ -145,9 +159,10 @@ class Db {
 	{
 		if ($this->queryData["type"] == "query") {
 			if (strpos($this->queryData["query"], "INSERT INTO") === 0) $this->queryData["type"] = "insert";
-			if (strpos($this->queryData["query"], "UPDATE") === 0) $this->queryData["type"] = "update";
+			if (strpos($this->queryData["query"], "UPDATE ") === 0) $this->queryData["type"] = "update";
+			if (strpos($this->queryData["query"], "SELECT ") === 0) $this->queryData["type"] = "select";
 		}
-		$query = " ";
+		$query = $this->queryData["type"] == "update" ? " SET " : " ";
 		$count = 0;
 		$dataToBind = [];
 		$keys = "";

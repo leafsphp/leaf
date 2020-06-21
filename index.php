@@ -95,7 +95,7 @@ $app->get("/pdo", function() use($app) {
     }
     // $data = $db->query("SELECT * FROM users")->limit(5)->fetchAll();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
-    $data = $db->insert("users")->params([
+    $data = $db->update("users")->params([
         "username" => "Sety",
         "email" => "sety@gmail.com",
         "password" => md5("test")
