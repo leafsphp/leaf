@@ -18,6 +18,7 @@ class Db {
 	 * Raw query with any param bindings
 	 */
 	protected $queryData = [
+		"table" => "",
 		"type" => "",
 		"query" => "",
 		"params" => [],
@@ -119,6 +120,7 @@ class Db {
 	{
 		$this->queryData["query"] .= "SELECT $items FROM $table";
 		$this->queryData["type"] = "select";
+		$this->queryData["table"] = $table;
 		return $this;
 	}
 
@@ -133,6 +135,7 @@ class Db {
 	{
 		$this->queryData["query"] .= "INSERT INTO $table";
 		$this->queryData["type"] = "insert";
+		$this->queryData["table"] = $table;
 		return $this;
 	}
 
@@ -147,6 +150,7 @@ class Db {
 	{
 		$this->queryData["query"] .= "UPDATE $table";
 		$this->queryData["type"] = "update";
+		$this->queryData["table"] = $table;
 		return $this;
 	}
 
@@ -161,6 +165,7 @@ class Db {
 	{
 		$this->queryData["query"] .= "DELETE FROM $table";
 		$this->queryData["type"] = "delete";
+		$this->queryData["table"] = $table;
 		return $this;
 	}
 
@@ -303,21 +308,25 @@ class Db {
 	public function execute() {
 		$query = $this->queryData["query"];
 		$params = $this->queryData["params"];
+		$paramValues = $this->queryData["values"];
 		$uniques = $this->queryData["uniques"];
 
 		if (count($uniques) > 0) {
+			// $this->response->throwErr([$query, $uniques, $paramValues]);
 			// make sure no duplicates get inserted
-			// foreach ($uniques as $unique) {
-			// 	if (!isset($items[$unique])) {
-			// 		$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
-			// 		exit();
-			// 	} else {
-			// 		if ($this->select($table, "*", "$unique = ?", [$items[$unique]])->fetchObj()) {
-			// 			$this->form->errorsArray[$unique] = "$unique already exists";
-			// 		}
-			// 	}
-			// }
+			foreach ($uniques as $unique) {
+				if (!isset($paramValues[$unique])) {
+					$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
+					exit();
+				} else {
+					if (mysqli_fetch_object($this->connection->query("SELECT * FROM {$this->queryData["table"]} WHERE $unique = '$paramValues[$unique]'"))) {
+						$this->errorsArray[$unique] = "$unique already exists";
+					}
+				}
+			}
 		}
+
+		if (count($this->errorsArray) > 0) return false;
 
 		$types = "";
 		$bindings = [];
@@ -332,7 +341,6 @@ class Db {
 		if (!$bindings) {
 			$this->queryResult = $this->connection->query($query);
 		} else {
-			// $this->response->throwErr([$query, $bindings, $types]);
 			$stmt = $this->stmt = $this->connection->prepare($query);
 			$stmt->bind_param($types, ...$bindings);
 			$stmt->execute();
@@ -379,6 +387,23 @@ class Db {
 			$type = \MYSQLI_ASSOC;
 		}
 		return mysqli_fetch_all($this->queryResult, $type);
+	}
+
+	/**
+	 * Return raw query result
+	 */
+	public function fetch() : array
+	{
+		$this->execute();
+		return $this->queryResult;
+	}
+
+	/**
+	 * Closes MySQL connection
+	 */
+	public function close(): void
+	{
+		$this->connection->close();
 	}
 
 	/**
