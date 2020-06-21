@@ -225,12 +225,16 @@ class Db {
 		$query = " WHERE ";
 		$count = 0;
 		$dataToBind = [];
+		$params = [];
 
 		if (is_array($condition)) {
 			foreach ($condition as $key => $value) {
 				$query .= "$key = ?";
 				if ($count < count($condition) - 1) {
 					$query .= " AND ";
+				}
+				if ($this->queryData["type"] === "select" || $this->queryData["type"] === "delete") {
+					$params[$key] = $value;
 				}
 				$dataToBind[$value] = "s";
 				$count += 1;
@@ -239,12 +243,18 @@ class Db {
 			if (!$value) {
 				$query .= $condition;
 			} else {
+				if ($this->queryData["type"] === "select" || $this->queryData["type"] === "delete") {
+					$params[$condition] = $value;
+				}
 				$query .= "$condition = ?";
 				$dataToBind[$value] = "s";
 			}
 		}
 
 		$this->bind($dataToBind);
+		if ($this->queryData["type"] === "select" || $this->queryData["type"] === "delete") {
+			$this->queryData["values"] = $params;
+		}
 		$this->queryData["query"] .= $query;
 		return $this;
 	}
@@ -374,7 +384,7 @@ class Db {
 			try {
 				$this->queryResult = $this->connection->query($query);
 			} catch (\Throwable $th) {
-				$this->errorsArray["query"] = $th;
+				$this->errorsArray["query"] = $th->getMessage();
 			}
 		} else {
 			$stmt = $this->stmt = $this->connection->prepare($query);
@@ -382,7 +392,7 @@ class Db {
 			try {
 				$stmt->execute();
 			} catch (\Throwable $th) {
-				$this->errorsArray["query"] = $th;
+				$this->errorsArray["query"] = $th->getMessage();
 			}
 			$this->queryResult = $stmt->get_result();
 		}
@@ -395,7 +405,7 @@ class Db {
 	 */
 	public function count() : int
 	{
-		$this->execute();
+		if ($this->execute() === false) return false;
 		return mysqli_num_rows($this->queryResult);
 	}
 
@@ -404,7 +414,7 @@ class Db {
 	 */
 	public function fetchAssoc()
 	{
-		$this->execute();
+		if ($this->execute() === false) return false;
 		return mysqli_fetch_assoc($this->queryResult);
 	}
 
@@ -413,7 +423,7 @@ class Db {
 	 */
 	public function fetchObj()
 	{
-		$this->execute();
+		if ($this->execute() === false) return false;
 		return mysqli_fetch_object($this->queryResult);
 	}
 
@@ -422,7 +432,7 @@ class Db {
 	 */
 	public function fetchAll($type = MYSQLI_NUM)
 	{
-		$this->execute();
+		if ($this->execute() === false) return false;
 		if ($type != MYSQLI_NUM || $type != "obj") {
 			$type = \MYSQLI_ASSOC;
 		}
@@ -434,7 +444,7 @@ class Db {
 	 */
 	public function fetch() : array
 	{
-		$this->execute();
+		if ($this->execute() === false) return false;
 		return $this->queryResult;
 	}
 

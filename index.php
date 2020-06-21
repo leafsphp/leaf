@@ -95,18 +95,9 @@ $app->get("/pdo", function() use($app) {
     }
     // $data = $db->query("SELECT * FROM users")->limit(5)->fetchAll();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
-    $data = $db->update("users")
-                        ->params([
-                            "username" => "humm",
-                            "email" => "humm@gmail.com",
-                            "password" => md5("test")
-                        ])
-                        ->where("id", "11")
-                        ->unique("username", "email")
-                        ->validate([
-                            "username" => "validusername",
-                            "email" => "email"
-                        ])
+    $data = $db->select("users")
+                        ->where("username", "humming")
+                        ->validate("username", "email")
                         ->execute();
     if ($data === false) $data = $db->errors();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
