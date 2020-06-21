@@ -154,7 +154,7 @@ class App
 
         //  Default DB
         $this->container->singleton('db', function ($c) {
-            return new \Leaf\Db\Mysqli();
+            return new \Leaf\Db();
         });
 
         //  Default Date
