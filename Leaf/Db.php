@@ -260,6 +260,17 @@ class Db {
 	}
 
 	/**
+	 * Validate data before running a query
+	 * 
+	 * @param array|string $item The item(s) to validate
+	 * @param string|null $rule The validation rule to apply
+	 */
+	public function validate($item, $rule = null) : self
+	{
+		return $this;
+	}
+
+	/**
 	 * Make sure a value doesn't already exist in a table to avoid duplicates.
 	 */
 	public function unique(...$uniques) {

@@ -101,8 +101,13 @@ $app->get("/pdo", function() use($app) {
                             "email" => "sety@gmail.com",
                             "password" => md5("test")
                         ])
-                        ->unique("username", "email")
                         ->where("id", "11")
+                        ->unique("username", "email")
+                        ->validate("username", "validUsername")
+                        ->validate([
+                            "username" => "validUsername",
+                            "email" => "email"
+                        ])
                         ->execute();
     if ($data === false) $data = $db->errors();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
