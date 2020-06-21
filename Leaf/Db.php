@@ -23,6 +23,7 @@ class Db {
 		"query" => "",
 		"params" => [],
 		"uniques" => [],
+		"validate" => [],
 		"values" => []
 	];
 	/**
@@ -265,8 +266,17 @@ class Db {
 	 * @param array|string $item The item(s) to validate
 	 * @param string|null $rule The validation rule to apply
 	 */
-	public function validate($item, $rule = null) : self
+	public function validate($item, $rule = "required") : self
 	{
+		$values = $this->queryData["values"];
+
+		if (is_array($item)) {
+			foreach ($item as $key => $value) {
+				$this->queryData["validate"][] = [$key, $values[$key], $value ?? "required"];
+			}
+		} else {
+			$this->queryData["validate"][] = [$item, $values[$item], $rule];
+		}
 		return $this;
 	}
 
@@ -321,10 +331,11 @@ class Db {
 		$params = $this->queryData["params"];
 		$paramValues = $this->queryData["values"];
 		$uniques = $this->queryData["uniques"];
+		$validate = $this->queryData["validate"];
+
+		$this->response->throwErr($validate);
 
 		if (count($uniques) > 0) {
-			// $this->response->throwErr([$query, $uniques, $paramValues]);
-			// make sure no duplicates get inserted
 			foreach ($uniques as $unique) {
 				if (!isset($paramValues[$unique])) {
 					$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
