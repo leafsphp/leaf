@@ -392,7 +392,8 @@ class Db {
 
 		if (count($this->errorsArray) > 0) return false;
 
-		if (count($uniques) > 0) {
+		
+		if (count($uniques) > 0 && ($this->queryData["type"] != "select" || $this->queryData["type"] != "delete")) {
 			foreach ($uniques as $unique) {
 				if (!isset($paramValues[$unique])) {
 					$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
@@ -433,6 +434,18 @@ class Db {
 			}
 			$this->queryResult = $stmt->get_result();
 		}
+
+		$this->queryData = [
+			"table" => "",
+			"type" => "",
+			"query" => "",
+			"params" => [],
+			"uniques" => [],
+			"validate" => [],
+			"values" => [],
+			"hidden" => [],
+			"add" => []
+		];
 	}
 
 	/**

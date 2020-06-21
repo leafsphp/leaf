@@ -58,12 +58,17 @@ $app->post('/post', function () use ($app) {
 });
 
 // Example User Login 
-$app->post("/login", function() use($app, $auth) {
+$app->get("/login", function() use($app, $auth) {
     // connect to the database
     $auth->connect("localhost", "root", "", "test");
 
     // sign a user in, in literally 1 line
-    $user = $auth->login("users", $app->request->body(), "md5");
+    // $user = $auth->login("users", ["username" => "mychi", "password" => "test"], "md5");
+    $user = $auth->register("users", [
+        "username" => "sally",
+        "email" => "sally@gmail.com",
+        "password" => "test"
+    ], ["username", "email"], "md5");
 
     // return json encoded data
     $app->response->respond(

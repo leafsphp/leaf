@@ -8,6 +8,7 @@ use \Leaf\Http\Response;
  * Leaf MYSQLI
  * -----------------------
  * Leaf's adaptation of `mysqli`
+ * **Deprecation Warning** This package will no longer be supported in later major releases.
  */
 class Mysqli {
 	protected $connection;
