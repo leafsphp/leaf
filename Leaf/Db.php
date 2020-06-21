@@ -194,6 +194,41 @@ class Db {
 	}
 
 	/**
+	 * Add a where clause to db query
+	 * 
+	 * @param string|array $condition
+	 * @param string|null $value
+	 */
+	public function where($condition, $value = null) : self
+	{
+		$query = " WHERE ";
+		$count = 0;
+		$dataToBind = [];
+
+		if (is_array($condition)) {
+			foreach ($condition as $key => $value) {
+				$query .= "$key = ?";
+				if ($count < count($condition) - 1) {
+					$query .= " AND ";
+				}
+				$dataToBind[$value] = "s";
+				$count += 1;
+			}
+		} else {
+			if (!$value) {
+				$query .= $condition;
+			} else {
+				$query .= "$condition = ?";
+				$dataToBind[$value] = "s";
+			}
+		}
+
+		$this->bind($dataToBind);
+		$this->queryData["query"] .= $query;
+		return $this;
+	}
+
+	/**
 	 * Fetch a specific number
 	 * 
 	 * @param mixed $limit The number of rows to fetch
@@ -239,9 +274,11 @@ class Db {
 		} else {
 			$params[] = [$data, $type];
 		}
-		
-		$this->queryData["params"] = $params;
 
+		foreach ($params as $param) {
+			$this->queryData["params"][] = [$param[0], $param[1]];
+		}
+		
 		return $this;
 	}
 

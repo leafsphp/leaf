@@ -95,11 +95,14 @@ $app->get("/pdo", function() use($app) {
     }
     // $data = $db->query("SELECT * FROM users")->limit(5)->fetchAll();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
-    $data = $db->update("users")->params([
-        "username" => "Sety",
-        "email" => "sety@gmail.com",
-        "password" => md5("test")
-    ])->execute();
+    $data = $db->update("users")
+                        ->params([
+                            "username" => "Setey",
+                            "email" => "setey@gmail.com",
+                            "password" => md5("test")
+                        ])
+                        ->where("id", "11")
+                        ->execute();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
     // $data = $app->db->choose("users", "*", [
     //     "username" => "mychi",
