@@ -102,6 +102,56 @@ class Form extends Request {
 		}
 	}
 
+	/**
+	 * Validate data.
+	 * 
+	 * @param  array  $rules The data to be validated, plus rules
+	 * @param  array  $messages
+	 * 
+	 * @return void
+	 */
+	public function validateData(array $rules, array $messages = [])
+	{
+		$supportedRules = ["required", "number", "text", "textonly", "validusername", "email", "nospaces"];
+
+		$fields = [];
+
+		foreach ($rules as $param => $rule) {
+			array_push($fields, ["name" => $param, "value" => $param, "rule" => $rule]);
+		}
+
+		foreach ($fields as $field) {
+			if (is_array($field["rule"])) {
+				foreach ($field["rule"] as $rule) {
+					$rule = strtolower($rule);
+
+					if (!in_array($rule, $supportedRules)) {
+						echo $rule . " is not a supported rule<br>";
+						echo "Supported rules are " . json_encode($supportedRules);
+						exit();
+					}
+					return $this->validateField($field["name"], $field["value"], $rule);
+				}
+			} else {
+				$field["rule"] = strtolower($field["rule"]);
+
+				if (!in_array($field["rule"], $supportedRules)) {
+					echo $field["rule"] . " is not a supported rule<br>";
+					echo "Supported rules are " . json_encode($supportedRules);
+					exit();
+				}
+				return $this->validateField($field["name"], $field["value"], $field["rule"]);
+			}
+		}
+	}
+
+	/**
+	 * Validate field data
+	 * 
+	 * @param string $fieldName The name of the field to validate
+	 * @param string $fieldValue The value of the field to validate
+	 * @param string $rule The rule to apply
+	 */
 	public function validateField($fieldName, $fieldValue, $rule) {
 		$isValid = true;
 
