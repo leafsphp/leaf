@@ -225,7 +225,7 @@ class Form extends Request {
 	/**
      * Return the form errors
      *
-     * @return string
+     * @return array
      */
 	public function errors() {
 		return $this->errorsArray;

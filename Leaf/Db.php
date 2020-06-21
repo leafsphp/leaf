@@ -333,7 +333,17 @@ class Db {
 		$uniques = $this->queryData["uniques"];
 		$validate = $this->queryData["validate"];
 
-		$this->response->throwErr($validate);
+		if (count($validate) > 0) {
+			foreach ($validate as $item) {
+				if (!$this->form->validateField($item[0], $item[1], $item[2])) {
+					foreach ($this->form->errors() as $name => $error) {
+						$this->errorsArray[$name] = $error;
+					}
+				}
+			}
+		}
+
+		if (count($this->errorsArray) > 0) return false;
 
 		if (count($uniques) > 0) {
 			foreach ($uniques as $unique) {
