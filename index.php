@@ -97,8 +97,8 @@ $app->get("/pdo", function() use($app) {
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
     $data = $db->select("users")
                         ->where("username", "humming")
-                        ->validate("username", "email")
-                        ->execute();
+                        ->validate("username", "validusername")
+                        ->fetchAssoc();
     if ($data === false) $data = $db->errors();
     // $data = $db->select("users WHERE id = ?")->bind("1")->fetchAll();
     // $data = $app->db->choose("users", "*", [

@@ -282,10 +282,10 @@ class Db {
 
 		if (is_array($item)) {
 			foreach ($item as $key => $value) {
-				$this->queryData["validate"][] = [$key, $values[$key], $value ?? "required"];
+				$this->queryData["validate"][] = [$key, $values[$key], strtolower($value) ?? "required"];
 			}
 		} else {
-			$this->queryData["validate"][] = [$item, $values[$item], $rule];
+			$this->queryData["validate"][] = [$item, $values[$item], strtolower($rule)];
 		}
 		return $this;
 	}
