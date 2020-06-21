@@ -58,16 +58,31 @@ $app->post('/post', function () use ($app) {
 });
 
 // Example User Login 
-$app->post("/login", function() use($app, $auth) {
+$app->get("/login", function() use($app, $auth) {
+    // $db = new \Leaf\Db("localhost", "root", "", "test");
+
+    // $user = $db->select("users")->where(["username" => "mychi"])->fetchAssoc();
+
     // connect to the database
     $auth->connect("localhost", "root", "", "test");
 
-    // sign a user in, in literally 1 line
-    $user = $auth->login("users", $app->request->body(), "md5");
+    // // sign a user in, in literally 1 line
+    // $user = $auth->login("users", ["username" => "mychi", "password" => "test"], "md5");
+    $user = $auth->register("users", [
+        "username" => "sly",
+        "email" => "sly@gmail.com",
+        "password" => "test"
+    ], ["username", "email"], "md5");
+    // $user = $auth->db->insert("users")->params([
+    //     "username" => "joy",
+    //     "email" => "joy@gmail.com",
+    //     "password" => "test"
+    // ])->unique(["username", "email"])->validate([])->execute();
 
     // return json encoded data
     $app->response->respond(
         !$user ? $auth->errors() : $user
+        // $user
     );
 });
 
