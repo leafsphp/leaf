@@ -39,11 +39,17 @@ class Auth
 		);
 	}
 
+	/**
+	 * Set token secret key for auth
+	 */
 	public function setSecretKey(string $secret_key)
 	{
 		$this->secret_key = $secret_key;
 	}
 
+	/**
+	 * Get auth secret key
+	 */
 	public function getSecretKey()
 	{
 		return $this->secret_key;
@@ -53,8 +59,9 @@ class Auth
 	 * Simple user login
 	 * 
 	 * @param string table: Table to look for users
-	 * @param string condition: Conditions to be met for login
+	 * @param array $credentials User credentials
 	 * @param string password_encode: Password encode type, should match password
+	 * @param array $validate Validation for parameters
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
@@ -85,9 +92,11 @@ class Auth
 	/**
 	 * Simple user registration
 	 * 
-	 * @param string table: Table to store user in
-	 * @param string condition: Conditions to be met for login
+	 * @param string $table: Table to store user in
+	 * @param array $credentials Information for new user
+	 * @param array $uniques Parameters which should be unique
 	 * @param string password_encode: Password encode type, should match password
+	 * @param array $validate Validation for parameters
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
@@ -109,14 +118,13 @@ class Auth
 			return false;
 		}
 
-		$this->response->throwErr([$table, $credentials]);
 		return $this->login($table, $credentials);
 	}
 
 	/**
 	 * Validate Json Web Token
 	 */
-	public function validateJWT($token, $secret_key)
+	public function validate($token, $secret_key)
 	{
 		$payload = $this->token->validate($token, $secret_key);
 
