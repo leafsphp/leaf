@@ -371,11 +371,19 @@ class Db {
 		if (!$types) $types = str_repeat('s', count($bindings));
 		
 		if (!$bindings) {
-			$this->queryResult = $this->connection->query($query);
+			try {
+				$this->queryResult = $this->connection->query($query);
+			} catch (\Throwable $th) {
+				$this->errorsArray["query"] = $th;
+			}
 		} else {
 			$stmt = $this->stmt = $this->connection->prepare($query);
 			$stmt->bind_param($types, ...$bindings);
-			$stmt->execute();
+			try {
+				$stmt->execute();
+			} catch (\Throwable $th) {
+				$this->errorsArray["query"] = $th;
+			}
 			$this->queryResult = $stmt->get_result();
 		}
 	}
