@@ -27,7 +27,6 @@ $app = new \Leaf\App();
  * Initialise the Leaf Auth package
  */
 $auth = new \Leaf\Auth();
-$form = new \Leaf\Form;
 
 /**
  * Leaf's 404 Handler, you can pass in a custom HTML page or text as a function
@@ -85,16 +84,6 @@ $app->patch('/patch', function () {
 // DELETE route
 $app->delete('/delete', function () {
     echo 'This is a DELETE route';
-});
-
-$app->db->connect("localhost", "root", "", "test");
-
-$app->get("/pdo", function() use($app) {
-    $data = $app->db->choose("users", "*", [
-        "username" => "mychi",
-        "password" => md5("test")
-    ])->fetchAssoc();
-    $app->response->respond($data);
 });
 
 /**
