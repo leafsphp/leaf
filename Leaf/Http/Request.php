@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf\Http;
 
 /**
@@ -204,46 +205,84 @@ class Request
      *
      * @param  string           $key
      */
-    public function get($param) {
+    public function get($param)
+    {
         if ($this->requestMethod == "POST" || $this->requestMethod == "PUT" || $this->requestMethod == "PATCH" || $this->requestMethod == "DELETE") {
             if (isset($_POST[$param])) {
-                return htmlspecialchars($_POST[$param], ENT_QUOTES, 'UTF-8');
+                if (is_array($_POST[$param])) {
+                    foreach ($_POST[$param] as $vkey => $vvalue) {
+                        return [$this->sanitize($vkey) => $this->sanitize($vvalue)];
+                    }
+                } else {
+                    return $this->sanitize($_POST[$param]);
+                }
             } else {
                 $data = json_decode($this->request, true);
-                return isset($data[$param]) ? htmlspecialchars($data[$param], ENT_QUOTES, 'UTF-8') : null;
+                if (!isset($data[$param])) return null;
+                if (is_array($data[$param])) {
+                    foreach ($data[$param] as $vkey => $vvalue) {
+                        return [$this->sanitize($vkey) => $this->sanitize($vvalue)];
+                    }
+                } else {
+                    return $this->sanitize($data[$param]);
+                }
             }
         } else {
-            return isset($_GET[$param]) ? htmlspecialchars($_GET[$param], ENT_QUOTES, 'UTF-8') : null;
+            return isset($_GET[$param]) ? $this->sanitize($_GET[$param]) : null;
         }
     }
 
     /**
      * Get all the response data as an associative array
      */
-    public function body() {
+    public function body()
+    {
         $data = json_decode($this->request, true);
 
         $body = array();
 
-        if($this->requestMethod === "GET") {
-            foreach($_GET as $key => $value) {
-                $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+        if ($this->requestMethod === "GET") {
+            foreach ($_GET as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $vkey => $vvalue) {
+                        $body[$key] = [$this->sanitize($vkey) => $this->sanitize($vvalue)];
+                    }
+                } else {
+                    $body[$key] = $this->sanitize($value);
+                }
             }
             return count($body) > 0 ? $body : null;
         }
         if ($this->requestMethod == "POST" || $this->requestMethod == "PUT" || $this->requestMethod == "PATCH" || $this->requestMethod == "DELETE") {
             if (isset($_POST) && !empty($_POST)) {
-                foreach($_POST as $key => $value) {
-                    $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                foreach ($_POST as $key => $value) {
+                    if (is_array($value)) {
+                        foreach ($value as $vkey => $vvalue) {
+                            $body[$key] = [$this->sanitize($vkey) => $this->sanitize($vvalue)];
+                        }
+                    } else {
+                        $body[$key] = $this->sanitize($value);
+                    }
                 }
                 return count($body) > 0 ? $body : null;
             } else {
-                foreach($data as $key => $value) {
-                    $body[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                foreach ($data as $key => $value) {
+                    if (is_array($value)) {
+                        foreach ($value as $vkey => $vvalue) {
+                            $body[$key] = [$this->sanitize($vkey) => $this->sanitize($vvalue)];
+                        }
+                    } else {
+                        $body[$key] = $this->sanitize($value);
+                    }
                 }
                 return count($body) > 0 ? $body : null;
             }
         }
+    }
+
+    protected function sanitize($value)
+    {
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
     }
 
     /**
@@ -401,7 +440,7 @@ class Request
     public function getHost()
     {
         if (isset($this->env['HTTP_HOST'])) {
-            if(preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $this->env['HTTP_HOST'], $matches)) {
+            if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $this->env['HTTP_HOST'], $matches)) {
                 return $matches[1];
             } else {
                 if (strpos($this->env['HTTP_HOST'], ':') !== false) {
@@ -432,7 +471,7 @@ class Request
      */
     public function getPort()
     {
-        return (int)$this->env['SERVER_PORT'];
+        return (int) $this->env['SERVER_PORT'];
     }
 
     /**

@@ -54,7 +54,7 @@ $app->get('/', function () use($app) {
 
 // POST route
 $app->post('/post', function () use ($app) {
-    $app->response->respond("This is a POST route");
+    $app->response->respond($app->request->body());
 });
 
 // Example User Login 
