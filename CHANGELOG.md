@@ -1,7 +1,13 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.1.0 - 19th June, 2020
+## v2.1.x - 26th June, 2020
+
+### Changed
+
+- Added fix for `Leaf\Http\Request` on "array" type objects
+
+## v2.1.0 - 22nd June, 2020
 
 ### Added
 
@@ -10,11 +16,11 @@
 - Added `Mysqli::auto_connect`
 - Added optional `db_type` option to `Leaf\Db\PDO` connection
 - Added `PDO::auto_connect`
-- Added deprecation warning for `Leaf\Db\PDO`
-
-### Fixed
+- Added new db module (`Leaf\Db`)
 
 ### Changed
+
+- Switched default db to `Leaf\Db`
 
 ### Removed
 
@@ -26,8 +32,6 @@
 
 - Added Route::resource
 - Added Session::retrieve
-
-### Fixed
 
 ### Changed
 
