@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf\Http;
 
 /**
@@ -6,7 +7,8 @@ namespace Leaf\Http;
  * ------------------------------------
  * Simple Cookie management with Leaf
  */
-class Cookie {
+class Cookie
+{
 	protected static $options = [
 		"expire" => 0,
 		"path" => "",
@@ -50,9 +52,9 @@ class Cookie {
 	 * @param string $value   If string, the value of cookie; if array, properties for cookie including: value, expire, path, domain, secure, httponly
 	 * @param string $expires When the cookie expires. Default: 7 days
 	 */
-	public function simpleCookie($name, $value, $expires = "7 days")
+	public static function simpleCookie($name, $value, $expires = "7 days")
 	{
-		$this->set($name, $value, ["expire" => $expires]);
+		self::set($name, $value, ["expire" => $expires]);
 	}
 
 	/**
