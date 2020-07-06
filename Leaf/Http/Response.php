@@ -1,5 +1,8 @@
 <?php
+
 namespace Leaf\Http;
+
+use Leaf\Http\Cookie;
 
 /**
  * Response
@@ -23,11 +26,6 @@ class Response
      * @var \Leaf\Http\Headers
      */
     public $headers;
-
-    /**
-     * @var \Leaf\Http\Cookies
-     */
-    public $cookies;
 
     /**
      * @var string HTTP response body
@@ -111,15 +109,15 @@ class Response
     public function __construct($status = 200, $headers = array())
     {
         $this->setStatus($status);
-        $this->headers = new \Leaf\Http\Headers();
+        $this->headers = new \Leaf\Http\Headers;
         $this->headers->contentHtml();
-        $this->cookies = new \Leaf\Http\Cookies();
     }
 
     /**
      * Output neatly parsed json
      */
-    public function respond($data) {
+    public function respond($data)
+    {
         header('Content-Type: application/json');
         echo json_encode($data);
     }
@@ -127,7 +125,8 @@ class Response
     /**
      * Output json encoded data with an HTTP code/message
      */
-    public function respondWithCode($data, int $code = 200, bool $use_message = false) {
+    public function respondWithCode($data, int $code = 200, bool $use_message = false)
+    {
         header('Content-Type: application/json');
         if ($use_message) {
             $dataToPrint = array('data' => $data, 'message' => isset(self::$messages[$code]) ? self::$messages[$code] : $code);
@@ -141,7 +140,8 @@ class Response
     /**
      * Throw an error and break the application
      */
-    public function throwErr($error, int $code = 500, bool $use_message = false) {
+    public function throwErr($error, int $code = 500, bool $use_message = false)
+    {
         header('Content-Type: application/json');
         if ($use_message) {
             $dataToPrint = array('error' => $error, 'message' => isset(self::$messages[$code]) ? self::$messages[$code] : $code);
@@ -152,20 +152,23 @@ class Response
         $this->respond($dataToPrint);
         exit();
     }
-    
-    public function renderPage(String $file) {
+
+    public function renderPage(String $file)
+    {
         header('Content-Type: text/html');
         require $file;
     }
 
-    public function renderMarkup(String $markup) {
+    public function renderMarkup(String $markup)
+    {
         header('Content-Type: text/html');
         echo <<<EOT
 $markup
 EOT;
     }
 
-    public function cors(String $allow_origin = "*", String $allow_headers = "*") {
+    public function cors(String $allow_origin = "*", String $allow_headers = "*")
+    {
         header("Access-Control-Allow-Origin: $allow_origin");
         header("Access-Control-Allow-Headers: $allow_headers");
     }
@@ -177,7 +180,7 @@ EOT;
 
     public function setStatus($status)
     {
-        $this->status = (int)$status;
+        $this->status = (int) $status;
     }
 
     /**
@@ -244,7 +247,7 @@ EOT;
         if ($replace) {
             $this->body = $body;
         } else {
-            $this->body .= (string)$body;
+            $this->body .= (string) $body;
         }
         $this->length = strlen($this->body);
 
@@ -294,60 +297,37 @@ EOT;
     /**
      * Set cookie
      *
-     * Instead of using PHP's `setcookie()` function, Leaf manually constructs the HTTP `Set-Cookie`
-     * header on its own and delegates this responsibility to the `Leaf_Http_Util` class. This
-     * response's header is passed by reference to the utility class and is directly modified. By not
-     * relying on PHP's native implementation, Leaf allows middleware the opportunity to massage or
-     * analyze the raw header before the response is ultimately delivered to the HTTP client.
+     * Set a new cookie
      *
-     * @param string        $name    The name of the cookie
-     * @param string|array  $value   If string, the value of cookie; if array, properties for
-     *                               cookie including: value, expire, path, domain, secure, httponly
+     * @param string|array $name The name of the cookie
+     * @param string $value If string, the value of cookie
+     * @param array $options Settings for cookie
      */
-    public function setCookie($name, $value)
+    public function setCookie($name, $value, $options = [])
     {
-        // Util::setCookieHeader($this->header, $name, $value);
-        $this->cookies->set($name, $value);
+        Cookie::set($name, $value, $options);
     }
 
     /**
      * Shorthand method of setting a cookie + value + expire time
      *
-     * @param string $name    The name of the cookie
-     * @param string $value   If string, the value of cookie; if array, properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $name The name of the cookie
+     * @param string $value The value of cookie
      * @param string $expire When the cookie expires. Default: 7 days
      */
     public function simpleCookie($name, $value, $expire = "7 days")
     {
-        $cookie = [
-            "value" => $value,
-            "expire" => $expire
-        ];
-        $this->setCookie($name, $cookie);
+        Cookie::simpleCookie($name, $value, $expire);
     }
 
     /**
      * Delete cookie
      *
-     * Instead of using PHP's `setcookie()` function, Leaf manually constructs the HTTP `Set-Cookie`
-     * header on its own and delegates this responsibility to the `Leaf_Http_Util` class. This
-     * response's header is passed by reference to the utility class and is directly modified. By not
-     * relying on PHP's native implementation, Leaf allows middleware the opportunity to massage or
-     * analyze the raw header before the response is ultimately delivered to the HTTP client.
-     *
-     * This method will set a cookie with the given name that has an expiration time in the past; this will
-     * prompt the HTTP client to invalidate and remove the client-side cookie. Optionally, you may
-     * also pass a key/value array as the second argument. If the "domain" key is present in this
-     * array, only the Cookie with the given name AND domain will be removed. The invalidating cookie
-     * sent with this response will adopt all properties of the second argument.
-     *
-     * @param string $name     The name of the cookie
-     * @param array  $settings Properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $name The name of the cookie
      */
-    public function deleteCookie($name, $settings = array())
+    public function deleteCookie($name)
     {
-        $this->cookies->remove($name, $settings);
-        // Util::deleteCookieHeader($this->header, $name, $value);
+        Cookie::unset($name);
     }
 
     /**
@@ -359,7 +339,7 @@ EOT;
      * @param string $url    The redirect destination
      * @param int    $status The redirect HTTP status code
      */
-    public function redirect ($url, $status = 302)
+    public function redirect($url, $status = 302)
     {
         $this->setStatus($status);
         $this->headers->set('Location', $url);
