@@ -175,6 +175,16 @@ class Auth
 	}
 
 	/**
+	 * Get the current user data
+	 */
+	public function currentUser($table)
+	{
+		$payload = $this->validateToken();
+		if (!$payload) return false;
+		return $this->login($table, ["id" => $payload->user_id]);
+	}
+
+	/**
 	 * Return form field
 	 */
 	public function get($param)
