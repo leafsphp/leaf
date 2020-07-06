@@ -71,13 +71,15 @@ class Auth
 			$credentials["password"] = md5($credentials["password"]);
 		}
 
-		$user = $this->db->select($table)->where($credentials)->hidden("password")->validate($validate)->fetchAssoc();
+		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 		if (!$user) {
 			$this->errorsArray["auth"] = "Incorrect credentials, please check and try again";
 			return false;
 		}
 
 		$token = $this->token->generateSimpleToken($user["id"], $this->secret_key);
+		unset($user["id"]);
+		if (isset($user["password"])) unset($user["password"]);
 		if ($token == false) {
 			foreach ($this->token->errors() as $key => $value) {
 				$this->errorsArray[$key] = $value;
