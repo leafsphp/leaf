@@ -1260,9 +1260,6 @@ class App
         //Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();
 
-        // Serialize cookies (with optional encryption)
-        \Leaf\Http\Util::serializeCookies($headers, new \Leaf\Http\Cookie, $this->settings);
-
         //Send headers
         if (headers_sent() === false) {
             //Send status
