@@ -1,7 +1,7 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.2.0 [BETA] - 6th July, 2020
+## v2.2.0 [BETA] - 7th July, 2020
 
 ### Added
 
