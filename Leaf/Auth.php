@@ -2,7 +2,6 @@
 
 namespace Leaf;
 
-use \Leaf\Db\Mysqli;
 use \Leaf\Form;
 use \Leaf\Http\Response;
 use \Leaf\Helpers\Authentication;
@@ -12,7 +11,7 @@ use \Leaf\Helpers\Authentication;
  * ---------------
  * Perform simple authentication tasks.
  */
-class Auth extends Mysqli
+class Auth
 {
 	protected $errorsArray = [];
 	protected $secret_key = "TOKEN_SECRET";
@@ -22,18 +21,35 @@ class Auth extends Mysqli
 		$this->form = new Form;
 		$this->response = new Response;
 		$this->token = new Authentication;
+		$this->db = new Db;
 	}
 
-	public function connect($host, $user, $password, $dbname)
+	public function connect(string $host, string $user, string $password, string $dbname): void
 	{
-		Mysqli::connect($host, $user, $password, $dbname);
+		$this->db->connect($host, $user, $password, $dbname);
 	}
 
+	public function auto_connect(): void
+	{
+		$this->connect(
+			getenv("DB_HOST"),
+			getenv("DB_USERNAME"),
+			getenv("DB_PASSWORD"),
+			getenv("DB_DATABASE")
+		);
+	}
+
+	/**
+	 * Set token secret key for auth
+	 */
 	public function setSecretKey(string $secret_key)
 	{
 		$this->secret_key = $secret_key;
 	}
 
+	/**
+	 * Get auth secret key
+	 */
 	public function getSecretKey()
 	{
 		return $this->secret_key;
@@ -43,243 +59,68 @@ class Auth extends Mysqli
 	 * Simple user login
 	 * 
 	 * @param string table: Table to look for users
-	 * @param string condition: Conditions to be met for login
+	 * @param array $credentials User credentials
 	 * @param string password_encode: Password encode type, should match password
+	 * @param array $validate Validation for parameters
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function login(string $table, array $credentials, string $password_encode = null, bool $default_checks = false)
+	public function login(string $table, array $credentials, string $password_encode = null, array $validate = [])
 	{
 		if ($password_encode == "md5" && isset($credentials["password"])) {
 			$credentials["password"] = md5($credentials["password"]);
 		}
 
-		$keys = [];
-		$data = [];
-
-		foreach ($credentials as $key => $value) {
-			// try {
-			// 	!$this->select($table, "*", "$key = ?", [$value]);
-			// } catch (\Throwable $th) {
-			// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-			// 	exit();
-			// }
-
-			array_push($keys, $key);
-			array_push($data, $value);
-
-			if ($default_checks == true) {
-				if ($key == "email") $this->form->validate(["email" => "email"]);
-				else if ($key == "username") $this->form->validate(["username" => "validusername"]);
-				else $this->form->validate([$key => "required"]);
-			}
+		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
+		if (!$user) {
+			$this->errorsArray["auth"] = "Incorrect credentials, please check and try again";
+			return false;
 		}
 
-		$keys_length = count($keys);
-		$data_length = count($data);
-
-		if (!empty($this->form->errors())) {
-			foreach ($this->form->errors() as $key => $value) {
+		$token = $this->token->generateSimpleToken($user["id"], $this->secret_key);
+		unset($user["id"]);
+		if (isset($user["password"])) unset($user["password"]);
+		if ($token == false) {
+			foreach ($this->token->errors() as $key => $value) {
 				$this->errorsArray[$key] = $value;
 			}
 			return false;
-		} else {
-			$condition = "";
+		}
+		$user["token"] = $token;
 
-			for ($i = 0; $i < $keys_length; $i++) {
-				$condition = $condition . $keys[$i] . " = ?";
-				if ($i < $keys_length - 1) {
-					$condition = $condition . " AND ";
-				}
-			}
+		return $user;
+	}
 
-			$user = $this->select($table, "*", $condition, $data)->fetchAssoc();
+	/**
+	 * Simple user registration
+	 * 
+	 * @param string $table: Table to store user in
+	 * @param array $credentials Information for new user
+	 * @param array $uniques Parameters which should be unique
+	 * @param string password_encode: Password encode type, should match password
+	 * @param array $validate Validation for parameters
+	 * 
+	 * @return array user: all user info + tokens + session data
+	 */
+	public function register(string $table, array $credentials, array $uniques = [], string $password_encode = null, array $validate = [])
+	{
+		if ($password_encode == "md5" && isset($credentials["password"])) {
+			$credentials["password"] = md5($credentials["password"]);
+		}
 
-			if (!$user) {
-				$this->errorsArray["auth"] = "Incorrect credentials, please check and try again";
-				return false;
-			}
-
-			$token = $this->token->generateSimpleToken($user["id"], $this->secret_key);
-
-			if ($token == false) {
-				foreach ($this->token->errors() as $key => $value) {
+		try {
+			if ($this->db->insert($table)->params($credentials)->unique($uniques)->validate($validate)->execute() === false) {
+				foreach ($this->db->errors() as $key => $value) {
 					$this->errorsArray[$key] = $value;
 				}
 				return false;
 			}
-
-			$user["token"] = $token;
-			unset($user["password"]);
-
-			return $user;
-		}
-	}
-
-	/**
-	 * Simple user registration
-	 * 
-	 * @param string table: Table to store user in
-	 * @param string condition: Conditions to be met for login
-	 * @param string password_encode: Password encode type, should match password
-	 * 
-	 * @return array user: all user info + tokens + session data
-	 */
-	public function register(string $table, array $credentials, array $uniques = null, string $password_encode = null, bool $default_checks = false)
-	{
-		if ($password_encode == "md5" && isset($credentials["password"])) {
-			$credentials["password"] = md5($credentials["password"]);
-		}
-
-		$keys = [];
-		$data = [];
-
-		foreach ($credentials as $key => $value) {
-			// try {
-			// 	$this->select($table, "*", "$key = ?", [$value]);
-			// } catch (\Throwable $th) {
-			// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-			// 	exit();
-			// }
-
-			array_push($keys, $key);
-			array_push($data, $value);
-
-			if ($default_checks == true) {
-				if ($key == "email") $this->form->validate(["email" => "email"]);
-				else if ($key == "username") $this->form->validate(["username" => "validusername"]);
-				else $this->form->validate([$key => "required"]);
-			}
-		}
-
-		$keys_length = count($keys);
-		$data_length = count($data);
-
-		if ($uniques != null) {
-			foreach ($uniques as $unique) {
-				if (!isset($credentials[$unique])) {
-					$this->response->respond(["error" => "$unique not found, Add $unique to your \$auth->register credentials or check your spelling."]);
-					exit();
-				} else {
-					if ($this->select($table, "*", "$unique = ?", [$credentials[$unique]])->fetchObj()) {
-						$this->form->errorsArray[$unique] = "$unique already exists";
-					}
-				}
-			}
-		}
-
-		if (!empty($this->form->errors())) {
-			foreach ($this->form->errors() as $key => $value) {
-				$this->errorsArray[$key] = $value;
-			}
+		} catch (\Throwable $th) {
+			$this->errorsArray["error"] = $th->getMessage();
 			return false;
-		} else {
-			$table_names = "";
-			$table_values = "";
-
-			for ($i = 0; $i < $keys_length; $i++) {
-				$table_names = $table_names . $keys[$i];
-				if ($i < $keys_length - 1) {
-					$table_names = $table_names . ", ";
-				}
-
-				$table_values = $table_values . "?";
-				if ($i < $keys_length - 1) {
-					$table_values = $table_values . ", ";
-				}
-			}
-
-			try {
-				$this->insert($table, $table_names, $table_values, $data);
-			} catch (\Throwable $th) {
-				$this->errorsArray["error"] = $th;
-				return false;
-			}
-
-			return $this->login($table, $credentials, $password_encode);
-		}
-	}
-
-	/**
-	 * Simple user registration
-	 * 
-	 * @param string table: Table to store user in
-	 * @param string condition: Conditions to be met for login
-	 * @param string password_encode: Password encode type, should match password
-	 * 
-	 * @return array user: all user info + tokens + session data
-	 */
-	public function edit(string $table, array $credentials, array $uniques = null, string $password_encode = null, bool $default_checks = false)
-	{
-		if ($password_encode == "md5" && isset($credentials["password"])) {
-			$credentials["password"] = md5($credentials["password"]);
 		}
 
-		$keys = [];
-		$data = [];
-
-		foreach ($credentials as $key => $value) {
-			// try {
-			// 	$this->select($table, "*", "$key = ?", [$value]);
-			// } catch (\Throwable $th) {
-			// 	$this->response->throwErr(["error" => "$key is not a valid column in the $table table"]);
-			// 	exit();
-			// }
-
-			array_push($keys, $key);
-			array_push($data, $value);
-
-			if ($default_checks == true) {
-				if ($key == "email") $this->form->validate(["email" => "email"]);
-				else if ($key == "username") $this->form->validate(["username" => "validusername"]);
-				else $this->form->validate([$key => "required"]);
-			}
-		}
-
-		$keys_length = count($keys);
-		$data_length = count($data);
-
-		if ($uniques != null) {
-			foreach ($uniques as $unique) {
-				if (!isset($credentials[$unique])) {
-					$this->response->respond(["error" => "$unique not found, Add $unique to your \$auth->register credentials or check your spelling."]);
-					exit();
-				} else {
-					if ($this->select($table, "*", "$unique = ?", [$credentials[$unique]])->fetchObj()) {
-						$this->form->errorsArray[$unique] = "$unique already exists";
-					}
-				}
-			}
-		}
-
-		if (!empty($this->form->errors())) {
-			array_push($this->errorsArray, $this->form->errors());
-			return false;
-		} else {
-			$table_names = "";
-			$table_values = "";
-
-			for ($i = 0; $i < $keys_length; $i++) {
-				$table_names = $table_names . $keys[$i];
-				if ($i < $keys_length - 1) {
-					$table_names = $table_names . ", ";
-				}
-
-				$table_values = $table_values . "?";
-				if ($i < $keys_length - 1) {
-					$table_values = $table_values . ", ";
-				}
-			}
-
-			try {
-				$this->insert($table, $table_names, $table_values, $data);
-			} catch (\Throwable $th) {
-				$this->errorsArray["error"] = $th;
-				return false;
-			}
-
-			return $this->login($table, $credentials, $password_encode);
-		}
+		return $this->login($table, $credentials);
 	}
 
 	/**
@@ -334,6 +175,16 @@ class Auth extends Mysqli
 	}
 
 	/**
+	 * Get the current user data
+	 */
+	public function currentUser($table)
+	{
+		$payload = $this->validateToken();
+		if (!$payload) return false;
+		return $this->login($table, ["id" => $payload->user_id]);
+	}
+
+	/**
 	 * Return form field
 	 */
 	public function get($param)
@@ -344,7 +195,7 @@ class Auth extends Mysqli
 	/**
 	 * Get all authentication errors as associative array
 	 */
-	public function errors()
+	public function errors(): array
 	{
 		return $this->errorsArray;
 	}
