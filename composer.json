@@ -9,7 +9,7 @@
         "php",
         "framework"
     ],
-    "homepage": "https://leafphp.netlify.com/#/",
+    "homepage": "https://leafphp.netlify.app/#/",
     "type": "library",
     "license": "MIT",
     "authors": [
