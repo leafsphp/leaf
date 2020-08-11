@@ -2,14 +2,15 @@
 
 namespace Leaf;
 
-use \Leaf\Form;
-use \Leaf\Http\Response;
-use \Leaf\Helpers\Authentication;
+use Leaf\Helpers\Authentication;
 
 /**
  * Leaf Simple Auth
  * ---------------
  * Perform simple authentication tasks.
+ * 
+ * @author Michael Darko
+ * @since 1.5.0
  */
 class Auth
 {
@@ -19,7 +20,6 @@ class Auth
 	public function __construct()
 	{
 		$this->form = new Form;
-		$this->response = new Response;
 		$this->token = new Authentication;
 		$this->db = new Db;
 	}
@@ -163,25 +163,32 @@ class Auth
 	public function getBearerToken()
 	{
 		$token = $this->token->getBearerToken();
+		if ($token !== false) return $token;
 
-		if ($token == false) {
-			foreach ($this->token->errors() as $key => $value) {
-				$this->errorsArray[$key] = $value;
-			}
-			return false;
+		foreach ($this->token->errors() as $key => $value) {
+			$this->errorsArray[$key] = $value;
 		}
-
-		return $token;
+		return false;
 	}
 
 	/**
 	 * Get the current user data
 	 */
-	public function currentUser($table)
+	public function currentUser($table = "users")
 	{
 		$payload = $this->validateToken();
 		if (!$payload) return false;
 		return $this->login($table, ["id" => $payload->user_id]);
+	}
+
+	/**
+	 * Return the user_id encoded in token 
+	 */
+	public function useToken()
+	{
+		$payload = $this->validateToken($this->getSecretKey());
+		if ($payload == false) return false;
+		return $payload->user_id;
 	}
 
 	/**

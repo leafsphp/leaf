@@ -1,7 +1,7 @@
 <?php
 namespace Leaf;
 
-use \Leaf\Http\Request;
+use Leaf\Http\Request;
 
 /**
  *  Leaf Forms

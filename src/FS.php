@@ -4,11 +4,33 @@ namespace Leaf;
 use Symfony\Component\Finder\Finder;
 
 /**
- *  Leaf FileSystem
- *  --------
- *  Basic filesystem operations
+ * Leaf FileSystem
+ * --------
+ * A simple and easy to use package that helps with basic
+ * filesystem operations
+ * 
+ * @author  Michael Darko
+ * @since   1.5.0
  */
 class FS {
+	/**Any errors caught in an FS operation */
+	protected static $errorsArray = [];
+
+	/**Details of a file(s) upload */
+	protected static $uploadInfo = [];
+
+	/**File extension types */
+	protected static $extensions = [
+		"image" => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'apng', 'tif', 'tiff', 'svg', 'pjpeg', 'pjp', 'jfif', 'cur', 'ico'],
+		"video" => ['mp4', 'webm', 'swf', 'flv'],
+		"audio" => ['wav', 'mp3', 'ogg', 'm4a'],
+		"text" => ['txt', 'log', 'xml', 'doc', 'docx', 'odt', 'wpd', 'rtf', 'tex', 'pdf'],
+		"presentation" => ['ppsx', 'pptx', 'ppt', 'pps', 'ppsm', 'key', 'odp'],
+		"compressed" => ['zip', 'rar', 'bz', 'gz', 'iso', 'tar.gz', 'tgz', 'zipx', '7z', 'dmg'],
+		"spreadsheet" => ['ods', 'xls', 'xlsx', 'xlsm'],
+		"application" => ['apk', 'bat', 'cgi', 'pl', 'com', 'exe', 'gadget', 'jar', 'msi', 'py', 'wsf']
+	];
+	
 	/**
 	* Create a new directory in current directory (\_\_DIR\_\_)
 	*
@@ -16,10 +38,10 @@ class FS {
 	*
 	* @return void
 	*/
-	public function create_folder(String $dirname) {
+	public static function create_folder(String $dirname) {
 		if (is_dir($dirname)) {
-			echo "$dirname already exists in " . dirname($dirname);
-			exit();
+			self::$errorsArray[$dirname] = "$dirname already exists in " . dirname($dirname);
+			return false;
 		}
 		mkdir($dirname);
 	}
@@ -32,10 +54,10 @@ class FS {
 	*
 	* @return void
 	*/
-	public function rename_folder(String $dirname, String $newdirname) {
+	public static function rename_folder(String $dirname, String $newdirname) {
 		if (!is_dir($dirname)) {
-			echo "$dirname not found in " . dirname($dirname) . ".";
-			exit();
+			self::$errorsArray[$dirname] = "$dirname not found in " . dirname($dirname) . ".";
+			return false;
 		}
 		rename($dirname, $newdirname);
 	}
@@ -48,10 +70,10 @@ class FS {
 	*
 	* @return void
 	*/
-	public function delete_folder($dirname) {
+	public static function delete_folder($dirname) {
 		if (!is_dir($dirname)) {
-			echo "$dirname not found in " . dirname($dirname) . ".";
-			exit();
+			self::$errorsArray[$dirname] = "$dirname not found in " . dirname($dirname) . ".";
+			return false;
 		}
 		rmdir($dirname);
 	}
@@ -64,13 +86,14 @@ class FS {
 	*
 	* @return void
 	*/
-	public function list_dir($dirname, $pattern = null) {		
+	public static function list_dir($dirname, $pattern = null) {		
 		$files = glob($dirname . "/*$pattern*");
 		$filenames = [];
         
         foreach ($files as $file) {
             $file = pathinfo($file);
 			$filename = $file['filename'];
+			
 			if (isset($file['extension'])) {
 				$extension = $file['extension'];
 				array_push($filenames, "$filename.$extension");
@@ -89,7 +112,7 @@ class FS {
      * @param  bool  $hidden
      * @return \Symfony\Component\Finder\SplFileInfo[]
      */
-    public function list_files($directory, $hidden = false)
+    public static function list_files($directory, $hidden = false)
     {
         return iterator_to_array(
             Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->depth(0)->sortByName(),
@@ -104,7 +127,7 @@ class FS {
 	 * @param  bool  $hidden
 	 * @return \Symfony\Component\Finder\SplFileInfo[]
 	 */
-	public function allFiles($directory, $hidden = false)
+	public static function allFiles($directory, $hidden = false)
 	{
 		return iterator_to_array(
 			Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->sortByName(),
@@ -118,7 +141,7 @@ class FS {
      * @param  string  $directory
      * @return array
      */
-    public function list_folders($directory)
+    public static function list_folders($directory)
     {
         $directories = [];
 
@@ -136,9 +159,9 @@ class FS {
 	*
 	* @return void
 	*/
-	public function create_file($filename) {
+	public static function create_file($filename) {
 		if (!is_dir(dirname($filename))) {
-			$this->create_folder(dirname($filename));
+			self::create_folder(dirname($filename));
 		}
 		if (file_exists($filename)) {
 			touch(time().".".$filename);
@@ -147,50 +170,101 @@ class FS {
 		touch($filename);
 	}
 
-	public function upload_file($path, $file, $file_category = "image"): Array {
-		// get file details
-		$name = strtolower(strtotime(date("Y-m-d H:i:s")).'_'.str_replace(" ", "",$file["name"]));
+	/**
+	 * Upload a file
+	 * 
+	 * @param string $path The path to save the file in
+	 * @param string $file The file to upload
+	 * @param string $file_category The type of file
+	 * @param array $config Configuration options for file upload
+	 * 
+	 * @return string|bool
+	 */
+	public static function upload_file($path, $file, $config = [])
+	{
+		if (!is_dir($path)) {
+			if (isset($config["verify_dir"]) && $config["verify_dir"] == true) {
+				self::$errorsArray["upload"] = "Specified path '$path' does not exist";
+				return false;
+			} else {
+				mkdir($path, 0777, true);
+			}
+		}
+
+		if (isset($config["unique"]) && $config["unique"] == true) {
+			$name = strtolower(strtotime(date("Y-m-d H:i:s")).'_'.str_replace(" ", "_", $file["name"]));
+		} else {
+			$name = str_replace(" ", "_", $file["name"]);
+		}
+
 		$temp = $file["tmp_name"];
 		$size = $file["size"];
-
-		$target_dir = $path; // destination path
-		$target_file = $target_dir . basename($name); // destination file
-		$upload_ok = true; // upload checker
-		$file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION)); // file type
-
-			
-		if (!file_exists($path)):
-			mkdir($path, 0777, true);
-		endif;
+		$target_dir = $path;
+		$target_file = $target_dir . basename($name);
 		
-		// Check if file already exists
-		if (file_exists($target_file)) {
-			return [true, $name];
-		}
-		// Check file size
-		if ($size > 2000000) {
-			return [false, "file too big"];
-		}
-		// Allow certain file formats
-		switch ($file_category) {
-			case 'image':
-				$extensions = ['jpg', 'jpeg', 'png', 'gif'];
-				break;
-			
-			case 'audio':
-				$extensions = ['wav', 'mp3', 'ogg', 'wav', 'm4a'];
-				break;
+		if (file_exists($target_file) && (isset($config["verify_file"]) && $config["verify_file"] == true)) {
+			self::$errorsArray["upload"] = "$target_file already exists";
+			return false;
 		}
 
-		if (!in_array($file_type, $extensions)) {
-			return [false, $file['name']." format not acceptable for $file_category"];
+		$file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+		$maximum_file_size = $config["max_file_size"] ?? 10000000;
+		$file_category = $config["file_type"] ?? self::get_category($file_type);
+
+		if ($size > $maximum_file_size) {
+			self::$errorsArray["upload"] = "maximum file exceeded, please choose a file smaller than 10mb";
+			return false;
 		}
-		// Check if $upload_ok is set to 0 by an error
+
+		if (isset($config["validate"])) {
+			foreach (self::$extensions as $category => $exts) {
+				if ($file_category == $category) $extensions = $exts;
+			}
+
+			if (!in_array($file_type, $extensions)) {
+				self::$errorsArray["upload"] = $file['name'] . " format not acceptable for $file_category";
+				return false;
+			}
+		}
+
+		self::$uploadInfo[$name] = [
+			"name" => $name,
+			"size" => $size,
+			"type" => $file_type,
+			"category" => $file_category,
+			"path" => $target_file,
+			"parent_directory" => basename(dirname($target_file)),
+			"parent_directory_path" => $target_dir
+		];
+		
 		if (move_uploaded_file($temp, $target_file)) {
-			return [true, $name];
+			return $name;
 		} else {
-			return [false, "Wasn't able to upload {$file_category}"];
+			self::$errorsArray["upload"] = "Wasn't able to upload $file_category";
+			return false;
 		}
+	}
+
+	/**
+	 * Get a file category from it's extension
+	 */
+	protected static function get_category(string $file_type)
+	{
+		foreach (self::$extensions as $category => $exts) {
+			if (in_array($file_type, $exts)) return $category;
+		}
+
+		return 'file';
+	}
+
+	/**
+	 * Get full information about an uploaded file
+	 * 
+	 * @param string|null $file The file info to get
+	 */
+	public static function upload_info($file = null) : array
+	{
+		return $file ? self::$uploadInfo[$file] : self::$uploadInfo;
 	}
 
 	/**
@@ -202,9 +276,9 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public function write_file($filename, $content, $lock = false) {
+	public static function write_file($filename, $content, $lock = false) {
 		if (!file_exists($filename)) {
-			$this->create_file($filename);
+			self::create_file($filename);
 		}
 		file_put_contents($filename, $content, $lock ? LOCK_EX : 0);
 	}
@@ -216,10 +290,10 @@ class FS {
 	*
 	* @return String|false file content
 	*/
-	public function read_file(String $filename) {
+	public static function read_file(String $filename) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename);
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
 		}
 		return file_get_contents($filename);
 	}
@@ -232,10 +306,10 @@ class FS {
 	*
 	* @return void
 	*/
-	public function rename_file($filename, $newfilename) {
+	public static function rename_file($filename, $newfilename) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename);
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
 		}
 		rename($filename, $newfilename);
 	}
@@ -247,11 +321,11 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public function delete_file($filename)
+	public static function delete_file($filename)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename);
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
 		}
 		unlink($filename);
 	}
@@ -265,11 +339,11 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public function copy_file($filename, $to, $rename = true)
+	public static function copy_file($filename, $to, $rename = true)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename);
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
 		}
 		$newfilename = $filename;
 		if (file_exists($filename) && $rename == true) {
@@ -279,7 +353,8 @@ class FS {
 			copy($filename, $to . "/" . $newfilename);
 			return $newfilename;
 		} catch (\Throwable $err) {
-			throw "Unable to copy file: $err";
+			self::$errorsArray[$filename] = "Unable to copy file";
+			return false;
 		}
 	}
 
@@ -291,11 +366,11 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public function clone_file($filename, $to)
+	public static function clone_file($filename, $to)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename);
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
 		}
 		try {
 			copy($filename, $to);
@@ -311,11 +386,11 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public function move_file($filename, $to)
+	public static function move_file($filename, $to)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename);
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
 		}
 
 		rename($filename, $to);
@@ -329,16 +404,16 @@ class FS {
 	*
 	* @return void
 	*/
-	public function prepend($filename, $content) {
+	public static function prepend($filename, $content) {
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename);
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
 		}
 
-		$fileContent = $this->read_file($filename);
+		$fileContent = self::read_file($filename);
 		$data = $content."\n".$fileContent;
 
-		$this->write_file($filename, $data);
+		self::write_file($filename, $data);
 	}
 
 	/**
@@ -349,11 +424,11 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public function append($filename, $content)
+	public static function append($filename, $content)
 	{
 		if (!file_exists($filename)) {
-			echo "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
-			exit();
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename) . ". Change the base directory if you're sure the file exists.";
+			return false;
 		}
 		
 		file_put_contents($filename, $content, FILE_APPEND);
@@ -366,7 +441,7 @@ class FS {
 	 * @param  int|null  $mode
 	 * @return mixed
 	 */
-	public function chmod($path, $mode = null)
+	public static function chmod($path, $mode = null)
 	{
 		if ($mode) {
 			return chmod($path, $mode);
@@ -382,7 +457,7 @@ class FS {
 	 * @param  string  $link
 	 * @return void
 	 */
-	public function link($target, $link)
+	public static function link($target, $link)
 	{
 		if (!windows_os()) {
 			return symlink($target, $link);
@@ -399,7 +474,7 @@ class FS {
 	 * @param  string  $path
 	 * @return string
 	 */
-	public function name($path)
+	public static function name($path)
 	{
 		return pathinfo($path, PATHINFO_FILENAME);
 	}
@@ -410,7 +485,7 @@ class FS {
 	 * @param  string  $path
 	 * @return string
 	 */
-	public function basename($path)
+	public static function basename($path)
 	{
 		return pathinfo($path, PATHINFO_BASENAME);
 	}
@@ -421,7 +496,7 @@ class FS {
 	 * @param  string  $path
 	 * @return string
 	 */
-	public function dirname($path)
+	public static function dirname($path)
 	{
 		return pathinfo($path, PATHINFO_DIRNAME);
 	}
@@ -432,7 +507,7 @@ class FS {
 	 * @param  string  $path
 	 * @return string
 	 */
-	public function extension($path)
+	public static function extension($path)
 	{
 		return pathinfo($path, PATHINFO_EXTENSION);
 	}
@@ -443,7 +518,7 @@ class FS {
 	 * @param  string  $path
 	 * @return string
 	 */
-	public function type($path)
+	public static function type($path)
 	{
 		return filetype($path);
 	}
@@ -454,8 +529,18 @@ class FS {
 	 * @param  string  $path
 	 * @return int
 	 */
-	public function size($path)
+	public static function size($path)
 	{
 		return filesize($path);
+	}
+
+	/**
+	 * Return errors if any
+	 * 
+	 * @return array
+	 */
+	public static function errors(): array
+	{
+		return self::$errorsArray;
 	}
 }

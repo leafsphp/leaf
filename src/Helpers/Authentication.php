@@ -4,18 +4,26 @@ namespace Leaf\Helpers;
 
 use \Leaf\Helpers\JWT;
 
+/**
+ * Leaf Authentication
+ * ---------------------------------------------
+ * Authentication helper for Leaf PHP
+ * 
+ * @author Michael Darko <mickdd22@gmail.com>
+ * @since v1.2.0
+ */
 class Authentication extends JWT
 {
 	protected $errorsArray = [];
 
 	public function generateSimpleToken($user_id, $secret_phrase)
 	{
-		$payload = array(
+		$payload = [
 			'iat' => time(),
 			'iss' => 'localhost',
-			'exp' => time() + (15 * 60),
+			'exp' => time() + (60 * 60 * 24),
 			'user_id' => $user_id
-		);
+		];
 
 		return $this->encode($payload, $secret_phrase);
 	}

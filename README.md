@@ -20,7 +20,7 @@ Leaf is a PHP micro framework that helps you create clean, simple but powerful w
 It's recommended that you use [Composer](https://getcomposer.org/) to install Leaf.
 
 ```bash
-composer require leafs/leaf
+composer require leafs/leaf ^2.0
 ```
 
 This will install Leaf in your project directory.
@@ -37,24 +37,24 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 require __DIR__ . 'vendor/autoload.php';
 
 // Instantiate Leaf
-$app = new Leaf\App;
+$leaf = new Leaf\App;
 
 // In v2.0, the request and response objects are directly tied to the Leaf Object,
 // so you don't have to instanciate them if you don't want to
 
-// Example get route
-$app->get('/', function () use($app) {
-  // since the response object is directly tied to the leaf instance
-  $app->response->renderMarkup('<h5>My first Leaf app</h5>');
+// Add routes
+$leaf->get('/', function () use($leaf) {
+    // since the response object is directly tied to the leaf instance
+   $leaf->response->renderMarkup('<h5>My first Leaf app</h5>');
 });
 
-$app->post('/users/add', function () use($app) {
-  $name = $app->request->get('name');
-  $app->response->respond(["message" => $name." has been added"]);
+$leaf->post('/users/add', function () use($leaf) {
+    $name = $leaf->request->get('name');
+    $leaf->response->respond(["message" => $name." has been added"]);
 });
 
 // Don't forget to call leaf run
-$app->run();
+$leaf->run();
 ```
 
 You can view the full documentation [here](https://leafphp.netlify.com/#/)
@@ -67,12 +67,17 @@ php -S localhost:8000
 
 # Working With MVC
 
-Although leaf on it's own isn't an MVC framework, it contains useful tools and packages which allow you to use Leaf as any other MVC framework.
+Leaf has recently added a new package to it's collection: LeafMVC.
+It's an MVC framework built with this package at it's core that let's you create clean, simple but powerful web applications and APIs quickly and easily.
 
-If however, you want an already built MVC setup with scaffolding and a whole lot of other amazing features, you can try out [Leaf API](https://leafphp.netlify.app/#/leaf-api) or [Leaf MVC](https://leafmvc.netlify.app/).
+Ckeckout LeafMVC [here](https://github.com/leafsphp/leafMVC)
 
-## Leaf API
+# Working with API
 
-Leaf API is a lightweight PHP MVC framework for rapid API development. Leaf API serves as minimal MVC wrapper around Leaf PHP Framework which allows you to use Leaf in an MVC environment. It also comes along with a bunch of handy tools which can speed up your development by leagues🙂
+Leaf also added a simple framework constructed in an MVCish way, but without the View layer purposely for creating APIs and Libraries. Leaf terms this construct as MRRC(Model Request Response Controller😅😅😅). This let's you seperate API logic, data and "views"(request and response) just like how it's done in MVC.
 
-[Read the docs](https://leafphp.netlify.app/#/leaf-api) and [Contribute on github](https://github.com/leafsphp/leafAPI).
+Checkout the LeafAPI package [here](https://github.com/leafsphp/leafAPI)
+
+Of course, with this core package, you can build your app in any way that you wish to as Leaf contains all the required functionality to do so
+
+## View Leaf's docs [here](https://leafphp.netlify.com/#/)

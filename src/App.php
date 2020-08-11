@@ -4,14 +4,11 @@
  *
  * @author        Michael Darko <mickdd22@gmail.com>
  * @copyright   2019-2020 Michael Darko
- * @link             http://www.leafphp.netlify.com/#/
+ * @link             http://www.leafphp.netlify.app/#/
  * @license        MIT
- * @version       2.0.0
  * @package     Leaf
  */
 namespace Leaf;
-
-// require_once "./app_methods.php";
 
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
 if (!defined('MCRYPT_MODE_CBC')) define('MCRYPT_MODE_CBC', 0);
@@ -21,18 +18,9 @@ if (!defined('MCRYPT_RIJNDAEL_256')) define('MCRYPT_RIJNDAEL_256', 0);
  * Leaf Core package
  * @package  Leaf
  * @author   Michael Darko
- * @since    1.0.0
- *
- * @property \Leaf\Environment   $environment
- * @property \Leaf\Http\Response $response
- * @property \Leaf\Http\Request  $request
  */
 class App
 {
-    /**
-     * @const string
-     */
-    const VERSION = '2.0.1';
 
     /**
      * @var \Leaf\Helpers\Set
@@ -75,49 +63,7 @@ class App
         'leaf.after.router' => array(array()),
         'leaf.after' => array(array())
     );
-
-    /********************************************************************************
-    * PSR-0 Autoloader
-    *
-    * Do not use if you are using Composer to autoload dependencies.
-    *******************************************************************************/
-
-    /**
-     * Leaf PSR-0 autoloader
-     */
-    public static function autoload($className)
-    {
-        $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
-
-        $baseDir = __DIR__;
-
-        if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
-            $baseDir = substr($baseDir, 0, -strlen($thisClass));
-        }
-
-        $className = ltrim($className, '\\');
-        $fileName  = $baseDir;
-        $namespace = '';
-        if ($lastNsPos = strripos($className, '\\')) {
-            $namespace = substr($className, 0, $lastNsPos);
-            $className = substr($className, $lastNsPos + 1);
-            $fileName  .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-        }
-        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-
-        if (file_exists($fileName)) {
-            require $fileName;
-        }
-    }
-
-    /**
-     * Register Leaf's PSR-0 autoloader
-     */
-    public static function registerAutoloader()
-    {
-        spl_autoload_register(__NAMESPACE__ . "\\App::autoload");
-    }
-
+    
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -145,6 +91,11 @@ class App
         // Default response
         $this->container->singleton('response', function ($c) {
             return new \Leaf\Http\Response();
+        });
+
+        // Default headers
+        $this->container->singleton('headers', function ($c) {
+            return new \Leaf\Http\Headers();
         });
 
         // Default session
@@ -616,29 +567,6 @@ class App
         $this->baseRoute = $curBaseRoute;
     }
     /**
-     * Get all request headers.
-     *
-     * @return array The request headers
-     */
-    public function getRequestHeaders() {
-        $headers = [];
-        // If getallheaders() is available, use that
-        if (function_exists('getallheaders')) {
-            $headers = getallheaders();
-            // getallheaders() can return false if something went wrong
-            if ($headers !== false) {
-                return $headers;
-            }
-        }
-        // Method getallheaders() not available or went wrong: manually extract 'm
-        foreach ($_SERVER as $name => $value) {
-            if ((substr($name, 0, 5) == 'HTTP_') || ($name == 'CONTENT_TYPE') || ($name == 'CONTENT_LENGTH')) {
-                $headers[str_replace([' ', 'Http'], ['-', 'HTTP'], ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-            }
-        }
-        return $headers;
-    }
-    /**
      * Get the request method used, taking overrides into account.
      *
      * @return string The Request method to handle
@@ -654,7 +582,7 @@ class App
         }
         // If it's a POST request, check for a method override header
         elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $headers = $this->getRequestHeaders();
+            $headers = $this->headers->all();
             if (isset($headers['X-HTTP-Method-Override']) && in_array($headers['X-HTTP-Method-Override'], ['PUT', 'DELETE', 'PATCH'])) {
                 $method = $headers['X-HTTP-Method-Override'];
             }
@@ -825,9 +753,9 @@ class App
             $this->error = $argument;
         } else {
             //Invoke error handler
-            $this->response->status(500);
-            $this->response->body('');
-            $this->response->write($this->callErrorHandler($argument));
+            // $this->response->status(500);
+            // $this->response->body('');
+            // $this->response->write($this->callErrorHandler($argument));
             $this->stop();
         }
     }
@@ -864,6 +792,15 @@ class App
     public function environment()
     {
         return $this->environment;
+    }
+
+    /**
+     * Get the Request Headers
+     * @return \Leaf\Http\Headers
+     */
+    public function headers()
+    {
+        return $this->headers;
     }
 
     /**
@@ -1028,8 +965,8 @@ class App
     public function halt($status, $message = '')
     {
         $this->cleanBuffer();
-        $this->response->status($status);
-        $this->response->body($message);
+        // $this->response->status($status);
+        // $this->response->body($message);
         // $this->stop();
         // exit();
     }
@@ -1060,11 +997,11 @@ class App
 
     /**
      * Set the HTTP response status code
-     * @param  int      $code     The HTTP response status code
+     * @param int $code The HTTP response status code
      */
     public function status($code)
     {
-        $this->response->setStatus($code);
+        \Leaf\Http\Headers::status($code);
     }
 
     /********************************************************************************
@@ -1257,31 +1194,16 @@ class App
         //Invoke middleware and application stack
         $this->middleware[0]->call();
 
-        //Fetch status, header, and body
-        list($status, $headers, $body) = $this->response->finalize();
-
         //Send headers
         if (headers_sent() === false) {
             //Send status
             if (strpos(PHP_SAPI, 'cgi') === 0) {
-                header(sprintf('Status: %s', \Leaf\Http\Response::getMessageForCode($status)));
+                // header(sprintf('Status: %s', \Leaf\Http\Response::getMessageForCode($status)));
             } else {
-                header(sprintf('HTTP/%s %s', $this->config('http.version'), \Leaf\Http\Response::getMessageForCode($status)));
-            }
-
-            //Send headers
-            foreach ($headers as $name => $value) {
-                $hValues = explode("\n", $value);
-                foreach ($hValues as $hVal) {
-                    header("$name: $hVal", false);
-                }
+                // header(sprintf('HTTP/%s %s', $this->config('http.version'), \Leaf\Http\Response::getMessageForCode($status)));
             }
         }
 
-        //Send body, but only if it isn't a HEAD request
-        if (!$this->request->isHead()) {
-            echo $body;
-        }
 
         $this->applyHook('leaf.before.router');
         // Define which method we need to handle
@@ -1341,14 +1263,14 @@ class App
             
             $this->stop();
         } catch (\Leaf\Exception\Stop $e) {
-            $this->response()->write(ob_get_clean());
+            // 
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 ob_end_clean();
                 throw $e;
             } else {
                 try {
-                    $this->response()->write(ob_get_clean());
+                    // 
                     $this->error($e);
                 } catch (\Leaf\Exception\Stop $e) {
                     // Do nothing

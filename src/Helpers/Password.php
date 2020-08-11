@@ -24,9 +24,7 @@ class Password {
 	 * Get or set password 'salt'
 	 */
 	public function salt($salt = null) {
-		if ($salt == null) {
-			return $this->salt;
-		}
+		if (!$salt) return $this->salt;
 		$this->salt = $salt;
 	}
 

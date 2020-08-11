@@ -1,36 +1,7 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.2.0 [BETA] - 7th July, 2020
-
-### Added
-
-- Added `Leaf\Auth::currentUser`
-- Added new cookies package relying on PHP's `setcookie`
-
-### Fixed
-
-- fixed hidden fields on `Leaf\Auth::login`
-- Fixed multiple-request type data on `get` and `body` at `Leaf\Http\Request`
-
-### Changed
-
-- Switched cookies package in `Leaf\Http\Response`
-- Switched cookies package in `Leaf\App`
-
-### Removed
-
-- Removed old cookies package and all it's methods
-- Removed `setEncryptedCookie` and `getEncryptedCookie` on `Leaf\App`
-- Slashed unnecessary code from `Leaf\Http\Request`
-
-## v2.1.x - 26th June, 2020
-
-### Changed
-
-- Added fix for `Leaf\Http\Request` on "array" type objects
-
-## v2.1.0 - 22nd June, 2020
+## v2.1.0 - 19th June, 2020
 
 ### Added
 
@@ -39,11 +10,11 @@
 - Added `Mysqli::auto_connect`
 - Added optional `db_type` option to `Leaf\Db\PDO` connection
 - Added `PDO::auto_connect`
-- Added new db module (`Leaf\Db`)
+- Added deprecation warning for `Leaf\Db\PDO`
+
+### Fixed
 
 ### Changed
-
-- Switched default db to `Leaf\Db`
 
 ### Removed
 
@@ -55,6 +26,8 @@
 
 - Added Route::resource
 - Added Session::retrieve
+
+### Fixed
 
 ### Changed
 

@@ -8,9 +8,8 @@ use \Leaf\Http\Response;
  *
  * This is a general exception thrown from the leaf app
  *
- * @package Leaf
- * @author  Michael Darko
- * @since   2.0.0
+ * @author Michael Darko
+ * @since 2.0.0
  */
 class General extends \Exception {
 	protected $response;

@@ -8,7 +8,6 @@ namespace Leaf\Http;
  * This class provides a human-friendly interface to the Leaf environment variables;
  * environment variables are passed by reference and will be modified directly.
  *
- * @package Leaf
  * @author  Michael Darko
  * @since   1.0.0
  */
@@ -47,18 +46,13 @@ class Request
     public $cookies;
 
     /**
-     * The Request Method
-     */
-    public $requestMethod;
-
-    /**
      * The Request Body
      */
     protected $request;
 
     public function __construct()
     {
-        $this->requestMethod = $_SERVER['REQUEST_METHOD'];
+        $this->env = new \Leaf\Environment();
         $handler = fopen('php://input', 'r');
         $this->request = stream_get_contents($handler);
         $this->headers = new Headers();
@@ -74,66 +68,14 @@ class Request
     }
 
     /**
-     * Is this a GET request?
+     * Check for request method type
+     * 
+     * @param string $type The type of request to check for
      * @return bool
      */
-    public function isGet()
+    public function typeIs(string $type)
     {
-        return $this->getMethod() === self::METHOD_GET;
-    }
-
-    /**
-     * Is this a POST request?
-     * @return bool
-     */
-    public function isPost()
-    {
-        return $this->getMethod() === self::METHOD_POST;
-    }
-
-    /**
-     * Is this a PUT request?
-     * @return bool
-     */
-    public function isPut()
-    {
-        return $this->getMethod() === self::METHOD_PUT;
-    }
-
-    /**
-     * Is this a PATCH request?
-     * @return bool
-     */
-    public function isPatch()
-    {
-        return $this->getMethod() === self::METHOD_PATCH;
-    }
-
-    /**
-     * Is this a DELETE request?
-     * @return bool
-     */
-    public function isDelete()
-    {
-        return $this->getMethod() === self::METHOD_DELETE;
-    }
-
-    /**
-     * Is this a HEAD request?
-     * @return bool
-     */
-    public function isHead()
-    {
-        return $this->getMethod() === self::METHOD_HEAD;
-    }
-
-    /**
-     * Is this a OPTIONS request?
-     * @return bool
-     */
-    public function isOptions()
-    {
-        return $this->getMethod() === self::METHOD_OPTIONS;
+        return $this->getMethod() === strtoupper($type);
     }
 
     /**
@@ -189,23 +131,9 @@ class Request
     public function params($key = null, $default = null)
     {
         $union = $this->body();
-        if ($key) {
-            return isset($union[$key]) ? $union[$key] : $default;
-        }
+        if ($key) return isset($union[$key]) ? $union[$key] : $default;
 
         return $union;
-    }
-
-    protected function sanitize($data)
-    {
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                $data[$this->sanitize($key)] = $this->sanitize($value);
-            }
-        } else {
-            $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
-        }
-        return $data;
     }
 
     /**
@@ -215,19 +143,42 @@ class Request
      * This method returns get, post, put patch, delete or raw faw form data or NULL 
      * if the data isn't found.
      *
-     * @param  string           $key
+     * @param string|array $params The parameter(s) to return
+     * @param bool $safeData Sanitize output
      */
-    public function get($param)
+    public function get($params, bool $safeData = true)
     {
-        return $this->sanitize($this->body()[$param]);
+        if (is_string($params)) return $this->body($safeData)[$params] ?? null;
+
+        $data = [];
+        foreach ($params as $param) {
+            $data[$param] = $this->get($param, $safeData);
+        }
+        return $data;
     }
 
     /**
-     * Get all the response data as an associative array
+     * Get all the request data as an associative array
+     * 
+     * @param bool $safeData Sanitize output
      */
-    public function body()
+    public function body(bool $safeData = true)
     {
-        return $this->sanitize($_GET + $_POST + json_decode($this->request, true));
+        $req = is_array(json_decode($this->request, true)) ? json_decode($this->request, true) : [];
+        return $safeData ? \Leaf\Util::sanitize(array_merge($_GET, $_POST, $req, $_FILES)) : array_merge($_GET, $_POST, $req, $_FILES);
+    }
+
+    /**
+     * Get all files passed into the request.
+     * 
+     * @param string $filename The file(s) you want to get
+     */
+    public function files(string ...$filenames) {
+        $files = [];
+        foreach ($filenames as $filename) {
+            $files[$filename] = $_FILES[$filename] ?? null;
+        }
+        return $files;
     }
 
     /**
@@ -241,24 +192,7 @@ class Request
      */
     public function cookies($key = null)
     {
-        if ($key) {
-            return $this->cookies->get($key);
-        }
-
-        return $this->cookies;
-        // if (!isset($this->env['leaf.request.cookie_hash'])) {
-        //     $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
-        //     $this->env['leaf.request.cookie_hash'] = Util::parseCookieHeader($cookieHeader);
-        // }
-        // if ($key) {
-        //     if (isset($this->env['leaf.request.cookie_hash'][$key])) {
-        //         return $this->env['leaf.request.cookie_hash'][$key];
-        //     } else {
-        //         return null;
-        //     }
-        // } else {
-        //     return $this->env['leaf.request.cookie_hash'];
-        // }
+        return $key ? \Leaf\Http\Cookie::get($key) : \Leaf\Http\Cookie::all();
     }
 
     /**
@@ -267,7 +201,7 @@ class Request
      */
     public function isFormData()
     {
-        $method = isset($this->env['leaf.method_override.original_method']) ? $this->env['leaf.method_override.original_method'] : $this->getMethod();
+        $method = $this->env['leaf.method_override.original_method'] ?? $this->getMethod();
 
         return ($method === self::METHOD_POST && is_null($this->getContentType())) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
@@ -278,36 +212,15 @@ class Request
      * This method returns a key-value array of headers sent in the HTTP request, or
      * the value of a hash key if requested; if the array key does not exist, NULL is returned.
      *
-     * @param  string $key
-     * @param  mixed  $default The default value returned if the requested header is not available
+     * @param string|array $key The header(s) to return
+     * @param bool  $safeData Attempt to sanitize headers
+     * 
      * @return mixed
      */
-    public function headers($key = null, $default = null)
+    public function headers($key = null, $safeData = true)
     {
-        if ($key) {
-            return $this->headers->get($key, $default);
-        }
-
-        return $this->headers;
-        // if ($key) {
-        //     $key = strtoupper($key);
-        //     $key = str_replace('-', '_', $key);
-        //     $key = preg_replace('@^HTTP_@', '', $key);
-        //     if (isset($this->env[$key])) {
-        //         return $this->env[$key];
-        //     } else {
-        //         return $default;
-        //     }
-        // } else {
-        //     $headers = array();
-        //     foreach ($this->env as $key => $value) {
-        //         if (strpos($key, 'leaf.') !== 0) {
-        //             $headers[$key] = $value;
-        //         }
-        //     }
-        //
-        //     return $headers;
-        // }
+        if ($key) return $this->headers->get($key, $safeData);
+        return $this->headers->all($safeData);
     }
 
     /**
@@ -375,7 +288,7 @@ class Request
      */
     public function getContentLength()
     {
-        return $this->headers->get('CONTENT_LENGTH', 0);
+        return $this->headers->get('CONTENT_LENGTH') ?? 0;
     }
 
     /**

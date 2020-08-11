@@ -5,7 +5,10 @@ namespace Leaf\Http;
 /**
  * Leaf Cookie
  * ------------------------------------
- * Simple Cookie management with Leaf
+ * Cookie management made simple with Leaf
+ * 
+ * @author  Michael Darko
+ * @since   2.0.0
  */
 class Cookie
 {

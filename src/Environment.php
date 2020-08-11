@@ -78,24 +78,19 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Constructor (private access)
+     * Constructor (public access)
      *
      * @param  array|null $settings If present, these are used instead of global server variables
      */
-    private function __construct($settings = null)
+    public function __construct($settings = null)
     {
         if ($settings) {
             $this->properties = $settings;
         } else {
-            $env = array();
-
-            //The HTTP request method
+            $env = [];
             $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
-
-            //The IP
             $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-
-            // Server params
+            
             $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
             $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
@@ -126,7 +121,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['SERVER_PORT'] = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
 
             //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
-            $headers = \Leaf\Http\Headers::extract($_SERVER);
+            $headers = \Leaf\Http\Headers::all();
             foreach ($headers as $key => $value) {
                 $env[$key] = $value;
             }
