@@ -89,29 +89,48 @@ class Response
 
     public function __construct()
     {
-        $this->headers = new \Leaf\Http\Headers;
+        $this->headers = new Headers;
         Headers::contentHtml();
     }
 
     /**
      * Output neatly parsed json
+     * [**DEPRECATION WARNING: USE `json()` INSTEAD**]
      */
     public function respond($data)
     {
-        Headers::contentJSON(200);
-        echo json_encode($data);
+        $this->json($data);
     }
 
     /**
      * Output json encoded data with an HTTP code/message
+     * [**DEPRECATION WARNING: USE `json()` INSTEAD**]
      */
-    public function respondWithCode($data, int $code = 200, bool $use_message = false)
+    public function respondWithCode($data, int $code = 200, bool $useMessage = false)
     {
-        if ($use_message) {
-            $dataToPrint = ["data" => $data, "message" => isset(self::$messages[$code]) ? self::$messages[$code] : $code];
-        } else {
+        $this->json($data, $code, true, $useMessage);
+    }
+
+    /**
+     * Output json encoded data with an HTTP code/message
+     * 
+     * @param mixed $data The data to output
+     * @param int $code The response status code
+     * @param bool $showCode Show response code in body?
+     * @param bool $useMessage Show message instead of code
+     */
+    public function json($data, int $code = 200, bool $showCode = false, bool $useMessage = false)
+    {
+        if ($showCode) {
             $dataToPrint = ["data" => $data, "code" => $code];
+
+            if ($useMessage) {
+                $dataToPrint = ["data" => $data, "message" => isset(self::$messages[$code]) ? self::$messages[$code] : $code];
+            }
+        } else {
+            $dataToPrint = $data;
         }
+
         Headers::contentJSON($code);
         echo json_encode($dataToPrint);
     }
@@ -119,28 +138,44 @@ class Response
     /**
      * Throw an error and break the application
      */
-    public function throwErr($error, int $code = 500, bool $use_message = false)
+    public function throwErr($error, int $code = 500, bool $useMessage = false)
     {
         $dataToPrint = ["error" => $error, "code" => $code];
-        if ($use_message) $dataToPrint = ["error" => $error, "message" => isset(self::$messages[$code]) ? self::$messages[$code] : $code];
+        if ($useMessage) $dataToPrint = ["error" => $error, "message" => isset(self::$messages[$code]) ? self::$messages[$code] : $code];
 
         Headers::contentJSON($code);
         echo json_encode($dataToPrint);
         exit();
     }
 
-    public function renderPage(String $file, int $code = null)
+    public function page(string $file, int $code = null)
     {
         Headers::contentHtml($code);
         require $file;
     }
 
-    public function renderMarkup(String $markup, int $code = null)
+    /**
+     * [DEPRECATION WARNING: USE `page` INSTEAD]
+     */
+    public function renderPage(String $file, int $code = null)
+    {
+        $this->page($file, $code);
+    }
+
+    public function markup(String $markup, int $code = null)
     {
         Headers::contentHtml($code);
         echo <<<EOT
 $markup
 EOT;
+    }
+
+    /**
+     * [DEPRECATION WARNING: USE `markup` INSTEAD]
+     */
+    public function renderMarkup(string $markup, int $code = null)
+    {
+        $this->markup($markup, $code);
     }
 
     public function cors(String $allow_origin = "*", String $allow_headers = "*")
@@ -158,6 +193,14 @@ EOT;
     {
         if (!is_null($value)) Headers::set($name, $value);
         return Headers::get($name);
+    }
+
+    /**
+     * Set HTTP status code
+     */
+    public function status($code = null)
+    {
+        return Headers::status($code);
     }
 
     /**

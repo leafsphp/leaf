@@ -396,7 +396,7 @@ class Db {
 		if (count($uniques) > 0 && ($this->queryData["type"] != "select" || $this->queryData["type"] != "delete")) {
 			foreach ($uniques as $unique) {
 				if (!isset($paramValues[$unique])) {
-					$this->response->respond(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
+					$this->response->throwErr(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
 					exit();
 				} else {
 					if (mysqli_fetch_object($this->connection->query("SELECT * FROM {$this->queryData["table"]} WHERE $unique = '$paramValues[$unique]'"))) {

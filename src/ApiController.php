@@ -39,13 +39,13 @@ class ApiController extends Response {
 	/**
 	 * Upload a file
 	 * 
-	 * @param string $path The path to save the file in
 	 * @param string $file The file to upload
+	 * @param string $path The path to save the file in
 	 * @param array $config Configuration options for file upload
 	 * 
 	 * @return string|bool
 	 */
-	public function file_upload($path, $file, $config = []) {
-		return \Leaf\Fs::upload_file($path, $file, $config);
+	public function file_upload($file, $path, $config = []) {
+		return \Leaf\Fs::upload_file($file, $path, $config);
 	}
 }

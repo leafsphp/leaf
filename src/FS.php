@@ -173,14 +173,14 @@ class FS {
 	/**
 	 * Upload a file
 	 * 
-	 * @param string $path The path to save the file in
 	 * @param string $file The file to upload
+	 * @param string $path The path to save the file in
 	 * @param string $file_category The type of file
 	 * @param array $config Configuration options for file upload
 	 * 
 	 * @return string|bool
 	 */
-	public static function upload_file($path, $file, $config = [])
+	public static function upload_file($file, $path, $config = [])
 	{
 		if (!is_dir($path)) {
 			if (isset($config["verify_dir"]) && $config["verify_dir"] == true) {
@@ -216,7 +216,7 @@ class FS {
 			return false;
 		}
 
-		if (isset($config["validate"])) {
+		if (isset($config["validate"]) && $config["validate"] == true) {
 			foreach (self::$extensions as $category => $exts) {
 				if ($file_category == $category) $extensions = $exts;
 			}

@@ -14,17 +14,20 @@ class Headers
     protected static $http_code;
 
     /**
-     * Set an HTTP code for response
+     * Get or Set an HTTP code for response
+     * 
+     * @param int|null $http_code The current response code.
      */
-    public static function status($http_code)
+    public static function status($http_code = null)
     {
+        if (!$http_code) return self::$http_code;
         self::$http_code = $http_code;
     }
 
     /**
      * Force an HTTP code for response using PHP's `http_response_code`
      */
-    public static function resStatus($http_code = null)
+    public static function resetStatus($http_code = null)
     {
         return http_response_code($http_code);
     }
@@ -34,15 +37,10 @@ class Headers
      * 
      * @param bool $safeOutput Try to sanitize header data
      */
-    public static function all($safeOutput = true) : array
+    public static function all($safeOutput = false) : array
     {
         if ($safeOutput === false) return self::findHeaders();
-
-        $headers = [];
-        foreach (self::findHeaders() as $key => $value) {
-            $headers[$key] = $value;
-        }
-        return \Leaf\Util::sanitize($headers);
+        return \Leaf\Util::sanitize(self::findHeaders());
     }
 
     /**
@@ -53,7 +51,7 @@ class Headers
      * 
      * @return string|array
      */
-    public static function get($params, $safeOutput = true)
+    public static function get($params, $safeOutput = false)
     {
         if (is_string($params)) return self::all($safeOutput)[$params] ?? null;
 
@@ -91,23 +89,23 @@ class Headers
 
     public static function contentPlain($code = null) : void
     {
-        self::set("Content-Type", "text/plain", true, $code);
+        self::set("Content-Type", "text/plain", true, $code ?? self::$http_code);
     }
 
     public static function contentHtml($code = null): void
     {
-        self::set("Content-Type", "text/html", true, $code);
+        self::set("Content-Type", "text/html", true, $code ?? self::$http_code);
     }
 
     public static function contentJSON($code = null) : void
     {
-        self::set("Content-Type", "application/json", true, $code);
+        self::set("Content-Type", "application/json", true, $code ?? self::$http_code);
     }
 
     public static function accessControl($key, $value = "", $code = null)
     {
         if (is_string($key)) {
-            self::set("Access-Control-$key", $value, true, $code);
+            self::set("Access-Control-$key", $value, true, $code ?? self::$http_code);
         } else {
             foreach ($key as $header => $header_value) {
                 self::accessControl($header, $header_value, $code);
@@ -116,9 +114,9 @@ class Headers
     }
 
     protected static function findHeaders() {
-        return getallheaders();
+        if (getallheaders()) return getallheaders();
 
-        // Method getallheaders() not available or went wrong: manually extract 'm
+        $headers = [];
         foreach ($_SERVER as $name => $value) {
             if ((substr($name, 0, 5) == 'HTTP_') || ($name == 'CONTENT_TYPE') || ($name == 'CONTENT_LENGTH')) {
                 $headers[str_replace([' ', 'Http'], ['-', 'HTTP'], ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;

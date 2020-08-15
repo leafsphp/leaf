@@ -10,10 +10,6 @@
  */
 namespace Leaf;
 
-// Ensure mcrypt constants are defined even if mcrypt extension is not loaded
-if (!defined('MCRYPT_MODE_CBC')) define('MCRYPT_MODE_CBC', 0);
-if (!defined('MCRYPT_RIJNDAEL_256')) define('MCRYPT_RIJNDAEL_256', 0);
-
 /**
  * Leaf Core package
  * @package  Leaf
@@ -63,7 +59,7 @@ class App
         'leaf.after.router' => array(array()),
         'leaf.after' => array(array())
     );
-    
+
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -245,17 +241,6 @@ class App
             'log.writer' => null,
             'log.level' => \Leaf\Log::DEBUG,
             'log.enabled' => true,
-            // Cookies
-            'cookies.encrypt' => false,
-            'cookies.lifetime' => '20 minutes',
-            'cookies.path' => '/',
-            'cookies.domain' => null,
-            'cookies.secure' => false,
-            'cookies.httponly' => false,
-            // Encryption
-            'cookies.secret_key' => 'CHANGE_ME',
-            'cookies.cipher' => MCRYPT_RIJNDAEL_256,
-            'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             // HTTP
             'http.version' => '1.1'
         );

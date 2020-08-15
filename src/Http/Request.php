@@ -86,10 +86,7 @@ class Request
      */
     public function hasHeader(String $header)
     {
-        if (isset($this->headers[$header])) {
-            return true;
-        }
-
+        if ($this->headers->get($header)) return true;
         return false;
     }
 
@@ -99,11 +96,8 @@ class Request
      */
     public function isAjax()
     {
-        if ($this->params('isajax')) {
-            return true;
-        } elseif (isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] === 'XMLHttpRequest') {
-            return true;
-        }
+        if ($this->params('isajax')) return true;
+        if ($this->headers->get('X_REQUESTED_WITH') && $this->headers->get('X_REQUESTED_WITH') === 'XMLHttpRequest') return true;
 
         return false;
     }
@@ -165,15 +159,18 @@ class Request
     public function body(bool $safeData = true)
     {
         $req = is_array(json_decode($this->request, true)) ? json_decode($this->request, true) : [];
-        return $safeData ? \Leaf\Util::sanitize(array_merge($_GET, $_POST, $req, $_FILES)) : array_merge($_GET, $_POST, $req, $_FILES);
+        return $safeData ? \Leaf\Util::sanitize(array_merge($_GET, $_FILES, $_POST, $req)) : array_merge($_GET, $_FILES, $_POST, $req);
     }
 
     /**
      * Get all files passed into the request.
      * 
-     * @param string $filename The file(s) you want to get
+     * @param string|array $filenames The file(s) you want to get
      */
-    public function files(string ...$filenames) {
+    public function files($filenames = null) {
+        if ($filenames == null) return $_FILES;
+        if (is_string($filenames)) return $_FILES[$filenames] ?? null;
+
         $files = [];
         foreach ($filenames as $filename) {
             $files[$filename] = $_FILES[$filename] ?? null;

@@ -13,7 +13,7 @@ class Form extends Request {
 
 	public function __construct()
 	{
-		$this->response = new \Leaf\Http\Response();
+		$this->response = new \Leaf\Http\Response;
 	}
 
 	public $errorsArray = array();
@@ -84,7 +84,7 @@ class Form extends Request {
 
 					if (!in_array($rule, $supportedRules)) {
 						echo $rule." is not a supported rule<br>";
-						echo "Supported rules are ".json_encode($supportedRules);
+						echo "Supported rules are ". json_encode($supportedRules);
 						exit();
 					}
 					return $this->validateField($field["name"], $field["value"], $rule);
@@ -94,7 +94,7 @@ class Form extends Request {
 
 				if (!in_array($field["rule"], $supportedRules)) {
 					echo $field["rule"]." is not a supported rule<br>";
-					echo "Supported rules are ".json_encode($supportedRules);
+					echo "Supported rules are ". json_encode($supportedRules);
 					exit();
 				}
 				return $this->validateField($field["name"], $field["value"], $field["rule"]);

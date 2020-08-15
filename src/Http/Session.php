@@ -19,15 +19,28 @@ class Session {
 	/**
 	 * Get a session variable
 	 *
-	 * @param string $param: The session variable to get
+	 * @param string|array $param: The session variable to get
 	 *
 	 * @return string, string: session variable
 	 */
-	public function get($param) {
-		if (isset($_SESSION[$param])) return $_SESSION[$param];
-		
-		$this->errorsArray[$param] = "$param not found in session, initialise it or check your spelling";
-		return false;
+	public function get($param, bool $sanitize = true) {
+		if (is_array($param)) {
+			$fields = [];
+
+			foreach ($param as $item) {
+				$fields[$item] = $this->get($item, $sanitize);
+			}
+			return $fields;
+		} else {
+			if (isset($_SESSION[$param])) {
+				$data = $_SESSION[$param];
+				if ($sanitize) $data = \Leaf\Util::sanitize($data);
+				return $data;
+			} else {
+				$this->errorsArray[$param] = "$param not found in session, initialise it or check your spelling";
+				return false;
+			}
+		}
 	}
 
 	/**
@@ -71,19 +84,18 @@ class Session {
 	/**
 	 * Set a new session variable
 	 *
-	 * @param string $key: The session variable key
+	 * @param string|array $key: The session variable key
 	 * @param string $value: The session variable value
 	 *
 	 * @return void
 	 */
-	public function set($key, $value = null, $sanitize = true) {
+	public function set($key, $value = null) {
 		if (is_array($key)) {
 			foreach ($key as $name => $val) {
 				$this->set($name, $val);
 			}
 		} else {
 			$_SESSION[$key] = $value;
-			if ($sanitize) $_SESSION = \Leaf\Util::sanitize($_SESSION);
 		}
 	}
 
