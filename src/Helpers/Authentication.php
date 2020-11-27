@@ -2,8 +2,6 @@
 
 namespace Leaf\Helpers;
 
-use \Leaf\Helpers\JWT;
-
 /**
  * Leaf Authentication
  * ---------------------------------------------
@@ -12,31 +10,51 @@ use \Leaf\Helpers\JWT;
  * @author Michael Darko <mickdd22@gmail.com>
  * @since v1.2.0
  */
-class Authentication extends JWT
+class Authentication
 {
-	protected $errorsArray = [];
+	/**
+	 * Any errors caught
+	 */
+	protected static $errorsArray = [];
 
-	public function generateSimpleToken($user_id, $secret_phrase)
+	/**
+	 * Quickly generate a JWT encoding a user id
+	 * 
+	 * @param string $userId The user id to encode
+	 * @param string $secretPhrase The user id to encode
+	 * @param int $expiresAt Token lifetime
+	 * 
+	 * @return string The generated token
+	 */
+	public static function generateSimpleToken(string $userId, string $secretPhrase, int $expiresAt = null)
 	{
 		$payload = [
 			'iat' => time(),
 			'iss' => 'localhost',
-			'exp' => time() + (60 * 60 * 24),
-			'user_id' => $user_id
+			'exp' => time() + ($expiresAt ?? (60 * 60 * 24)),
+			'user_id' => $userId
 		];
 
-		return $this->encode($payload, $secret_phrase);
+		return self::generateToken($payload, $secretPhrase);
 	}
 
-	public function generateToken($payload, $secret_phrase)
+	/**
+	 * Create a JWT with your own payload
+	 * 
+	 * @param string $payload The JWT payload
+	 * @param string $secretPhrase The user id to encode
+	 * 
+	 * @return string The generated token
+	 */
+	public static function generateToken(array $payload, string $secretPhrase)
 	{
-		return $this->encode($payload, $secret_phrase);
+		return JWT::encode($payload, $secretPhrase);
 	}
 
 	/**
 	 * Get Authorization Headers
 	 */
-	public function getAuthorizationHeader()
+	public static function getAuthorizationHeader()
 	{
 		$headers = null;
 
@@ -53,61 +71,60 @@ class Authentication extends JWT
 				$headers = trim($requestHeaders['Authorization']);
 			}
 		}
+
 		return $headers;
 	}
 
 	/**
 	 * get access token from header
-	 * */
-	public function getBearerToken()
+	 */
+	public static function getBearerToken()
 	{
-		$headers = $this->getAuthorizationHeader();
+		$headers = self::getAuthorizationHeader();
 
 		if (!empty($headers)) {
 			if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
 				return $matches[1];
 			}
-			$this->errorsArray["token"] = "Access token not found";
-			return false;
+
+			self::$errorsArray["token"] = "Access token not found";
+			return null;
 		}
 
-		$this->errorsArray["token"] = "Access token not found";
-		return false;
+		self::$errorsArray["token"] = "Access token not found";
+		return null;
 	}
 
-	public function validateToken($secret_phrase)
+	/**
+	 * Validate and decode access token in header
+	 */
+	public static function validateToken($secretPhrase)
 	{
-		$bearerToken = $this->getBearerToken();
+		$bearerToken = self::getBearerToken();
+		if ($bearerToken === null) return null;
 
-		if ($bearerToken == false) {
-			return false;
-		}
-
-		$payload = $this->decode($bearerToken, $secret_phrase, ['HS256']);
-		if ($payload) {
-			return $payload;
-		} else {
-			$this->errorsArray["error"] = "Invalid token";
-			return false;
-		}
+		return self::validate($bearerToken, $secretPhrase);
 	}
 
-	public function validate($token, $secret_phrase)
+	/**
+	 * Validate access token
+	 * 
+	 * @param string $token Access token to validate and decode
+	 */
+	public static function validate($token, $secretPhrase)
 	{
-		try {
-			$payload = $this->decode($token, $secret_phrase, ['HS256']);
-			return $payload;
-		} catch (\Throwable $err) {
-			$this->errorsArray["error"] = $err;
-			return false;
-		}
+		$payload = JWT::decode($token, $secretPhrase, ['HS256']);
+		if ($payload !== null) return $payload;
+
+		self::$errorsArray = array_merge(self::$errorsArray, JWT::errors());
+		return null;
 	}
 
 	/**
 	 * Get all authentication errors as associative array
 	 */
-	public function errors()
+	public static function errors()
 	{
-		return $this->errorsArray;
+		return self::$errorsArray;
 	}
 }
