@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf;
 
 /**
@@ -9,11 +10,13 @@ namespace Leaf;
  * @author Michael Darko
  * @since v2.1.0
  */
-class Db {
+class Db
+{
 	/**
 	 * Database Connection
 	 */
 	protected $connection;
+
 	/**
 	 * Raw query with query options
 	 */
@@ -21,29 +24,48 @@ class Db {
 		"table" => "",
 		"type" => "",
 		"query" => "",
-		"params" => [],
+		"bindings" => [],
 		"uniques" => [],
 		"validate" => [],
 		"values" => [],
 		"hidden" => [],
 		"add" => []
 	];
+
+	/**
+	 * Query identifiers
+	 */
+	protected $identifiers = [
+		"insert" => "INSERT INTO ",
+		"select" => "SELECT ",
+		"update" => "UPDATE ",
+		"delete" => "DELETE FROM "
+	];
+
 	/**
 	 * Query result
 	 */
 	protected $queryResult;
+
 	/**
 	 * Any errors caught
 	 */
 	protected $errorsArray = [];
+
 	/**
 	 * Leaf Form Module
 	 */
 	protected $form;
+
 	/**
 	 * Leaf Response Module
 	 */
 	protected $response;
+
+	/**
+	 * List of methods called
+	 */
+	protected $callStack = [];
 
 	public function __construct($host = null, $user = null, $password = null, $dbname = null)
 	{
@@ -71,7 +93,7 @@ class Db {
 	 * @param string $password: Database password
 	 * @param string $dbname: Database name
 	 */
-	public function connect(string $host, string $user, string $password, string $dbname) : void
+	public function connect(string $host, string $user, string $password, string $dbname): void
 	{
 		try {
 			$connection = mysqli_connect($host, $user, $password, $dbname);
@@ -80,12 +102,14 @@ class Db {
 			$this->connection = null;
 			$this->errorsArray["connection"] = $e->getMessage();
 		}
+
+		$this->callStack[] = "connect";
 	}
 
 	/**
 	 * Connect to database using environment variables
 	 */
-	public function auto_connect() : void
+	public function autoConnect(): void
 	{
 		$this->connect(
 			getenv("DB_HOST"),
@@ -93,20 +117,37 @@ class Db {
 			getenv("DB_PASSWORD"),
 			getenv("DB_DATABASE")
 		);
+
+		$this->callStack[] = "autoConnect";
 	}
 
 	/**
-	 * DB Query
-	 * ----------------
-	 * Create a database query
+	 * Manually create a database query
 	 * 
-	 * @param string $sql: Query
+	 * @param string $sql Full db query
 	 */
 	public function query(string $sql): self
 	{
-		if ($this->connection == null) $this->response->throwErr("Initialise your database first with connect()");
-		$this->queryData["type"] = "query";
 		$this->queryData["query"] = $sql;
+
+		foreach ($this->identifiers as $key => $value) {
+			if (strpos(strtoupper($sql), $value) === 0) {
+				$this->queryData["type"] = $key;
+				break;
+			}
+		}
+
+		if ($this->queryData["table"] === "") {
+			$data = explode(" ", $sql);
+
+			if ($data[0] === "SELECT" || $data[0] === "UPDATE") {
+				$this->queryData["table"] = $data[1];
+			} else {
+				$this->queryData["table"] = $data[2];
+			}
+		}
+
+		$this->callStack[] = "query";
 
 		return $this;
 	}
@@ -121,9 +162,10 @@ class Db {
 	 */
 	public function select(string $table, string $items = "*")
 	{
-		$this->queryData["query"] .= "SELECT $items FROM $table";
-		$this->queryData["type"] = "select";
+		$this->query("SELECT $items FROM $table");
 		$this->queryData["table"] = $table;
+		$this->callStack[] = "select";
+
 		return $this;
 	}
 
@@ -134,11 +176,12 @@ class Db {
 	 * 
 	 * @param string $table: Db Table
 	 */
-	public function insert(string $table) : self
+	public function insert(string $table): self
 	{
-		$this->queryData["query"] .= "INSERT INTO $table";
-		$this->queryData["type"] = "insert";
+		$this->query("INSERT INTO $table");
 		$this->queryData["table"] = $table;
+		$this->callStack[] = "insert";
+
 		return $this;
 	}
 
@@ -151,9 +194,10 @@ class Db {
 	 */
 	public function update(string $table): self
 	{
-		$this->queryData["query"] .= "UPDATE $table";
-		$this->queryData["type"] = "update";
+		$this->query("UPDATE $table");
 		$this->queryData["table"] = $table;
+		$this->callStack[] = "update";
+
 		return $this;
 	}
 
@@ -166,9 +210,10 @@ class Db {
 	 */
 	public function delete(string $table): self
 	{
-		$this->queryData["query"] .= "DELETE FROM $table";
-		$this->queryData["type"] = "delete";
+		$this->query("DELETE FROM $table");
 		$this->queryData["table"] = $table;
+		$this->callStack[] = "delete";
+
 		return $this;
 	}
 
@@ -177,19 +222,15 @@ class Db {
 	 * 
 	 * @param array $params Params to pass into query
 	 */
-	public function params(array $params) : self
+	public function params(array $params): self
 	{
-		if ($this->queryData["type"] == "query") {
-			if (strpos($this->queryData["query"], "INSERT INTO") === 0) $this->queryData["type"] = "insert";
-			if (strpos($this->queryData["query"], "UPDATE ") === 0) $this->queryData["type"] = "update";
-			if (strpos($this->queryData["query"], "SELECT ") === 0) $this->queryData["type"] = "select";
-			if (strpos($this->queryData["query"], "DELETE FROM ") === 0) $this->queryData["type"] = "delete";
-		}
 		$query = $this->queryData["type"] == "update" ? " SET " : " ";
+
 		$count = 0;
 		$dataToBind = [];
 		$keys = "";
 		$values = "";
+
 		foreach ($params as $key => $value) {
 			if ($this->queryData["type"] == "insert") {
 				$keys .= $key;
@@ -204,15 +245,20 @@ class Db {
 					$query .= ", ";
 				}
 			}
-			$dataToBind[$value] = "s";
+			$dataToBind[] = $value;
 			$count += 1;
 		}
+
 		if ($this->queryData["type"] == "insert") {
 			$query .= "($keys) VALUES ($values)";
 		}
+
 		$this->bind($dataToBind);
 		$this->queryData["query"] .= $query;
 		$this->queryData["values"] = $params;
+
+		$this->callStack[] = "params";
+
 		return $this;
 	}
 
@@ -221,24 +267,31 @@ class Db {
 	 * 
 	 * @param string|array $condition
 	 * @param string|null $value
+	 * @param string $value
 	 */
-	public function where($condition, $value = null) : self
+	public function where($condition, $value = null, $comparator = "=", $operation = "AND"): self
 	{
-		$query = " WHERE ";
+		$query = "";
+
+		if (!in_array("where", $this->callStack)) {
+			$query = " WHERE ";
+		}
+
 		$count = 0;
 		$dataToBind = [];
 		$params = [];
+		$comparator ?? "=";
 
 		if (is_array($condition)) {
 			foreach ($condition as $key => $value) {
-				$query .= "$key = ?";
+				$query .= "$key $comparator ?";
 				if ($count < count($condition) - 1) {
-					$query .= " AND ";
+					$query .= " $operation ";
 				}
 				if ($this->queryData["type"] === "select" || $this->queryData["type"] === "delete") {
 					$params[$key] = $value;
 				}
-				$dataToBind[$value] = "s";
+				$dataToBind[] = $value;
 				$count += 1;
 			}
 		} else {
@@ -248,27 +301,111 @@ class Db {
 				if ($this->queryData["type"] === "select" || $this->queryData["type"] === "delete") {
 					$params[$condition] = $value;
 				}
-				$query .= "$condition = ?";
-				$dataToBind[$value] = "s";
+				$query .= "$condition $comparator ?";
+				$dataToBind[] = $value;
 			}
 		}
 
 		$this->bind($dataToBind);
+
 		if ($this->queryData["type"] === "select" || $this->queryData["type"] === "delete") {
 			$this->queryData["values"] = $params;
 		}
 		$this->queryData["query"] .= $query;
+		$this->callStack[] = "where";
+
 		return $this;
 	}
 
 	/**
-	 * Fetch a specific number
+	 * Add a where clause with OR comparator to db query
+	 * 
+	 * @param string|array $condition
+	 * @param string|null $value
+	 */
+	public function orWhere($condition, $value = null, $operation = "="): self
+	{
+		if (in_array("where", $this->callStack)) {
+			$this->queryData["query"] .= " OR ";
+		}
+
+		$this->callStack[] = "orWhere";
+		return $this->where($condition, $value, $operation, "OR");
+	}
+
+	/**
+	 * Add a where clause with LIKE comparator to db query
+	 * 
+	 * @param string|array $condition
+	 * @param string|null $value
+	 */
+	public function whereLike($condition, $value = null): self
+	{
+		$this->callStack[] = "whereLike";
+		return $this->where($condition, $value, "LIKE");
+	}
+
+	/**
+	 * Add a where clause with LIKE comparator to db query
+	 * 
+	 * @param string|array $condition
+	 * @param string|null $value
+	 */
+	public function orWhereLike($condition, $value = null): self
+	{
+		$this->callStack[] = "orWhereLike";
+		return $this->orWhere($condition, $value, "LIKE");
+	}
+
+	/**
+	 * Alias for `whereLike`
+	 * 
+	 * @param string|array $condition
+	 * @param string|null $value
+	 */
+	public function like($condition, $value = null): self
+	{
+		$this->callStack[] = "like";
+		return $this->whereLike($condition, $value);
+	}
+
+	/**
+	 * Alias for `orWhereLike`
+	 * 
+	 * @param string|array $condition
+	 * @param string|null $value
+	 */
+	public function orLike($condition, $value = null): self
+	{
+		$this->callStack[] = "orLike";
+		return $this->orWhereLike($condition, $value);
+	}
+
+	/**
+	 * Set a max number of resources
 	 * 
 	 * @param mixed $limit The number of rows to fetch
 	 */
-	public function limit($limit) : self
+	public function limit($limit): self
 	{
 		$this->queryData["query"] .= " LIMIT $limit";
+
+		$this->callStack[] = "limit";
+		return $this;
+	}
+
+	/**
+	 * Order results according to key
+	 * 
+	 * @param string $key The key to order results by
+	 * @param string $direction The direction to order [DESC, ASC]
+	 */
+	public function orderBy($key, $direction = "desc"): self
+	{
+		$direction = strtoupper($direction);
+		$this->queryData["query"] .= " ORDER BY $key $direction";
+
+		$this->callStack[] = "orderBy";
 		return $this;
 	}
 
@@ -278,7 +415,7 @@ class Db {
 	 * @param array|string $item The item(s) to validate
 	 * @param string|null $rule The validation rule to apply
 	 */
-	public function validate($item, $rule = "required") : self
+	public function validate($item, $rule = "required"): self
 	{
 		$values = $this->queryData["values"];
 
@@ -294,8 +431,11 @@ class Db {
 
 	/**
 	 * Make sure a value doesn't already exist in a table to avoid duplicates.
+	 * 
+	 * @param mixed $uniques Items to check for
 	 */
-	public function unique(...$uniques) {
+	public function unique(...$uniques)
+	{
 		$data = [];
 		foreach ($uniques as $unique) {
 			if (is_array($unique)) {
@@ -305,6 +445,7 @@ class Db {
 			}
 		}
 		$this->queryData["uniques"] = $data;
+
 		return $this;
 	}
 
@@ -313,7 +454,7 @@ class Db {
 	 * 
 	 * @param mixed $values The value(s) to hide
 	 */
-	public function hidden(...$values) : self
+	public function hidden(...$values): self
 	{
 		$data = [];
 		foreach ($values as $value) {
@@ -324,13 +465,14 @@ class Db {
 			}
 		}
 		$this->queryData["hidden"] = $data;
+
 		return $this;
 	}
 
 	/**
 	 * Add particular fields to the final value returned
 	 * 
-	 * @param string $name What to add
+	 * @param string|array $name What to add
 	 * @param string $value The value to add
 	 */
 	public function add($name, $value = null): self
@@ -342,6 +484,7 @@ class Db {
 			$data[$name] = $value;
 		}
 		$this->queryData["add"] = $data;
+
 		return $this;
 	}
 
@@ -349,33 +492,40 @@ class Db {
 	 * Bind parameters to a query
 	 * 
 	 * @param array|string $data The data to bind to string
-	 * @param string $type The type of the value (s, i, b)
 	 */
-	public function bind($data, $type = "s") : self
+	public function bind(...$bindings): self
 	{
-		$params = [];
-
-		if (is_array($data)) {
-			foreach ($data as $param => $type) {
-				$params[] = [$param, $type];
+		$data = [];
+		foreach ($bindings as $binding) {
+			if (is_array($binding)) {
+				$data = $binding;
+			} else {
+				$data[] = $binding;
 			}
-		} else {
-			$params[] = [$data, $type];
 		}
 
-		foreach ($params as $param) {
-			$this->queryData["params"][] = [$param[0], $param[1]];
-		}
-		
+		$this->queryData["bindings"] = array_merge($this->queryData["bindings"], $data);
+
 		return $this;
 	}
 
 	/**
 	 * Execute a query
+	 * 
+	 * @param array $paramTypes The types for parameters(defaults to strings)
+	 * 
+	 * @return null|void
 	 */
-	public function execute() {
+	public function execute($paramTypes = null)
+	{
+		if ($this->connection === null) {
+			$this->response->throwErr("Couldn't establish database connection. Call the connect() method, or check your database");
+		}
+
+		if (count($this->errorsArray) > 0) return null;
+
 		$query = $this->queryData["query"];
-		$params = $this->queryData["params"];
+		$bindings = $this->queryData["bindings"];
 		$paramValues = $this->queryData["values"];
 		$uniques = $this->queryData["uniques"];
 		$validate = $this->queryData["validate"];
@@ -388,37 +538,25 @@ class Db {
 					}
 				}
 			}
+
+			if (count($this->errorsArray) > 0) return null;
 		}
 
-		if (count($this->errorsArray) > 0) return false;
-
-		
 		if (count($uniques) > 0 && ($this->queryData["type"] != "select" || $this->queryData["type"] != "delete")) {
 			foreach ($uniques as $unique) {
 				if (!isset($paramValues[$unique])) {
 					$this->response->throwErr(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
-					exit();
-				} else {
-					if (mysqli_fetch_object($this->connection->query("SELECT * FROM {$this->queryData["table"]} WHERE $unique = '$paramValues[$unique]'"))) {
-						$this->errorsArray[$unique] = "$unique already exists";
-					}
+				}
+
+				if (mysqli_fetch_object($this->connection->query("SELECT * FROM {$this->queryData["table"]} WHERE $unique = '$paramValues[$unique]'"))) {
+					$this->errorsArray[$unique] = "$unique already exists";
 				}
 			}
+
+			if (count($this->errorsArray) > 0) return null;
 		}
 
-		if (count($this->errorsArray) > 0) return false;
-
-		$types = "";
-		$bindings = [];
-
-		foreach ($params as $data) {
-			$types .= $data[1];
-			$bindings[] = $data[0];
-		}
-
-		if (!$types) $types = str_repeat('s', count($bindings));
-		
-		if (!$bindings) {
+		if (!$bindings || count($bindings) === 0) {
 			try {
 				$this->queryResult = $this->connection->query($query);
 			} catch (\Throwable $th) {
@@ -426,7 +564,7 @@ class Db {
 			}
 		} else {
 			$stmt = $this->stmt = $this->connection->prepare($query);
-			$stmt->bind_param($types, ...$bindings);
+			$stmt->bind_param($paramTypes ?? str_repeat('s', count($bindings)), ...$bindings);
 			try {
 				$stmt->execute();
 			} catch (\Throwable $th) {
@@ -435,17 +573,11 @@ class Db {
 			$this->queryResult = $stmt->get_result();
 		}
 
-		$this->queryData = [
-			"table" => "",
-			"type" => "",
-			"query" => "",
-			"params" => [],
-			"uniques" => [],
-			"validate" => [],
-			"values" => [],
-			"hidden" => [],
-			"add" => []
-		];
+		if ($this->queryData["type"] !== "select") {
+			$this->clearState();
+		}
+
+		return true;
 	}
 
 	/**
@@ -453,9 +585,11 @@ class Db {
 	 *
 	 * @return int $connection->num_rows
 	 */
-	public function count() : int
+	public function count(): int
 	{
-		if ($this->execute() === false) return false;
+		if (!$this->execute()) return null;
+		$this->clearState();
+
 		return mysqli_num_rows($this->queryResult);
 	}
 
@@ -464,9 +598,9 @@ class Db {
 	 */
 	public function fetchAssoc()
 	{
-		if ($this->execute() === false) return false;
+		if (!$this->execute()) return null;
 		$result = mysqli_fetch_assoc($this->queryResult);
-		
+
 		$add = $this->queryData["add"];
 		if (count($add) > 0) {
 			foreach ($add as $item => $value) {
@@ -475,12 +609,14 @@ class Db {
 		}
 
 		$hidden = $this->queryData["hidden"];
+
 		if (count($hidden) > 0) {
 			foreach ($hidden as $item) {
-				if (isset($result[$item])) unset($result[$item]);
+				if (isset($result[$item]) || $result[$item] === null) unset($result[$item]);
 			}
 		}
 
+		$this->clearState();
 		return $result;
 	}
 
@@ -489,7 +625,7 @@ class Db {
 	 */
 	public function fetchObj()
 	{
-		if ($this->execute() === false) return false;
+		if (!$this->execute()) return null;
 		$result = mysqli_fetch_object($this->queryResult);
 
 		$add = $this->queryData["add"];
@@ -506,6 +642,7 @@ class Db {
 			}
 		}
 
+		$this->clearState();
 		return $result;
 	}
 
@@ -514,12 +651,13 @@ class Db {
 	 */
 	public function fetchAll()
 	{
-		if ($this->execute() === false) return false;
+		if (!$this->execute()) return null;
 		$result = mysqli_fetch_all($this->queryResult, \MYSQLI_ASSOC);
 
 		$add = $this->queryData["add"];
 		$hidden = $this->queryData["hidden"];
 		$final = [];
+
 		if (count($add) > 0 || count($hidden) > 0) {
 			foreach ($result as $res) {
 				if (count($add) > 0) {
@@ -535,18 +673,65 @@ class Db {
 				}
 				$final[] = $res;
 			}
+		} else {
+			$final = $result;
 		}
 
+		$this->clearState();
 		return $final;
+	}
+
+	/**
+	 * Alias of fetchAll
+	 */
+	public function all()
+	{
+		return $this->fetchAll();
+	}
+
+	/**
+	 * Get first matching result
+	 */
+	public function first()
+	{
+		$result = $this->fetchAll();
+		return isset($result[0]) ? $result[0] : $result;
+	}
+
+	/**
+	 * Get last matching result
+	 */
+	public function last()
+	{
+		$result = $this->fetchAll();
+		return isset($result[count($result) - 1]) ? $result[count($result) - 1] : $result;
 	}
 
 	/**
 	 * Return raw query result
 	 */
-	public function fetch() : array
+	public function fetch(): array
 	{
-		if ($this->execute() === false) return false;
+		if (!$this->execute()) return null;
 		return $this->queryResult;
+	}
+
+	/**
+	 * Set the current db table
+	 */
+	public function table($table)
+	{
+		$this->queryData["table"] = $table;
+
+		return $this;
+	}
+
+	/**
+	 * Search a db table for a value
+	 */
+	public function search($row, $value, $hidden = null)
+	{
+		return $this->select($this->queryData["table"])->like($row, static::includes($value))->hidden($hidden)->all();
 	}
 
 	/**
@@ -560,8 +745,55 @@ class Db {
 	/**
 	 * Return caught errors if any
 	 */
-	public function errors() : array
+	public function errors(): array
 	{
 		return $this->errorsArray;
+	}
+
+	protected function clearState()
+	{
+		$this->queryData = [
+			"table" => "",
+			"type" => "",
+			"query" => "",
+			"bindings" => [],
+			"uniques" => [],
+			"validate" => [],
+			"values" => [],
+			"hidden" => [],
+			"add" => []
+		];
+	}
+
+	/**
+	 * Construct search that begins with a phrase in db 
+	 */
+	public static function beginsWith($phrase)
+	{
+		return "$phrase%";
+	}
+
+	/**
+	 * Construct search that ends with a phrase in db 
+	 */
+	public static function endsWith($phrase)
+	{
+		return "%$phrase";
+	}
+
+	/**
+	 * Construct search that includes a phrase in db 
+	 */
+	public static function includes($phrase)
+	{
+		return "%$phrase%";
+	}
+
+	/**
+	 * Construct search that begins and ends with a phrase in db 
+	 */
+	public static function word($beginsWith, $endsWith)
+	{
+		return "$beginsWith%$endsWith";
 	}
 }
