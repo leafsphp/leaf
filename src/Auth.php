@@ -14,22 +14,59 @@ use Leaf\Helpers\Authentication;
  */
 class Auth
 {
+	/**
+	 * All errors caught
+	 */
 	protected $errorsArray = [];
-	protected $secret_key = "TOKEN_SECRET";
+
+	/**
+	 * Token secret
+	 */
+	protected $secretKey = "TOKEN_SECRET";
+
+	/**
+	 * Token Lifetime
+	 */
+	protected $lifeTime = null;
+
+	/**
+	 * Auth Settings
+	 */
+	protected $settings = [
+		"USE_TIMESTAMPS" => true,
+		"PASSWORD_ENCODE" => null,
+		"PASSWORD_KEY" => "password",
+		"HIDE_ID" => true
+	];
+
+	/**
+	 * @var \Leaf\Db
+	 */
+	public $db;
 
 	public function __construct()
 	{
 		$this->form = new Form;
-		$this->token = new Authentication;
 		$this->db = new Db;
 	}
 
+	/**
+	 * Create a db connection
+	 * 
+	 * @param string $host The db host name
+	 * @param string $host The db user
+	 * @param string $host The db password
+	 * @param string $host The db name
+	 */
 	public function connect(string $host, string $user, string $password, string $dbname): void
 	{
 		$this->db->connect($host, $user, $password, $dbname);
 	}
 
-	public function auto_connect(): void
+	/**
+	 * Create a database connection from env variables
+	 */
+	public function autoConnect(): void
 	{
 		$this->connect(
 			getenv("DB_HOST"),
@@ -40,11 +77,27 @@ class Auth
 	}
 
 	/**
-	 * Set token secret key for auth
+	 * Get or set the default token lifetime value
+	 * 
+	 * @param int $lifeTime The new lifetime value for token
+	 * 
+	 * @return int|string|void
 	 */
-	public function setSecretKey(string $secret_key)
+	public function tokenLifetime($lifeTime = null)
 	{
-		$this->secret_key = $secret_key;
+		if (!$lifeTime) return $this->lifeTime;
+
+		$this->lifeTime = $lifeTime;
+	}
+
+	/**
+	 * Set token secret key for auth
+	 * 
+	 * @param string $secretKey
+	 */
+	public function setSecretKey(string $secretKey)
+	{
+		$this->secretKey = $secretKey;
 	}
 
 	/**
@@ -52,7 +105,21 @@ class Auth
 	 */
 	public function getSecretKey()
 	{
-		return $this->secret_key;
+		return $this->secretKey;
+	}
+
+	/**
+	 * Set auth config
+	 */
+	public function config($config, $value = "")
+	{
+		if (is_array($config)) {
+			foreach ($config as $key => $configValue) {
+				$this->config($key, $configValue);
+			}
+		} else {
+			$this->settings[$config] = $value;
+		}
 	}
 
 	/**
@@ -60,35 +127,45 @@ class Auth
 	 * 
 	 * @param string table: Table to look for users
 	 * @param array $credentials User credentials
-	 * @param string password_encode: Password encode type, should match password
 	 * @param array $validate Validation for parameters
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function login(string $table, array $credentials, string $password_encode = null, array $validate = [])
+	public function login(string $table, array $credentials, array $validate = [])
 	{
-		if ($password_encode == "md5" && isset($credentials["password"])) {
-			$credentials["password"] = md5($credentials["password"]);
+		$passKey = $this->settings["PASSWORD_KEY"];
+
+		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
+			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
+				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
+			} else {
+				$credentials[$passKey] = md5($credentials[$passKey]);
+			}
 		}
 
 		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 		if (!$user) {
 			$this->errorsArray["auth"] = "Incorrect credentials, please check and try again";
-			return false;
+			return null;
 		}
 
-		$token = $this->token->generateSimpleToken($user["id"], $this->secret_key);
-		unset($user["id"]);
-		if (isset($user["password"])) unset($user["password"]);
-		if ($token == false) {
-			foreach ($this->token->errors() as $key => $value) {
-				$this->errorsArray[$key] = $value;
-			}
-			return false;
-		}
-		$user["token"] = $token;
+		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
 
-		return $user;
+		if ($this->settings["HIDE_ID"]) {
+			unset($user["id"]);
+		}
+
+		if (isset($user[$passKey]) || !$user[$passKey]) unset($user[$passKey]);
+
+		if (!$token) {
+			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+			return null;
+		}
+
+		$response["user"] = $user;
+		$response["token"] = $token;
+
+		return $response;
 	}
 
 	/**
@@ -97,64 +174,178 @@ class Auth
 	 * @param string $table: Table to store user in
 	 * @param array $credentials Information for new user
 	 * @param array $uniques Parameters which should be unique
-	 * @param string password_encode: Password encode type, should match password
 	 * @param array $validate Validation for parameters
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function register(string $table, array $credentials, array $uniques = [], string $password_encode = null, array $validate = [])
+	public function register(string $table, array $credentials, array $uniques = [], array $validate = [])
 	{
-		if ($password_encode == "md5" && isset($credentials["password"])) {
-			$credentials["password"] = md5($credentials["password"]);
+		$passKey = $this->settings["PASSWORD_KEY"];
+
+		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
+			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
+				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
+			} else {
+				$credentials[$passKey] = md5($credentials[$passKey]);
+			}
+		}
+
+		if ($this->settings["USE_TIMESTAMPS"]) {
+			$now = Date::now();
+			$credentials["created_at"] = $now;
+			$credentials["updated_at"] = $now;
 		}
 
 		try {
-			if ($this->db->insert($table)->params($credentials)->unique($uniques)->validate($validate)->execute() === false) {
-				foreach ($this->db->errors() as $key => $value) {
-					$this->errorsArray[$key] = $value;
-				}
-				return false;
-			}
+			$query = $this->db->insert($table)->params($credentials)->unique($uniques)->validate($validate)->execute();
 		} catch (\Throwable $th) {
-			$this->errorsArray["error"] = $th->getMessage();
-			return false;
+			$this->errorsArray["dev"] = $th->getMessage();
+			return null;
 		}
 
-		return $this->login($table, $credentials);
+		if (!$query) {
+			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			return null;
+		}
+
+		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
+
+		if (!$user) {
+			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			return null;
+		}
+
+		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
+
+		if ($this->settings["HIDE_ID"]) {
+			unset($user["id"]);
+		}
+
+		if (isset($user[$passKey]) || !$user[$passKey]) unset($user[$passKey]);
+
+		if (!$token) {
+			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+			return null;
+		}
+
+		$response["user"] = $user;
+		$response["token"] = $token;
+
+		return $response;
+	}
+
+	/**
+	 * Simple user update
+	 * 
+	 * @param string $table: Table to store user in
+	 * @param array $credentials New information for user
+	 * @param array $where Information to find user by
+	 * @param array $uniques Parameters which should be unique
+	 * @param array $validate Validation for parameters
+	 * 
+	 * @return array user: all user info + tokens + session data
+	 */
+	public function update(string $table, array $credentials, array $where, array $uniques = [], array $validate = [])
+	{
+		$passKey = $this->settings["PASSWORD_KEY"];
+
+		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
+			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
+				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
+			} else {
+				$credentials[$passKey] = md5($credentials[$passKey]);
+			}
+		}
+
+		if ($this->settings["USE_TIMESTAMPS"]) {
+			$credentials["updated_at"] = Date::now();
+		}
+
+		if (count($uniques) > 0) {
+			foreach ($uniques as $unique) {
+				if (!isset($credentials[$unique])) {
+					(new Http\Response)->throwErr(["error" => "$unique not found in credentials."]);
+				}
+
+				$data = $this->db->select($table)->where($unique, $credentials[$unique])->fetchAssoc();
+
+				$wKeys = array_keys($where);
+				$wValues = array_values($where);
+
+				if (isset($data[$wKeys[0]]) && $data[$wKeys[0]] !== $wValues[0]) {
+					$this->errorsArray[$unique] = "$unique already exists";
+				}
+			}
+
+			if (count($this->errorsArray) > 0) return null;
+		}
+
+		try {
+			$query = $this->db->update($table)->params($credentials)->where($where)->validate($validate)->execute();
+		} catch (\Throwable $th) {
+			$this->errorsArray["dev"] = $th->getMessage();
+			return null;
+		}
+
+		if (!$query) {
+			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			return null;
+		}
+
+		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
+		if (!$user) {
+			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			return null;
+		}
+
+		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
+
+		if ($this->settings["HIDE_ID"]) {
+			unset($user["id"]);
+		}
+
+		if (isset($user[$passKey]) || !$user[$passKey]) unset($user[$passKey]);
+
+		if (!$token) {
+			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+			return null;
+		}
+
+		$response["user"] = $user;
+		$response["token"] = $token;
+
+		return $response;
 	}
 
 	/**
 	 * Validate Json Web Token
+	 * 
+	 * @param string $token The token validate
+	 * @param string $secretKey The secret key used to encode token
 	 */
-	public function validate($token, $secret_key)
+	public function validate($token, $secretKey = null)
 	{
-		$payload = $this->token->validate($token, $secret_key);
+		$payload = Authentication::validate($token, $secretKey ?? $this->secretKey);
+		if ($payload) return $payload;
 
-		if ($payload == false) {
-			foreach ($this->token->errors() as $key => $value) {
-				$this->errorsArray[$key] = $value;
-			}
-			return false;
-		}
+		$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
 
-		return $payload;
+		return null;
 	}
 
 	/**
 	 * Validate Bearer Token
+	 * 
+	 * @param string $secretKey The secret key used to encode token
 	 */
-	public function validateToken()
+	public function validateToken($secretKey = null)
 	{
-		$payload = $this->token->validateToken($this->secret_key);
+		$payload = Authentication::validateToken($secretKey ?? $this->secretKey);
+		if ($payload) return $payload;
 
-		if ($payload == false) {
-			foreach ($this->token->errors() as $key => $value) {
-				$this->errorsArray[$key] = $value;
-			}
-			return false;
-		}
+		$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
 
-		return $payload;
+		return null;
 	}
 
 	/**
@@ -162,32 +353,44 @@ class Auth
 	 */
 	public function getBearerToken()
 	{
-		$token = $this->token->getBearerToken();
-		if ($token !== false) return $token;
+		$token = Authentication::getBearerToken();
+		if ($token) return $token;
 
-		foreach ($this->token->errors() as $key => $value) {
-			$this->errorsArray[$key] = $value;
-		}
-		return false;
+		$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+
+		return null;
 	}
 
 	/**
-	 * Get the current user data
+	 * Get the current user data from token
+	 * 
+	 * @param string $table The table to look for user
+	 * @param array $hidden Fields to hide from user array
 	 */
-	public function currentUser($table = "users")
+	public function user($table = "users", $hidden = [])
 	{
-		$payload = $this->validateToken();
-		if (!$payload) return false;
-		return $this->login($table, ["id" => $payload->user_id]);
+		if (!$this->id()) return null;
+
+		$user = $this->db->select($table)->where("id", $this->id())->fetchAssoc();
+
+		if (count($hidden) > 0) {
+			foreach ($hidden as $item) {
+				if (isset($user[$item]) || !$user[$item]) {
+					unset($user[$item]);
+				}
+			}
+		}
+
+		return $user;
 	}
 
 	/**
-	 * Return the user_id encoded in token 
+	 * Return the user id encoded in token 
 	 */
-	public function useToken()
+	public function id()
 	{
 		$payload = $this->validateToken($this->getSecretKey());
-		if ($payload == false) return false;
+		if (!$payload) return null;
 		return $payload->user_id;
 	}
 
