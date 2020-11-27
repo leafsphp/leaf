@@ -19,6 +19,10 @@ use \Leaf\Exception\General as Exception;
 class JWT
 {
     /**
+     * Errors caught
+     */
+    protected static $errorsArray = [];
+    /**
      * When checking nbf, iat or expiration times,
      * we want to provide some extra leeway time to
      * account for clock skew.
@@ -58,66 +62,67 @@ class JWT
     {
         $timestamp = is_null(static::$timestamp) ? time() : static::$timestamp;
         if (empty($key)) {
-            throw new Exception('Key may not be empty');
+            return static::saveErr("Key may not be empty");
         }
         $tks = explode('.', $jwt);
         if (count($tks) != 3) {
-            throw new Exception('Wrong number of segments');
+            return static::saveErr("Wrong number of segments");
         }
         list($headb64, $bodyb64, $cryptob64) = $tks;
         if (null === ($header = static::jsonDecode(static::urlsafeB64Decode($headb64)))) {
-            throw new Exception('Invalid header encoding');
+            return static::saveErr("Invalid header encoding");
         }
         if (null === $payload = static::jsonDecode(static::urlsafeB64Decode($bodyb64))) {
-            throw new Exception('Invalid claims encoding');
+            return static::saveErr("Invalid claims encoding");
         }
         if (false === ($sig = static::urlsafeB64Decode($cryptob64))) {
-            throw new Exception('Invalid signature encoding');
+            return static::saveErr("Invalid signature encoding");
         }
         if (empty($header->alg)) {
-            throw new Exception('Empty algorithm');
+            return static::saveErr("Empty algorithm");
         }
         if (empty(static::$supported_algs[$header->alg])) {
-            throw new Exception('Algorithm not supported');
+            return static::saveErr("Algorithm not supported");
         }
         if (!in_array($header->alg, $allowed_algs)) {
-            throw new Exception('Algorithm not allowed');
+            return static::saveErr("Algorithm not allowed");
         }
         if (is_array($key) || $key instanceof \ArrayAccess) {
             if (isset($header->kid)) {
                 if (!isset($key[$header->kid])) {
-                    throw new Exception('"kid" invalid, unable to lookup correct key');
+                    return static::saveErr("'kid' invalid, unable to lookup correct key");
                 }
                 $key = $key[$header->kid];
             } else {
-                throw new Exception('"kid" empty, unable to lookup correct key');
+                return static::saveErr("'kid' empty, unable to lookup correct key");
             }
         }
         // Check the signature
         if (!static::verify("$headb64.$bodyb64", $sig, $key, $header->alg)) {
-            throw new Exception('Signature verification failed');
+            return static::saveErr("Signature verification failed");
         }
         // Check if the nbf if it is defined. This is the time that the
         // token can actually be used. If it's not yet that time, abort.
         if (isset($payload->nbf) && $payload->nbf > ($timestamp + static::$leeway)) {
-            throw new Exception(
-                'Cannot handle token prior to ' . date(\DateTime::ISO8601, $payload->nbf)
+            return static::saveErr(
+                "Cannot handle token prior to " . date(\DateTime::ISO8601, $payload->nbf)
             );
         }
-        // Check that this token has been created before 'now'. This prevents
+        // Check that this token has been created before "now". This prevents
         // using tokens that have been created for later use (and haven't
         // correctly used the nbf claim).
         if (isset($payload->iat) && $payload->iat > ($timestamp + static::$leeway)) {
-            throw new Exception(
-                'Cannot handle token prior to ' . date(\DateTime::ISO8601, $payload->iat)
+            return static::saveErr(
+                "Cannot handle token prior to " . date(\DateTime::ISO8601, $payload->iat)
             );
         }
         // Check if this token has expired.
         if (isset($payload->exp) && ($timestamp - static::$leeway) >= $payload->exp) {
-            throw new Exception('Expired token');
+            return static::saveErr("Expired token");
         }
         return $payload;
     }
+
     /**
      * Converts and signs a PHP object or array into a JWT string.
      *
@@ -151,6 +156,7 @@ class JWT
         $segments[] = static::urlsafeB64Encode($signature);
         return implode('.', $segments);
     }
+
     /**
      * Sign a string with a given key and algorithm.
      *
@@ -182,6 +188,7 @@ class JWT
                 }
         }
     }
+
     /**
      * Verify a signature with the message, key and method. Not all methods
      * are symmetric, so we must have a separate verify and sign method.
@@ -228,6 +235,7 @@ class JWT
                 return ($status === 0);
         }
     }
+
     /**
      * Decode a JSON string into a PHP object.
      *
@@ -261,6 +269,7 @@ class JWT
         }
         return $obj;
     }
+
     /**
      * Encode a PHP object into a JSON string.
      *
@@ -280,6 +289,7 @@ class JWT
         }
         return $json;
     }
+
     /**
      * Decode a string with URL-safe Base64.
      *
@@ -296,6 +306,7 @@ class JWT
         }
         return base64_decode(strtr($input, '-_', '+/'));
     }
+
     /**
      * Encode a string with URL-safe Base64.
      *
@@ -307,6 +318,7 @@ class JWT
     {
         return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
     }
+
     /**
      * Helper method to create a JSON error.
      *
@@ -329,6 +341,7 @@ class JWT
                 : 'Unknown JSON error: ' . $errno
         );
     }
+
     /**
      * Get the number of bytes in cryptographic strings.
      *
@@ -342,5 +355,19 @@ class JWT
             return mb_strlen($str, '8bit');
         }
         return strlen($str);
+    }
+
+    protected static function saveErr($err, $key = "token")
+    {
+        self::$errorsArray[$key] = $err;
+        return null;
+    }
+
+    /**
+     * Return all errors found
+     */
+    public static function errors()
+    {
+        return static::$errorsArray;
     }
 }
