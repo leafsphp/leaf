@@ -3,6 +3,8 @@
 
 ## v2.4.0 - BETA - 30th November, 2020
 
+Unlike previous versions, this version of Leaf is focusing on improving the use of existing features, rather than just pumping new magic into Leaf. It has a lot of bug fixes, standardization of method names and overall upgrades.
+
 ### Added
 
 - Added `App::evadeCors`
@@ -11,21 +13,27 @@
 - Leaf DB can now detect query type even when `query`
 - Added `orWhere`, `whereLike`, `orWhereLike` `like`, `orLike`, `orderBy`, `all` `limit` and LIKE helpers to Leaf Db
 - Added new format to `Date::now`
+- Added `Auth::update`
+- Added custom token lifetime support on `Auth`
 
 ### Fixed
 
 - Fixed login bug with `Auth::currentUser`
 - Fixed Leaf DB same value bug
+- Minor fixes on `Auth::login` and `Auth::register`
 
 ### Changed
 
 - Switched methods to camel case
 - Renamed `Auth::useToken` to `Auth::id`
 - Renamed `Auth::currentUser` to `Auth::user`
+- Made `Helpers\JWT` and `Helpers\Authentication` methods static
 
 ### Removed
 
 - Removed `Form::isEmpty` and `Form::isNull`
+- Removed deprecated methods from `Response`
+- Removed deprecated methods from `Date`
 
 ## v2.1.0 - 19th June, 2020
 
