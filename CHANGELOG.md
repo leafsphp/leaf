@@ -35,6 +35,8 @@ Unlike previous versions, this version of Leaf is focusing on improving the use 
 - Removed deprecated methods from `Response`
 - Removed deprecated methods from `Date`
 
+**This list is still being updated.**
+
 ## v2.1.0 - 19th June, 2020
 
 ### Added
