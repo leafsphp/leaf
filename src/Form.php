@@ -9,14 +9,11 @@ use Leaf\Http\Request;
  *  Simple Form Validation with Leaf
  */
 class Form extends Request {
-	protected $response;
+	/**
+	 * Array holding all caught errors
+	 */
+	protected $errorsArray = [];
 
-	public function __construct()
-	{
-		$this->response = new \Leaf\Http\Response;
-	}
-
-	public $errorsArray = array();
 	/**
      * make sure that the form data is safe to work with
      *
@@ -25,38 +22,7 @@ class Form extends Request {
      * @return string, string: The parsed data
      */
 	public function sanitizeInput($data) {
-		$data = trim($data);
-		$data = stripslashes($data);
-		$data = htmlspecialchars($data);
-		return $data;
-	}
-
-	/**
-     * Check if param is empty
-     *
-     * @param string $data: The data gotten from the form field
-     * @param string $key: The name of the form field
-     * @param string $message: The message to add to the errors array
-     */
-	public function isEmpty($data, $message="This field is required") {
-		if (empty($data)) {
-			$this->response->throwErr($message);
-		}
-	}
-
-	/**
-     * Check if param is null
-     *
-     * @param string $data: The data gotten from the form field
-     * @param string $key: The name of the form field
-     * @param string $message: The message to add to the errors array
-     *
-     * @return void
-     */
-	public function isNull($data, $message="This field cannot be null") {
-		if (is_null($data)) {
-			$this->response->throwErr($message);
-		}
+		return htmlspecialchars(stripslashes(trim($data)));
 	}
 
 	/**
