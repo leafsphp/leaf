@@ -38,7 +38,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public static function create_folder(String $dirname) {
+	public static function createFolder(String $dirname) {
 		if (is_dir($dirname)) {
 			self::$errorsArray[$dirname] = "$dirname already exists in " . dirname($dirname);
 			return false;
@@ -54,7 +54,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public static function rename_folder(String $dirname, String $newdirname) {
+	public static function renameFolder(String $dirname, String $newdirname) {
 		if (!is_dir($dirname)) {
 			self::$errorsArray[$dirname] = "$dirname not found in " . dirname($dirname) . ".";
 			return false;
@@ -70,7 +70,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public static function delete_folder($dirname) {
+	public static function deleteFolder($dirname) {
 		if (!is_dir($dirname)) {
 			self::$errorsArray[$dirname] = "$dirname not found in " . dirname($dirname) . ".";
 			return false;
@@ -86,7 +86,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public static function list_dir($dirname, $pattern = null) {		
+	public static function listDir($dirname, $pattern = null) {		
 		$files = glob($dirname . "/*$pattern*");
 		$filenames = [];
         
@@ -112,7 +112,7 @@ class FS {
      * @param  bool  $hidden
      * @return \Symfony\Component\Finder\SplFileInfo[]
      */
-    public static function list_files($directory, $hidden = false)
+    public static function listFiles($directory, $hidden = false)
     {
         return iterator_to_array(
             Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->depth(0)->sortByName(),
@@ -141,7 +141,7 @@ class FS {
      * @param  string  $directory
      * @return array
      */
-    public static function list_folders($directory)
+    public static function listFolders($directory)
     {
         $directories = [];
 
@@ -159,7 +159,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public static function create_file($filename) {
+	public static function createFile($filename) {
 		if (!is_dir(dirname($filename))) {
 			self::create_folder(dirname($filename));
 		}
@@ -180,7 +180,7 @@ class FS {
 	 * 
 	 * @return string|bool
 	 */
-	public static function upload_file($file, $path, $config = [])
+	public static function uploadFile($file, $path, $config = [])
 	{
 		if (!is_dir($path)) {
 			if (isset($config["verify_dir"]) && $config["verify_dir"] == true) {
@@ -246,25 +246,25 @@ class FS {
 	}
 
 	/**
+	 * Get full information about an uploaded file
+	 * 
+	 * @param string|null $file The file info to get
+	 */
+	public static function uploadInfo($file = null): array
+	{
+		return $file ? self::$uploadInfo[$file] : self::$uploadInfo;
+	}
+
+	/**
 	 * Get a file category from it's extension
 	 */
-	protected static function get_category(string $file_type)
+	protected static function getCategory(string $file_type)
 	{
 		foreach (self::$extensions as $category => $exts) {
 			if (in_array($file_type, $exts)) return $category;
 		}
 
 		return 'file';
-	}
-
-	/**
-	 * Get full information about an uploaded file
-	 * 
-	 * @param string|null $file The file info to get
-	 */
-	public static function upload_info($file = null) : array
-	{
-		return $file ? self::$uploadInfo[$file] : self::$uploadInfo;
 	}
 
 	/**
@@ -276,7 +276,7 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public static function write_file($filename, $content, $lock = false) {
+	public static function writeFile($filename, $content, $lock = false) {
 		if (!file_exists($filename)) {
 			self::create_file($filename);
 		}
@@ -290,7 +290,7 @@ class FS {
 	*
 	* @return String|false file content
 	*/
-	public static function read_file(String $filename) {
+	public static function readFile(String $filename) {
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
 			return false;
@@ -306,7 +306,7 @@ class FS {
 	*
 	* @return void
 	*/
-	public static function rename_file($filename, $newfilename) {
+	public static function renameFile($filename, $newfilename) {
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
 			return false;
@@ -321,7 +321,7 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public static function delete_file($filename)
+	public static function deleteFile($filename)
 	{
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
@@ -339,7 +339,7 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public static function copy_file($filename, $to, $rename = true)
+	public static function copyFile($filename, $to, $rename = true)
 	{
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
@@ -366,7 +366,7 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public static function clone_file($filename, $to)
+	public static function cloneFile($filename, $to)
 	{
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
@@ -386,7 +386,7 @@ class FS {
 	 *
 	 * @return void
 	 */
-	public static function move_file($filename, $to)
+	public static function moveFile($filename, $to)
 	{
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
