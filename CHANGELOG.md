@@ -15,6 +15,9 @@ Unlike previous versions, this version of Leaf is focusing on improving the use 
 - Added new format to `Date::now`
 - Added `Auth::update`
 - Added custom token lifetime support on `Auth`
+- Added `Auth` settings to allow easy and more detailed customizations
+- Added token lifetime support on `Helpers\Authentication`
+- Added support for app down for maintainance
 
 ### Fixed
 
@@ -28,6 +31,7 @@ Unlike previous versions, this version of Leaf is focusing on improving the use 
 - Renamed `Auth::useToken` to `Auth::id`
 - Renamed `Auth::currentUser` to `Auth::user`
 - Made `Helpers\JWT` and `Helpers\Authentication` methods static
+- Methods return `null` instead of `false` in case of unexpected results
 
 ### Removed
 
