@@ -1,6 +1,32 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.4.0 - BETA - 30th November, 2020
+
+### Added
+
+- Added `App::evadeCors`
+- Added `App::routes` to preview all routes
+- Added `Db::first()`
+- Leaf DB can now detect query type even when `query`
+- Added `orWhere`, `whereLike`, `orWhereLike` `like`, `orLike`, `orderBy`, `all` `limit` and LIKE helpers to Leaf Db
+- Added new format to `Date::now`
+
+### Fixed
+
+- Fixed login bug with `Auth::currentUser`
+- Fixed Leaf DB same value bug
+
+### Changed
+
+- Switched methods to camel case
+- Renamed `Auth::useToken` to `Auth::id`
+- Renamed `Auth::currentUser` to `Auth::user`
+
+### Removed
+
+- Removed `Form::isEmpty` and `Form::isNull`
+
 ## v2.1.0 - 19th June, 2020
 
 ### Added

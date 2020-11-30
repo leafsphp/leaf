@@ -102,7 +102,7 @@ class Date
 		$day = $timestamp->format('d');
 		$month = $timestamp->format('m');
 		$month = ltrim($month, 0);
-		$month = self::int_to_month($month);
+		$month = self::intToMonth($month);
 		$year = $timestamp->format('Y');
 		$date = $month . ' ' . $day . ', ' . $year;
 		return $date;
@@ -116,7 +116,7 @@ class Date
 		$timestampp = new DateTime($timestamp);
 		$day = $timestampp->format('d');
 		$month = $timestampp->format('m');
-		$month = self::int_to_month(ltrim($month, '0'));
+		$month = self::intToMonth(ltrim($month, '0'));
 		$year = $timestampp->format('Y');
 		$time = self::toTime($timestamp);
 		$english_timeStamp = $day . ' ' . $month . ' ' . $year . ' ' . $time;
