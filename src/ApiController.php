@@ -11,6 +11,7 @@ use Leaf\Http\Response;
 class ApiController extends Response {
 	public $response;
 	public $form;
+
 	public function __construct() {
 		$this->form = new Form;
 	}

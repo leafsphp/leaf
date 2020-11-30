@@ -74,7 +74,7 @@ class Session {
 			return false;
 		}
 
-		$body = array();
+		$body = [];
 		foreach($_SESSION as $key => $value) {
 			$body[$key] = $value;
 		}

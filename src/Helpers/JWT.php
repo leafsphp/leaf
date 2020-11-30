@@ -122,7 +122,7 @@ class JWT
         }
         return $payload;
     }
-
+    
     /**
      * Converts and signs a PHP object or array into a JWT string.
      *
@@ -156,7 +156,7 @@ class JWT
         $segments[] = static::urlsafeB64Encode($signature);
         return implode('.', $segments);
     }
-
+    
     /**
      * Sign a string with a given key and algorithm.
      *
@@ -188,7 +188,7 @@ class JWT
                 }
         }
     }
-
+    
     /**
      * Verify a signature with the message, key and method. Not all methods
      * are symmetric, so we must have a separate verify and sign method.
@@ -235,7 +235,7 @@ class JWT
                 return ($status === 0);
         }
     }
-
+    
     /**
      * Decode a JSON string into a PHP object.
      *
@@ -269,7 +269,7 @@ class JWT
         }
         return $obj;
     }
-
+    
     /**
      * Encode a PHP object into a JSON string.
      *
@@ -289,7 +289,7 @@ class JWT
         }
         return $json;
     }
-
+    
     /**
      * Decode a string with URL-safe Base64.
      *
@@ -306,7 +306,7 @@ class JWT
         }
         return base64_decode(strtr($input, '-_', '+/'));
     }
-
+    
     /**
      * Encode a string with URL-safe Base64.
      *
@@ -318,7 +318,7 @@ class JWT
     {
         return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
     }
-
+    
     /**
      * Helper method to create a JSON error.
      *
@@ -341,7 +341,7 @@ class JWT
                 : 'Unknown JSON error: ' . $errno
         );
     }
-
+    
     /**
      * Get the number of bytes in cryptographic strings.
      *

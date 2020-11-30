@@ -7,8 +7,8 @@ namespace Leaf\Http;
  * ------------------------------------
  * Cookie management made simple with Leaf
  * 
- * @author  Michael Darko
- * @since   2.0.0
+ * @author Michael Darko
+ * @since  2.0.0
  */
 class Cookie
 {

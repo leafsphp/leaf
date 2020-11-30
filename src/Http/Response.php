@@ -9,8 +9,8 @@ namespace Leaf\Http;
  * provides methods to set the HTTP status, the HTTP headers,
  * and the HTTP body.
  *
- * @author    Michael Darko
- * @since       1.0.0
+ * @author Michael Darko
+ * @since 1.0.0
  */
 class Response
 {
@@ -94,24 +94,6 @@ class Response
     }
 
     /**
-     * Output neatly parsed json
-     * [**DEPRECATION WARNING: USE `json()` INSTEAD**]
-     */
-    public function respond($data)
-    {
-        $this->json($data);
-    }
-
-    /**
-     * Output json encoded data with an HTTP code/message
-     * [**DEPRECATION WARNING: USE `json()` INSTEAD**]
-     */
-    public function respondWithCode($data, int $code = 200, bool $useMessage = false)
-    {
-        $this->json($data, $code, true, $useMessage);
-    }
-
-    /**
      * Output json encoded data with an HTTP code/message
      * 
      * @param mixed $data The data to output
@@ -154,28 +136,12 @@ class Response
         require $file;
     }
 
-    /**
-     * [DEPRECATION WARNING: USE `page` INSTEAD]
-     */
-    public function renderPage(String $file, int $code = null)
-    {
-        $this->page($file, $code);
-    }
-
     public function markup(String $markup, int $code = null)
     {
         Headers::contentHtml($code);
         echo <<<EOT
 $markup
 EOT;
-    }
-
-    /**
-     * [DEPRECATION WARNING: USE `markup` INSTEAD]
-     */
-    public function renderMarkup(string $markup, int $code = null)
-    {
-        $this->markup($markup, $code);
     }
 
     public function cors(String $allow_origin = "*", String $allow_headers = "*")
@@ -185,9 +151,10 @@ EOT;
 
     /**
      * Get and set header
-     * @param  string      $name  Header name
-     * @param  string|null $value Header value
-     * @return string      Header value
+     * 
+     * @param string $name Header name
+     * @param string|null $value Header value
+     * @return string Header value
      */
     public function header($name, $value = null)
     {
@@ -256,6 +223,7 @@ EOT;
 
     /**
      * Get message for HTTP status code
+     * 
      * @param int $status
      * @return string|null
      */

@@ -8,8 +8,8 @@ namespace Leaf\Http;
  * This class provides a human-friendly interface to the Leaf environment variables;
  * environment variables are passed by reference and will be modified directly.
  *
- * @author  Michael Darko
- * @since   1.0.0
+ * @author Michael Darko
+ * @since 1.0.0
  */
 class Request
 {
@@ -25,7 +25,7 @@ class Request
     /**
      * @var array
      */
-    protected static $formDataMediaTypes = array('application/x-www-form-urlencoded');
+    protected static $formDataMediaTypes = ['application/x-www-form-urlencoded'];
 
     /**
      * Application Environment
@@ -86,8 +86,7 @@ class Request
      */
     public function hasHeader(String $header)
     {
-        if ($this->headers->get($header)) return true;
-        return false;
+        return !!$this->headers->get($header);
     }
 
     /**
@@ -118,8 +117,9 @@ class Request
      * of the array key if requested; if the array key does not exist, NULL is returned,
      * unless there is a default value specified.
      *
-     * @param  string           $key
-     * @param  mixed            $default
+     * @param string $key
+     * @param mixed $default
+     * 
      * @return array|mixed|null
      */
     public function params($key = null, $default = null)
@@ -348,15 +348,6 @@ class Request
     }
 
     /**
-     * LEGACY: Get Root URI (alias for Leaf_Http_Request::getScriptName)
-     * @return string
-     */
-    public function getRootUri()
-    {
-        return $this->getScriptName();
-    }
-
-    /**
      * Get Path (physical path + virtual path)
      * @return string
      */
@@ -372,15 +363,6 @@ class Request
     public function getPathInfo()
     {
         return $this->env['PATH_INFO'];
-    }
-
-    /**
-     * LEGACY: Get Resource URI (alias for Leaf_Http_Request::getPathInfo)
-     * @return string
-     */
-    public function getResourceUri()
-    {
-        return $this->getPathInfo();
     }
 
     /**

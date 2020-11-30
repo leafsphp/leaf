@@ -18,7 +18,7 @@ class Auth
 	 * All errors caught
 	 */
 	protected $errorsArray = [];
-
+	
 	/**
 	 * Token secret
 	 */
@@ -227,7 +227,7 @@ class Auth
 			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
 			return null;
 		}
-
+		
 		$response["user"] = $user;
 		$response["token"] = $token;
 
@@ -405,7 +405,7 @@ class Auth
 	/**
 	 * Get all authentication errors as associative array
 	 */
-	public function errors(): array
+	public function errors() : array
 	{
 		return $this->errorsArray;
 	}

@@ -1,23 +1,24 @@
 <?php
+
 /**
  * Leaf PHP Framework - A PHP micro-framework
  *
- * @author        Michael Darko <mickdd22@gmail.com>
- * @copyright   2019-2020 Michael Darko
- * @link             http://www.leafphp.netlify.app/#/
- * @license        MIT
- * @package     Leaf
+ * @author Michael Darko <mickdd22@gmail.com>
+ * @copyright 2019-2020 Michael Darko
+ * @link http://www.leafphp.netlify.app/#/
+ * @license MIT
+ * @package Leaf
  */
+
 namespace Leaf;
 
 /**
  * Leaf Core package
- * @package  Leaf
- * @author   Michael Darko
+ * @package Leaf
+ * @author Michael Darko
  */
 class App
 {
-
     /**
      * @var \Leaf\Helpers\Set
      */
@@ -26,7 +27,7 @@ class App
     /**
      * @var array[\Leaf]
      */
-    protected static $apps = array();
+    protected static $apps = [];
 
     /**
      * @var string
@@ -51,14 +52,14 @@ class App
     /**
      * @var array
      */
-    protected $hooks = array(
-        'leaf.before' => array(array()),
-        'leaf.before.router' => array(array()),
-        'leaf.before.dispatch' => array(array()),
-        'leaf.after.dispatch' => array(array()),
-        'leaf.after.router' => array(array()),
-        'leaf.after' => array(array())
-    );
+    protected $hooks = [
+        'leaf.before' => [[]],
+        'leaf.before.router' => [[]],
+        'leaf.before.dispatch' => [[]],
+        'leaf.after.dispatch' => [[]],
+        'leaf.after.router' => [[]],
+        'leaf.after' => [[]]
+    ];
 
     /********************************************************************************
     * Instantiation and Configuration
@@ -74,14 +75,9 @@ class App
         $this->container = new \Leaf\Helpers\Set();
         $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
 
-        // Default environment
-        $this->container->singleton('environment', function ($c) {
-            return \Leaf\Environment::getInstance();
-        });
-
         // Default request
         $this->container->singleton('request', function ($c) {
-            return new \Leaf\Http\Request($c['environment']);
+            return new \Leaf\Http\Request();
         });
 
         // Default response
@@ -114,12 +110,7 @@ class App
             return new \Leaf\FS();
         });
 
-        //  Default Controller
-        $this->container->singleton('controller', function ($c) {
-            return new \Leaf\Controller();
-        });
-
-        //  Veins Templating
+        //  Blade Templating
         $this->container->singleton('blade', function ($c) {
             return new \Leaf\Blade();
         });
@@ -232,7 +223,7 @@ class App
      */
     public static function getDefaultSettings()
     {
-        return array(
+        return [
             // Application
             'mode' => 'development',
             // Debugging
@@ -243,7 +234,7 @@ class App
             'log.enabled' => true,
             // HTTP
             'http.version' => '1.1'
-        );
+        ];
     }
 
     /**
@@ -373,13 +364,21 @@ class App
      */
     private $afterRoutes = [];
     /**
+     * @var array The route patterns and their handling functions
+     */
+    private $appRoutes = [];
+    /**
      * @var array The before middleware route patterns and their handling functions
      */
     private $beforeRoutes = [];
     /**
-     * @var object|callable The function to be executed when no route has been matched
+     * @var callable The function to be executed when no route has been matched
      */
     protected $notFoundCallback;
+    /**
+     * @var callable The function to be executed when app is under maintainance
+     */
+    protected $downCallback;
     /**
      * @var string Current base route, used for (sub)route mounting
      */
@@ -397,6 +396,15 @@ class App
      */
     private $namespace = '';
     private $route_is_matched = false;
+    
+    /**
+     * Get all routes registered in app
+     */
+    public function routes()
+    {
+        return $this->appRoutes;
+    }
+    
     /**
      * Store a before middleware route and a handling function to be executed when accessed using one of the specified methods.
      *
@@ -404,7 +412,8 @@ class App
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function before($methods, $pattern, $fn) {
+    public function before($methods, $pattern, $fn)
+    {
         $pattern = $this->baseRoute . '/' . trim($pattern, '/');
         $pattern = $this->baseRoute ? rtrim($pattern, '/') : $pattern;
         foreach (explode('|', $methods) as $method) {
@@ -414,6 +423,7 @@ class App
             ];
         }
     }
+
     /**
      * Store a route and a handling function to be executed when accessed using one of the specified methods.
      *
@@ -421,7 +431,8 @@ class App
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function match($methods, $pattern, $fn) {
+    public function match($methods, $pattern, $fn)
+    {
         $pattern = $this->baseRoute . '/' . trim($pattern, '/');
         $pattern = $this->baseRoute ? rtrim($pattern, '/') : $pattern;
         foreach (explode('|', $methods) as $method) {
@@ -430,7 +441,13 @@ class App
                 'fn' => $fn,
             ];
         }
+        $this->appRoutes[] = [
+            'methods' => explode('|', $methods),
+            'pattern' => $pattern,
+            'fn' => $fn,
+        ];
     }
+
     /**
      * Add a route that sends an HTTP redirect
      *
@@ -440,76 +457,92 @@ class App
      *
      * @return redirect
      */
-    public function redirect($from, $to, $status = 302) {
+    public function redirect($from, $to, $status = 302)
+    {
         $handler = function() use ($to, $status) {
             return header('location: '.$to, true, $status);
         };
 
         return $this->get($from, $handler);
     }
+
     /**
      * Shorthand for a route accessed using any method.
      *
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function all($pattern, $fn) {
+    public function all($pattern, $fn)
+    {
         $this->match('GET|POST|PUT|DELETE|OPTIONS|PATCH|HEAD', $pattern, $fn);
     }
+
     /**
      * Shorthand for a route accessed using GET.
      *
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function get($pattern, $fn) {
+    public function get($pattern, $fn)
+    {
         $this->match('GET', $pattern, $fn);
     }
+
     /**
      * Shorthand for a route accessed using POST.
      *
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function post($pattern, $fn)  {
+    public function post($pattern, $fn) 
+    {
         $this->match('POST', $pattern, $fn);
     }
+
     /**
      * Shorthand for a route accessed using PATCH.
      *
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function patch($pattern, $fn) {
+    public function patch($pattern, $fn)
+    {
         $this->match('PATCH', $pattern, $fn);
     }
+
     /**
      * Shorthand for a route accessed using DELETE.
      *
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function delete($pattern, $fn) {
+    public function delete($pattern, $fn)
+    {
         $this->match('DELETE', $pattern, $fn);
     }
+
     /**
      * Shorthand for a route accessed using PUT.
      *
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function put($pattern, $fn) {
+    public function put($pattern, $fn)
+    {
         $this->match('PUT', $pattern, $fn);
     }
+
     /**
      * Shorthand for a route accessed using OPTIONS.
      *
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function options($pattern, $fn) {
+    public function options($pattern, $fn)
+    {
         $this->match('OPTIONS', $pattern, $fn);
     }
+
     /**
      * Create a resource route for using controllers.
      * 
@@ -526,7 +559,8 @@ class App
      * @param string $pattern The base route to use eg: /post
      * @param string $controller to handle route eg: PostController
      */
-    public function resource(string $pattern, string $controller) {
+    public function resource(string $pattern, string $controller)
+    {
         $this->match("GET|HEAD", $pattern, "$controller@index");
         $this->post("$pattern", "$controller@store");
         $this->match("GET|HEAD", "$pattern/create", "$controller@create");
@@ -535,13 +569,15 @@ class App
         $this->match("GET|HEAD", "$pattern/{id}/edit", "$controller@edit");
         $this->match("GET|HEAD", "$pattern/{id}", "$controller@show");
     }
+
     /**
      * Mounts a collection of callbacks onto a base route.
      *
      * @param string   $baseRoute The route sub pattern to mount the callbacks on
      * @param callable $fn        The callback method
      */
-    public function mount($baseRoute, $fn)  {
+    public function mount($baseRoute, $fn)
+    {
         // Track current base route
         $curBaseRoute = $this->baseRoute;
         // Build new base route string
@@ -551,12 +587,14 @@ class App
         // Restore original base route
         $this->baseRoute = $curBaseRoute;
     }
+
     /**
      * Get the request method used, taking overrides into account.
      *
      * @return string The Request method to handle
      */
-    public function getRequestMethod() {
+    public function getRequestMethod()
+    {
         // Take the method as found in $_SERVER
         $method = $_SERVER['REQUEST_METHOD'];
         // If it's a HEAD request override it to being GET and prevent any output, as per HTTP Specification
@@ -574,22 +612,26 @@ class App
         }
         return $method;
     }
+
     /**
      * Set a Default Lookup Namespace for Callable methods.
      *
      * @param string $namespace A given namespace
      */
-    public function setNamespace($namespace) {
+    public function setNamespace($namespace)
+    {
         if (is_string($namespace)) {
             $this->namespace = $namespace;
         }
     }
+
     /**
      * Get the given Namespace before.
      *
      * @return string The given Namespace if exists
      */
-    public function getNamespace()  {
+    public function getNamespace()
+    {
         return $this->namespace;
     }
     
@@ -598,7 +640,8 @@ class App
      *
      * @param object|callable $fn The function to be executed
      */
-    public function set404($fn = null) {
+    public function set404($fn = null)
+    {
         if (is_callable($fn)) {
             $this->notFoundCallback = $fn;
         } else {            
@@ -607,6 +650,19 @@ class App
             };
         }
     }
+
+    /**
+     * Set a custom maintainace mode callback.
+     *
+     * @param callable $fn The function to be executed
+     */
+    public function setDown(callable $fn)
+    {
+        if (is_callable($fn)) {
+            $this->downCallback = $fn;
+        }
+    }
+
     /**
      * Handle a a set of routes: if a match is found, execute the relating handling function.
      *
@@ -648,6 +704,7 @@ class App
         // Return the number of routes handled
         return $numHandled;
     }
+
     private function invoke($fn, $params = []) {
         if (is_callable($fn)) {
             call_user_func_array($fn, $params);
@@ -671,6 +728,7 @@ class App
             }
         }
     }
+
     /**
      * Define the current relative URI.
      *
@@ -686,6 +744,7 @@ class App
         // Remove trailing slash + enforce a slash at the start
         return '/' . trim($uri, '/');
     }
+
     /**
      * Return server base Path, and define it if isn't defined.
      *
@@ -804,6 +863,15 @@ class App
     public function response()
     {
         return $this->response;
+    }
+
+    /**
+     * Get the Db object
+     * @return \Leaf\Db
+     */
+    public function db()
+    {
+        return $this->db;
     }
 
     /********************************************************************************
@@ -1149,6 +1217,21 @@ class App
         array_unshift($this->middleware, $newMiddleware);
     }
 
+    /**
+     * Evade CORS errors
+     * 
+     * Just a little bypass for common cors errors
+     */
+    public function evadeCors(bool $evadeOptions, string $allow_origin = "*", string $allow_headers = "*")
+    {
+        $this->response()->cors($allow_origin, $allow_headers);
+        if ($evadeOptions) {
+            if ($this->getRequestMethod() === "OPTIONS") {
+                $this->response()->throwErr("ok", 200);
+            }
+        }
+    }
+
     /********************************************************************************
     * Runner
     *******************************************************************************/
@@ -1169,6 +1252,16 @@ class App
      */
     public function run($callback = null)  {
         set_error_handler(array('\Leaf\App', 'handleErrors'));
+
+        if ((strtolower($this->config("mode"))) === "down" || (function_exists('env') && env("APP_DOWN") === true)) {
+            if (is_callable($this->downCallback)) {
+                return $this->invoke($this->downCallback);
+            }
+
+            return $this->invoke(function () {
+                return $this->defaultDown();
+            });
+        }
 
         //Apply final outer middleware layers
         if ($this->config('debug')) {
@@ -1303,6 +1396,14 @@ class App
     protected static function generateTemplateMarkup($title, $body)
     {
         return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body><h1 style=\"color: #038f03;\">%s</h1>%s</body></html>", $title, $title, $body);
+    }
+
+    /**
+     * Default Not Found handler
+     */
+    protected function defaultDown()
+    {
+        echo static::generateTemplateMarkup("Oops! We're down for maintainance.", '<p style="font-size: 22px;">We\'re working quickly to get back up and running, please check back soon.</p>');
     }
 
     /**

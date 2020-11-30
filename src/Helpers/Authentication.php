@@ -115,7 +115,7 @@ class Authentication
 	{
 		$payload = JWT::decode($token, $secretPhrase, ['HS256']);
 		if ($payload !== null) return $payload;
-
+		
 		self::$errorsArray = array_merge(self::$errorsArray, JWT::errors());
 		return null;
 	}
