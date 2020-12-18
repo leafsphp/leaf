@@ -1,19 +1,20 @@
 <?php
+
 namespace Leaf\Middleware;
 
- /**
-  * Content Types
-  *
-  * This is middleware for a Leaf application that intercepts
-  * the HTTP request body and parses it into the appropriate
-  * PHP data structure if possible; else it returns the HTTP
-  * request body unchanged. This is particularly useful
-  * for preparing the HTTP request body for an XML or JSON API.
-  *
-  * @package    Leaf
-  * @author     Michael Darko
-  * @since      2.0.0
-  */
+/**
+ * Content Types
+ *
+ * This is middleware for a Leaf application that intercepts
+ * the HTTP request body and parses it into the appropriate
+ * PHP data structure if possible; else it returns the HTTP
+ * request body unchanged. This is particularly useful
+ * for preparing the HTTP request body for an XML or JSON API.
+ *
+ * @package    Leaf
+ * @author     Michael Darko
+ * @since      2.0.0
+ */
 class ContentTypes extends \Leaf\Middleware
 {
     /**
@@ -60,7 +61,7 @@ class ContentTypes extends \Leaf\Middleware
      * @param  string $contentType
      * @return mixed
      */
-    protected function parse ($input, $contentType)
+    protected function parse($input, $contentType)
     {
         if (isset($this->contentTypes[$contentType]) && is_callable($this->contentTypes[$contentType])) {
             $result = call_user_func($this->contentTypes[$contentType], $input);
@@ -85,7 +86,7 @@ class ContentTypes extends \Leaf\Middleware
     {
         if (function_exists('json_decode')) {
             $result = json_decode($input, true);
-            if(json_last_error() === JSON_ERROR_NONE) {
+            if (json_last_error() === JSON_ERROR_NONE) {
                 return $result;
             }
         }

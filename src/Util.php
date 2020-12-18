@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf;
 
 /**
@@ -9,7 +10,8 @@ namespace Leaf;
  * @author Michael Darko <mickdd22@gmail.com>
  * @since v2.2
  */
-class Util {
+class Util
+{
 	public static function sanitize($data)
 	{
 		if (is_array($data)) {

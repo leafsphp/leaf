@@ -62,8 +62,8 @@ class App
     ];
 
     /********************************************************************************
-    * Instantiation and Configuration
-    *******************************************************************************/
+     * Instantiation and Configuration
+     *******************************************************************************/
 
     /**
      * Constructor
@@ -164,7 +164,8 @@ class App
      * This method adds a method to the global leaf instance
      * Register a method and use it globally on the Leaf Object
      */
-    public function register($name, $value) {
+    public function register($name, $value)
+    {
         return $this->container->singleton($name, $value);
     }
 
@@ -276,8 +277,8 @@ class App
     }
 
     /********************************************************************************
-    * Application Modes
-    *******************************************************************************/
+     * Application Modes
+     *******************************************************************************/
 
     /**
      * Get application mode
@@ -313,8 +314,8 @@ class App
     }
 
     /********************************************************************************
-    * Logging
-    *******************************************************************************/
+     * Logging
+     *******************************************************************************/
 
     /**
      * Get application log
@@ -326,8 +327,8 @@ class App
     }
 
     /********************************************************************************
-    * Routing
-    *******************************************************************************/
+     * Routing
+     *******************************************************************************/
 
     /**
      * Add GET|POST|PUT|PATCH|DELETE route
@@ -396,7 +397,7 @@ class App
      */
     private $namespace = '';
     private $route_is_matched = false;
-    
+
     /**
      * Get all routes registered in app
      */
@@ -404,7 +405,7 @@ class App
     {
         return $this->appRoutes;
     }
-    
+
     /**
      * Store a before middleware route and a handling function to be executed when accessed using one of the specified methods.
      *
@@ -459,8 +460,8 @@ class App
      */
     public function redirect($from, $to, $status = 302)
     {
-        $handler = function() use ($to, $status) {
-            return header('location: '.$to, true, $status);
+        $handler = function () use ($to, $status) {
+            return header('location: ' . $to, true, $status);
         };
 
         return $this->get($from, $handler);
@@ -494,7 +495,7 @@ class App
      * @param string          $pattern A route pattern such as /about/system
      * @param object|callable $fn      The handling function to be executed
      */
-    public function post($pattern, $fn) 
+    public function post($pattern, $fn)
     {
         $this->match('POST', $pattern, $fn);
     }
@@ -634,7 +635,7 @@ class App
     {
         return $this->namespace;
     }
-    
+
     /**
      * Set the 404 handling function.
      *
@@ -644,8 +645,8 @@ class App
     {
         if (is_callable($fn)) {
             $this->notFoundCallback = $fn;
-        } else {            
-            $this->notFoundCallback = function() {
+        } else {
+            $this->notFoundCallback = function () {
                 $this->default404();
             };
         }
@@ -671,7 +672,8 @@ class App
      *
      * @return int The number of routes handled
      */
-    private function handle($routes, $quitAfterRun = false) {
+    private function handle($routes, $quitAfterRun = false)
+    {
         // Counter to keep track of the number of routes we've handled
         $numHandled = 0;
         // The current page URL
@@ -705,7 +707,8 @@ class App
         return $numHandled;
     }
 
-    private function invoke($fn, $params = []) {
+    private function invoke($fn, $params = [])
+    {
         if (is_callable($fn)) {
             call_user_func_array($fn, $params);
         }
@@ -734,7 +737,8 @@ class App
      *
      * @return string
      */
-    public function getCurrentUri() {
+    public function getCurrentUri()
+    {
         // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
         $uri = substr(rawurldecode($_SERVER['REQUEST_URI']), strlen($this->getBasePath()));
         // Don't take query params into account on the URL
@@ -750,7 +754,8 @@ class App
      *
      * @return string
      */
-    public function getBasePath() {
+    public function getBasePath()
+    {
         // Check if server base path is defined, if not define it.
         if ($this->serverBasePath === null) {
             $this->serverBasePath = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1)) . '/';
@@ -763,7 +768,8 @@ class App
      *
      * @param string
      */
-    public function setBasePath($serverBasePath) {
+    public function setBasePath($serverBasePath)
+    {
         $this->serverBasePath = $serverBasePath;
     }
 
@@ -826,8 +832,8 @@ class App
     }
 
     /********************************************************************************
-    * Application Accessors
-    *******************************************************************************/
+     * Application Accessors
+     *******************************************************************************/
 
     /**
      * Get a reference to the Environment object
@@ -875,8 +881,8 @@ class App
     }
 
     /********************************************************************************
-    * HTTP Caching
-    *******************************************************************************/
+     * HTTP Caching
+     *******************************************************************************/
 
     /**
      * Set Last-Modified HTTP Response Header
@@ -929,7 +935,7 @@ class App
         //Set etag value
         $value = '"' . $value . '"';
         if ($type === 'weak') {
-            $value = 'W/'.$value;
+            $value = 'W/' . $value;
         }
         $this->response['ETag'] = $value;
 
@@ -964,8 +970,8 @@ class App
     }
 
     /********************************************************************************
-    * Helper Methods
-    *******************************************************************************/
+     * Helper Methods
+     *******************************************************************************/
 
     /**
      * Get the absolute path to this Leaf application's root directory
@@ -1058,8 +1064,8 @@ class App
     }
 
     /********************************************************************************
-    * Flash Messages
-    *******************************************************************************/
+     * Flash Messages
+     *******************************************************************************/
 
     /**
      * Set flash message for subsequent request
@@ -1106,8 +1112,8 @@ class App
     }
 
     /********************************************************************************
-    * Hooks
-    *******************************************************************************/
+     * Hooks
+     *******************************************************************************/
 
     /**
      * Assign hook
@@ -1195,8 +1201,8 @@ class App
     }
 
     /********************************************************************************
-    * Middleware
-    *******************************************************************************/
+     * Middleware
+     *******************************************************************************/
 
     /**
      * Add middleware
@@ -1208,7 +1214,7 @@ class App
      */
     public function add(\Leaf\Middleware $newMiddleware)
     {
-        if(in_array($newMiddleware, $this->middleware)) {
+        if (in_array($newMiddleware, $this->middleware)) {
             $middleware_class = get_class($newMiddleware);
             throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
         }
@@ -1233,8 +1239,8 @@ class App
     }
 
     /********************************************************************************
-    * Runner
-    *******************************************************************************/
+     * Runner
+     *******************************************************************************/
 
     /**
      * Run
@@ -1250,7 +1256,8 @@ class App
      *
      * @return bool
      */
-    public function run($callback = null)  {
+    public function run($callback = null)
+    {
         set_error_handler(array('\Leaf\App', 'handleErrors'));
 
         if ((strtolower($this->config("mode"))) === "down" || (function_exists('env') && env("APP_DOWN") === true)) {
@@ -1338,7 +1345,7 @@ class App
             }
             $this->applyHook('leaf.before');
             ob_start();
-            
+
             $this->stop();
         } catch (\Leaf\Exception\Stop $e) {
             // 
@@ -1358,8 +1365,8 @@ class App
     }
 
     /********************************************************************************
-    * Error Handling and Debugging
-    *******************************************************************************/
+     * Error Handling and Debugging
+     *******************************************************************************/
 
     /**
      * Convert errors into ErrorException objects
@@ -1414,7 +1421,8 @@ class App
         echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a style="color: #038f03;" href="' . $this->request->getRootUri() . '/">Go back home</a>');
     }
 
-    public function default404() {
+    public function default404()
+    {
         $this->defaultNotFound();
     }
 

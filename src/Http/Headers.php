@@ -1,14 +1,15 @@
 <?php
+
 namespace Leaf\Http;
 
- /**
-  * HTTP Headers
-  * ---------------------
-  * Response header management made simple with Leaf
-  *
-  * @author Michael Darko
-  * @since 2.0.0
-  */
+/**
+ * HTTP Headers
+ * ---------------------
+ * Response header management made simple with Leaf
+ *
+ * @author Michael Darko
+ * @since 2.0.0
+ */
 class Headers
 {
     protected static $http_code;
@@ -37,7 +38,7 @@ class Headers
      * 
      * @param bool $safeOutput Try to sanitize header data
      */
-    public static function all($safeOutput = false) : array
+    public static function all($safeOutput = false): array
     {
         if ($safeOutput === false) return self::findHeaders();
         return \Leaf\Util::sanitize(self::findHeaders());
@@ -65,7 +66,7 @@ class Headers
     /**
      * Set a new header
      */
-    public static function set($key, $value = "", $replace = true, $http_code = null) : void
+    public static function set($key, $value = "", $replace = true, $http_code = null): void
     {
         if (!is_array($key)) {
             header("$key: $value", $replace, $http_code ?? self::$http_code);
@@ -87,7 +88,7 @@ class Headers
         }
     }
 
-    public static function contentPlain($code = null) : void
+    public static function contentPlain($code = null): void
     {
         self::set("Content-Type", "text/plain", true, $code ?? self::$http_code);
     }
@@ -97,7 +98,7 @@ class Headers
         self::set("Content-Type", "text/html", true, $code ?? self::$http_code);
     }
 
-    public static function contentJSON($code = null) : void
+    public static function contentJSON($code = null): void
     {
         self::set("Content-Type", "application/json", true, $code ?? self::$http_code);
     }
@@ -113,7 +114,8 @@ class Headers
         }
     }
 
-    protected static function findHeaders() {
+    protected static function findHeaders()
+    {
         if (getallheaders()) return getallheaders();
 
         $headers = [];

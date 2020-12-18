@@ -1,14 +1,17 @@
 <?php
+
 namespace Leaf;
 
 use \Illuminate\Database\Capsule\Manager;
 use \Illuminate\Events\Dispatcher;
 use \Illuminate\Container\Container;
 
-class Database {
+class Database
+{
     public $capsule;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->capsule = new Manager;
         $this->capsule->addConnection([
             "driver" =>  getenv('DB_CONNECTION'),

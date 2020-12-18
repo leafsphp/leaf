@@ -1,6 +1,35 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.4.0 - Christmas Tree🎄 - 18th December 2020
+
+Christmas tree follows up on the previous beta release, fixes up all bugs found during the beta testing phase and packs in newer extensions that make Leaf even more usable.
+
+### Added
+
+- Added base factory class for Leaf MVC, Leaf API and Skeleton
+- Added new auth setting options
+
+### Fixed
+
+- Fixed `Leaf\Db` callstack not clearing
+- Fixed `Auth::update` db errors
+- Fixed `Auth::update` including current user in uniques check
+- Fixed password verify method params
+
+### Changed
+
+- Switched default password encryption to `PASSWORD_DEFAULT` (bcrypt by default)
+- Auth now relies on Leaf password helper for everything password related
+- Standardized all `where` type methods on `Leaf\Db`
+- Seperated password encoding and password verifying settings in `Leaf\Auth`
+- Switched password helper methods to camelCase
+- Switched password `salt` with `spice` to add additional security to passwords
+
+### Removed
+
+- Removed unnecessary methods from password helper
+
 ## v2.4.0 - BETA - 30th November, 2020
 
 Unlike previous versions, this version of Leaf is focusing on improving the use of existing features, rather than just pumping new magic into Leaf. It has a lot of bug fixes, standardization of method names and overall upgrades.
@@ -15,9 +44,6 @@ Unlike previous versions, this version of Leaf is focusing on improving the use 
 - Added new format to `Date::now`
 - Added `Auth::update`
 - Added custom token lifetime support on `Auth`
-- Added `Auth` settings to allow easy and more detailed customizations
-- Added token lifetime support on `Helpers\Authentication`
-- Added support for app down for maintainance
 
 ### Fixed
 
@@ -31,7 +57,6 @@ Unlike previous versions, this version of Leaf is focusing on improving the use 
 - Renamed `Auth::useToken` to `Auth::id`
 - Renamed `Auth::currentUser` to `Auth::user`
 - Made `Helpers\JWT` and `Helpers\Authentication` methods static
-- Methods return `null` instead of `false` in case of unexpected results
 
 ### Removed
 

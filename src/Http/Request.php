@@ -167,7 +167,8 @@ class Request
      * 
      * @param string|array $filenames The file(s) you want to get
      */
-    public function files($filenames = null) {
+    public function files($filenames = null)
+    {
         if ($filenames == null) return $_FILES;
         if (is_string($filenames)) return $_FILES[$filenames] ?? null;
 

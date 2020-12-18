@@ -1,20 +1,21 @@
 <?php
+
 namespace Leaf\Middleware;
 
- /**
-  * HTTP Method Override
-  *
-  * This is middleware for a Leaf application that allows traditional
-  * desktop browsers to submit pseudo PUT and DELETE requests by relying
-  * on a pre-determined request parameter. Without this middleware,
-  * desktop browsers are only able to submit GET and POST requests.
-  *
-  * This middleware is included automatically!
-  *
-  * @package    Leaf
-  * @author     Michael Darko
-  * @since      2.0.0
-  */
+/**
+ * HTTP Method Override
+ *
+ * This is middleware for a Leaf application that allows traditional
+ * desktop browsers to submit pseudo PUT and DELETE requests by relying
+ * on a pre-determined request parameter. Without this middleware,
+ * desktop browsers are only able to submit GET and POST requests.
+ *
+ * This middleware is included automatically!
+ *
+ * @package    Leaf
+ * @author     Michael Darko
+ * @since      2.0.0
+ */
 class MethodOverride extends \Leaf\Middleware
 {
     /**

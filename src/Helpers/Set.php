@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf\Helpers;
 
 class Set implements \ArrayAccess, \Countable, \IteratorAggregate

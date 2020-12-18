@@ -22,7 +22,7 @@ class Date
 		$random = mt_rand($start,  $end);
 		return date("Y-m-d H:i:s", $random);
 	}
-	
+
 	/**
 	 * Generate a random date
 	 */

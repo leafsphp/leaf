@@ -378,7 +378,7 @@ class Db
 	 * @param string|array $condition
 	 * @param string|null $value
 	 */
-	public function like($condition, $value = null) : self
+	public function like($condition, $value = null): self
 	{
 		$this->callStack[] = "like";
 		return $this->whereLike($condition, $value);
@@ -518,7 +518,7 @@ class Db
 				$data[] = $binding;
 			}
 		}
-		
+
 		$this->queryData["bindings"] = array_merge($this->queryData["bindings"], $data);
 
 		return $this;
@@ -587,11 +587,12 @@ class Db
 			}
 			$this->queryResult = $stmt->get_result();
 		}
-		
+
 		if ($this->queryData["type"] !== "select") {
 			$this->clearState();
 		}
-		
+		$this->callStack = [];
+
 		return true;
 	}
 

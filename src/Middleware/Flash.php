@@ -1,19 +1,20 @@
 <?php
+
 namespace Leaf\Middleware;
 
- /**
-  * Flash
-  *
-  * This is middleware for a Leaf application that enables
-  * Flash messaging between HTTP requests. This allows you
-  * set Flash messages for the current request, for the next request,
-  * or to retain messages from the previous request through to
-  * the next request.
-  *
-  * @package    Leaf
-  * @author     Michael Darko
-  * @since      2.0.0
-  */
+/**
+ * Flash
+ *
+ * This is middleware for a Leaf application that enables
+ * Flash messaging between HTTP requests. This allows you
+ * set Flash messages for the current request, for the next request,
+ * or to retain messages from the previous request through to
+ * the next request.
+ *
+ * @package    Leaf
+ * @author     Michael Darko
+ * @since      2.0.0
+ */
 class Flash extends \Leaf\Middleware implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
@@ -175,7 +176,4 @@ class Flash extends \Leaf\Middleware implements \ArrayAccess, \IteratorAggregate
     {
         return count($this->getMessages());
     }
-
-
-
 }

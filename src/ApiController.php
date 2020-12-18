@@ -1,18 +1,21 @@
 <?php
+
 namespace Leaf;
 
 use Leaf\Http\Response;
 
 /**
-*	Leaf PHP base controller
-*	--------------------------
-*	Base API controller leaf php
-*/
-class ApiController extends Response {
+ * Leaf PHP base controller
+ * --------------------------
+ * Base API controller leaf php
+ */
+class ApiController extends Response
+{
 	public $response;
 	public $form;
 
-	public function __construct() {
+	public function __construct()
+	{
 		$this->form = new Form;
 	}
 
@@ -24,7 +27,8 @@ class ApiController extends Response {
 	 * 
 	 * @return void
 	 */
-	public function validate(array $rules, array $messages = []) {
+	public function validate(array $rules, array $messages = [])
+	{
 		$this->form->validate($rules, $messages);
 	}
 
@@ -33,7 +37,8 @@ class ApiController extends Response {
 	 *
 	 * @return array Any errors caught
 	 */
-	public function returnErrors() {
+	public function returnErrors()
+	{
 		return $this->form->errors();
 	}
 
@@ -46,7 +51,8 @@ class ApiController extends Response {
 	 * 
 	 * @return string|bool
 	 */
-	public function fileUpload($file, $path, $config = []) {
-		return \Leaf\Fs::uploadFile($file, $path, $config);
+	public function fileUpload($file, $path, $config = [])
+	{
+		return \Leaf\FS::uploadFile($file, $path, $config);
 	}
 }

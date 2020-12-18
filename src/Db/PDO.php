@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf\Db;
 
 use \Leaf\Form;
@@ -9,11 +10,13 @@ use \Leaf\Http\Response;
  * -----------------------
  * ***deprecation warning - use with care*** Leaf's adaptation of **PDO**
  */
-class PDO {
+class PDO
+{
 	protected $connection;
 	protected $queryResult;
-	
-	public function __construct($host = null, $user = null, $password = null, $dbname = null, $db_type = "mysql") {
+
+	public function __construct($host = null, $user = null, $password = null, $dbname = null, $db_type = "mysql")
+	{
 		$this->form = new Form;
 		$this->response = new Response;
 
@@ -31,7 +34,8 @@ class PDO {
 	* @param string $user: Database username
 	* @param string $password: Database password
 	*/
-	public function connect($host, $dbname, $user, $password, $db_type = "mysql") {
+	public function connect($host, $dbname, $user, $password, $db_type = "mysql")
+	{
 		try {
 			$connection = new \PDO("$db_type:host=$host;dbname=$dbname", $user, $password);
 			$connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -62,22 +66,23 @@ class PDO {
 	 * @param string $query: Query
 	 * @param array $params: prepared statement params if any
 	 */
-	public function query(string $query, array $params = []) {
+	public function query(string $query, array $params = [])
+	{
 		if ($this->connection == null) {
 			echo "Initialise your database first with connect()";
 			exit();
 		}
-		
-		if(!$params) {
+
+		if (!$params) {
 			$this->queryResult = $this->connection->query($query);
 		} else {
 			$stmt = $this->connection->prepare($query);
 			$this->queryResult = $stmt->execute($params);
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Db Select
 	 * 
@@ -88,13 +93,14 @@ class PDO {
 	 * @param string $options: Condition to fetch on
 	 * @param array $params: prepared statement params if any
 	 */
-	public function select(string $table, string $items = "*", string $options = "", array $params = []) {
+	public function select(string $table, string $items = "*", string $options = "", array $params = [])
+	{
 		if (strlen($options) > 1) {
 			$this->query("SELECT $items FROM $table WHERE $options", $params);
 		} else {
 			$this->query("SELECT $items FROM $table", $params);
 		}
-		
+
 		return $this;
 	}
 
@@ -107,10 +113,11 @@ class PDO {
 	 * 
 	 * @return array
 	 */
-	public function choose(string $table, string $items = "*", array $condition = [], string $options = null, $default_checks = true, $validate = []) {
+	public function choose(string $table, string $items = "*", array $condition = [], string $options = null, $default_checks = true, $validate = [])
+	{
 		$data = [];
 		if (count($condition) > 0) {
-			$keys = [];			
+			$keys = [];
 
 			foreach ($condition as $key => $value) {
 				// try {
@@ -124,8 +131,8 @@ class PDO {
 				array_push($data, $value);
 
 				if ($default_checks == true) {
-					if ($key == "email") $this->form->validate(["email" => "email"]); 
-					else if ($key == "username") $this->form->validate(["username" => "validusername"]); 
+					if ($key == "email") $this->form->validate(["email" => "email"]);
+					else if ($key == "username") $this->form->validate(["username" => "validusername"]);
 					else $this->form->validate([$key => "required"]);
 				}
 
@@ -147,10 +154,10 @@ class PDO {
 			$query = "";
 
 			if (count($condition) > 0) {
-				for ($i=0; $i < $keys_length; $i++) { 
-					$query = $query.$keys[$i]." = ?";
+				for ($i = 0; $i < $keys_length; $i++) {
+					$query = $query . $keys[$i] . " = ?";
 					if ($i < $keys_length - 1) {
-						$query = $query." AND ";
+						$query = $query . " AND ";
 					}
 				}
 			}
@@ -172,9 +179,10 @@ class PDO {
 	 * 
 	 * @return array
 	 */
-	public function add(string $table, array $items, array $uniques, $default_checks = true, array $validate = []) {
+	public function add(string $table, array $items, array $uniques, $default_checks = true, array $validate = [])
+	{
 		$data = [];
-		$keys = [];			
+		$keys = [];
 
 		foreach ($items as $key => $value) {
 			// try {
@@ -188,8 +196,8 @@ class PDO {
 			array_push($data, $value);
 
 			if ($default_checks == true) {
-				if ($key == "email") $this->form->validate(["email" => "email"]); 
-				else if ($key == "username") $this->form->validate(["username" => "validusername"]); 
+				if ($key == "email") $this->form->validate(["email" => "email"]);
+				else if ($key == "username") $this->form->validate(["username" => "validusername"]);
 				else $this->form->validate([$key => "required"]);
 			}
 
@@ -223,15 +231,15 @@ class PDO {
 			$table_names = "";
 			$table_values = "";
 
-			for ($i=0; $i < $keys_length; $i++) { 
-				$table_names = $table_names.$keys[$i];
+			for ($i = 0; $i < $keys_length; $i++) {
+				$table_names = $table_names . $keys[$i];
 				if ($i < $keys_length - 1) {
-					$table_names = $table_names.", ";
+					$table_names = $table_names . ", ";
 				}
 
-				$table_values = $table_values."?";
+				$table_values = $table_values . "?";
 				if ($i < $keys_length - 1) {
-					$table_values = $table_values.", ";
+					$table_values = $table_values . ", ";
 				}
 			}
 
@@ -249,61 +257,69 @@ class PDO {
 	 * @param string $options: Condition to fetch on
 	 * @param array $params: prepared statement params if any
 	 */
-	public function selectFew($limit, string $table, string $items = "*", string $options = "", array $params = []) {
+	public function selectFew($limit, string $table, string $items = "*", string $options = "", array $params = [])
+	{
 		if (strlen($options) > 1) {
 			$this->query("SELECT $items FROM $table WHERE $options $limit", $params);
 		} else {
 			$this->query("SELECT $items FROM $table $limit", $params);
 		}
-		
+
 		return $this;
 	}
 
-	public function delete(string $table, string $options = "", array $params = []) {
+	public function delete(string $table, string $options = "", array $params = [])
+	{
 		if (strlen($options) > 1) {
 			$this->query("DELETE FROM $table WHERE $options", $params);
 		} else {
 			$this->query("DELETE FROM $table", $params);
 		}
-		
+
 		return $this;
 	}
 
-	public function insert(string $table, string $column, string $value, array $params = []) {
+	public function insert(string $table, string $column, string $value, array $params = [])
+	{
 		$this->query("INSERT INTO $table ($column) VALUES ($value)", $params);
-		
+
 		return $this;
 	}
 
-	public function update(string $table, string $updateOptions, string $options, array $params = []) {
+	public function update(string $table, string $updateOptions, string $options, array $params = [])
+	{
 		if (strlen($options) > 1) {
 			$this->query("UPDATE $table SET $updateOptions WHERE $options", $params);
 		} else {
 			$this->query("UPDATE $table SET $updateOptions", $params);
 		}
-		
+
 		return $this;
 	}
 
-	public function count() {
+	public function count()
+	{
 		return \count($this->fetchAll());
 	}
 
 	/**
 	 * Fetch Query Results as object
 	 */
-	public function fetchObj() {
+	public function fetchObj()
+	{
 		return $this->queryResult->fetch(\PDO::FETCH_OBJ);
 	}
-	
+
 	/**
 	 * Fetch Query Results as assoc array
 	 */
-	public function fetchAssoc() {
+	public function fetchAssoc()
+	{
 		return $this->queryResult->fetch(\PDO::FETCH_ASSOC);
 	}
 
-	public function fetchAll($type = "assoc") {
+	public function fetchAll($type = "assoc")
+	{
 		if ($type == "obj" || $type == "object") {
 			return $this->queryResult->fetchAll(\PDO::FETCH_OBJ);
 		} else {
@@ -311,11 +327,13 @@ class PDO {
 		}
 	}
 
-	public function result() {
+	public function result()
+	{
 		return $this->queryResult;
 	}
-	
-	public function close() {
+
+	public function close()
+	{
 		echo "so";
 	}
 }

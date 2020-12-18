@@ -15,7 +15,7 @@ abstract class Factory
 	 * Faker class instance
 	 */
 	public $faker;
-	
+
 	/**
 	 * Generated factory data
 	 */
@@ -56,7 +56,7 @@ abstract class Factory
 	{
 		$data = [];
 
-		for ($i=0; $i < $number; $i++) { 
+		for ($i = 0; $i < $number; $i++) {
 			$data[] = $this->definition();
 		}
 
@@ -119,7 +119,7 @@ abstract class Factory
 		if (count($this->data) === 0) {
 			$this->data[] = $this->definition();
 		}
-		
+
 		try {
 			foreach ($this->data as $item) {
 				if ($override) {
@@ -168,7 +168,7 @@ abstract class Factory
 	{
 		$class = get_class($this);
 		$modelClass = "\App\Models" . Str::studly(str_replace(["App\Database\Factories", "Factory"], "", $class));
-		
+
 		if (!class_exists($modelClass)) {
 			throw new \Exception("Couldn't retrieve model for " . get_class($this) . ". Add a \$model attribute to fix this.");
 		}

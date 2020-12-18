@@ -1,19 +1,22 @@
 <?php
+
 namespace Leaf;
 
 use Leaf\Http\Response;
 
 /**
-*	Leaf PHP base controller
-*	--------------------------
-*	Base controller for Leaf PHP Framework
-*/
-class Controller extends Response {
+ *	Leaf PHP base controller
+ *	--------------------------
+ *	Base controller for Leaf PHP Framework
+ */
+class Controller extends Response
+{
 	public $blade;
 	public $form;
 	public $request;
 
-	public function __construct() {
+	public function __construct()
+	{
 		$this->blade = new \Leaf\Blade;
 		$this->blade->configure("app/views/", "storage/framework/views/");
 		$this->form = new Form;
@@ -28,7 +31,8 @@ class Controller extends Response {
 	 *
 	 * @return void
 	 */
-	public function configure($views = "app/views/", $cache ="storage/framework/views/") {
+	public function configure($views = "app/views/", $cache = "storage/framework/views/")
+	{
 		$this->blade->configure($views, $cache);
 	}
 
@@ -40,7 +44,8 @@ class Controller extends Response {
 	 * 
 	 * @return void
 	 */
-	public function validate(array $rules, array $messages = []) {
+	public function validate(array $rules, array $messages = [])
+	{
 		$this->form->validate($rules, $messages);
 	}
 
@@ -51,7 +56,8 @@ class Controller extends Response {
 	 *
 	 * @return void
 	 */
-	public function render(string $templateName, array $data = [], array $merge_data = []) {
+	public function render(string $templateName, array $data = [], array $merge_data = [])
+	{
 		$this->blade->render($templateName, $data, $merge_data);
 	}
 
@@ -64,8 +70,8 @@ class Controller extends Response {
 	 * 
 	 * @return string|bool
 	 */
-	public function file_upload($file, $path, $config = [])
+	public function fileUpload($file, $path, $config = [])
 	{
-		return \Leaf\Fs::upload_file($file, $path, $config);
+		return \Leaf\Fs::uploadFile($file, $path, $config);
 	}
 }

@@ -19,7 +19,7 @@ class Auth
 	 * All errors caught
 	 */
 	protected $errorsArray = [];
-	
+
 	/**
 	 * Token secret
 	 */
@@ -153,10 +153,6 @@ class Auth
 
 		$passwordIsValid = true;
 
-		// if ($this->settings["PASSWORD_VERIFY"] !== false && !isset($user[$passKey])) {
-		// 	throw new \Exception("Couldn't find password at key $passKey. Set the correct password key to fix this error.");			
-		// }
-
 		if ($this->settings["PASSWORD_VERIFY"] !== false && isset($user[$passKey])) {
 			if (is_callable($this->settings["PASSWORD_VERIFY"])) {
 				$passwordIsValid = call_user_func($this->settings["PASSWORD_VERIFY"], $password, $user[$passKey]);
@@ -207,10 +203,6 @@ class Auth
 	{
 		$passKey = $this->settings["PASSWORD_KEY"];
 
-		// if ($this->settings["PASSWORD_ENCODE"] !== false && !isset($credentials[$passKey])) {
-		// 	throw new \Exception("Couldn't find password at key $passKey. Set the correct password key or set PASSWORD_ENCODE to false to fix this error.");
-		// }
-
 		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
 			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
 				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
@@ -252,13 +244,15 @@ class Auth
 			unset($user["id"]);
 		}
 
-		if (isset($user[$passKey]) || !$user[$passKey]) unset($user[$passKey]);
+		if ($this->settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
+			unset($user[$passKey]);
+		}
 
 		if (!$token) {
 			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
 			return null;
 		}
-		
+
 		$response["user"] = $user;
 		$response["token"] = $token;
 
@@ -279,10 +273,6 @@ class Auth
 	public function update(string $table, array $credentials, array $where, array $uniques = [], array $validate = [])
 	{
 		$passKey = $this->settings["PASSWORD_KEY"];
-
-		// if ($this->settings["PASSWORD_ENCODE"] !== false && !isset($credentials[$passKey])) {
-		// 	throw new \Exception("Couldn't find password at key $passKey. Set the correct password key or set PASSWORD_ENCODE to false to fix this error.");
-		// }
 
 		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
 			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
@@ -343,7 +333,9 @@ class Auth
 			unset($user["id"]);
 		}
 
-		if (isset($user[$passKey]) || !$user[$passKey]) unset($user[$passKey]);
+		if ($this->settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
+			unset($user[$passKey]);
+		}
 
 		if (!$token) {
 			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
@@ -444,7 +436,7 @@ class Auth
 	/**
 	 * Get all authentication errors as associative array
 	 */
-	public function errors() : array
+	public function errors(): array
 	{
 		return $this->errorsArray;
 	}

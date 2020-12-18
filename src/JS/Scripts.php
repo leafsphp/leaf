@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf\JS;
 
 /**
@@ -9,11 +10,13 @@ namespace Leaf\JS;
  * @author Michael Darko <https://mychi.netlify.com>
  * @since 2.0
  */
-class Scripts {
+class Scripts
+{
 	/**
 	 * Console.log() with PHP
 	 */
-	public static function c_log(...$data) {
+	public static function c_log(...$data)
+	{
 		$output = "";
 		foreach ($data as $item) {
 			if (is_array($item)) $item = json_encode($item);
@@ -27,7 +30,8 @@ EOT;
 	/**
 	 * console.log() with css in PHP
 	 */
-	public static function c_style($data, $css) {
+	public static function c_style($data, $css)
+	{
 		// if (is_array($data)) $data = json_encode($data);
 		if (is_array($data)) $data = json_encode($data);
 		echo <<<EOT
@@ -38,7 +42,8 @@ EOT;
 	/**
 	 * Console.trace
 	 */
-	public static function c_trace($data) {
+	public static function c_trace($data)
+	{
 		// get the current function's name
 		if (is_array($data)) $data = json_encode($data);
 		echo <<<EOT
@@ -49,7 +54,8 @@ EOT;
 	/**
 	 * Console.table
 	 */
-	public static function c_table($data) {
+	public static function c_table($data)
+	{
 		$data = json_encode($data);
 		echo <<<EOT
 <script>console.table(JSON.parse(JSON.stringify($data)));</script>
@@ -59,7 +65,8 @@ EOT;
 	/**
 	 * Clear the console
 	 */
-	public static function c_clear() {
+	public static function c_clear()
+	{
 		echo <<<EOT
 <script>console.clear();</script>
 EOT;
@@ -68,7 +75,8 @@ EOT;
 	/**
 	 * Console.debug
 	 */
-	public static function c_debug() {
+	public static function c_debug()
+	{
 		echo <<<EOT
 <script>console.debug();</script>
 EOT;
@@ -77,7 +85,8 @@ EOT;
 	/**
 	 * localStorage.set() with PHP
 	 */
-	public static function localstorage_set($key, $data) {
+	public static function localstorage_set($key, $data)
+	{
 		if (is_array($data)) $data = json_encode($data);
 		echo <<<EOT
 <script>window.localStorage.setItem(`$key`, `$data`);</script>
@@ -87,7 +96,8 @@ EOT;
 	/**
 	 * localStorage.get() with PHP
 	 */
-	public static function localstorage_get($key) {
+	public static function localstorage_get($key)
+	{
 		echo <<<EOT
 <script>window.localStorage.getItem(`$key`);</script>
 EOT;
@@ -96,7 +106,8 @@ EOT;
 	/**
 	 * localStorage.remove() with PHP
 	 */
-	public static function localstorage_remove($key) {
+	public static function localstorage_remove($key)
+	{
 		echo <<<EOT
 <script>window.localStorage.removeItem(`$key`);</script>
 EOT;
@@ -105,7 +116,8 @@ EOT;
 	/**
 	 * localStorage.clear() with PHP
 	 */
-	public static function localstorage_clear() {
+	public static function localstorage_clear()
+	{
 		echo <<<EOT
 <script>window.localStorage.clear();</script>
 EOT;

@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf\Http;
 
 /**
@@ -9,13 +10,15 @@ namespace Leaf\Http;
  * @author Michael Darko
  * @since 1.5.0
  */
-class Session {
+class Session
+{
 	protected $errorsArray = [];
 
-	public function __construct($start = true) {
-		if ($start == true) session_start(); 
+	public function __construct($start = true)
+	{
+		if ($start == true) session_start();
 	}
-	
+
 	/**
 	 * Get a session variable
 	 *
@@ -23,7 +26,8 @@ class Session {
 	 *
 	 * @return string, string: session variable
 	 */
-	public function get($param, bool $sanitize = true) {
+	public function get($param, bool $sanitize = true)
+	{
 		if (is_array($param)) {
 			$fields = [];
 
@@ -62,25 +66,26 @@ class Session {
 
 		return $value;
 	}
-	
+
 	/**
 	 * Get all session variables as an array
 	 *
 	 * @return array|null array of session variables
 	 */
-	public function body() {
+	public function body()
+	{
 		if (!isset($_SESSION)) {
 			$this->errorsArray["session"] = "No active session found!";
 			return false;
 		}
 
 		$body = [];
-		foreach($_SESSION as $key => $value) {
+		foreach ($_SESSION as $key => $value) {
 			$body[$key] = $value;
 		}
 		return $body;
 	}
-	
+
 	/**
 	 * Set a new session variable
 	 *
@@ -89,7 +94,8 @@ class Session {
 	 *
 	 * @return void
 	 */
-	public function set($key, $value = null) {
+	public function set($key, $value = null)
+	{
 		if (is_array($key)) {
 			foreach ($key as $name => $val) {
 				$this->set($name, $val);
@@ -102,7 +108,8 @@ class Session {
 	/**
 	 * Remove a session variable
 	 */
-	protected function unset_session_var($key) {
+	protected function unset_session_var($key)
+	{
 		unset($_SESSION[$key]);
 	}
 
@@ -113,12 +120,13 @@ class Session {
 	 *
 	 * @return void|false
 	 */
-	public function unset($key) {
+	public function unset($key)
+	{
 		if (!isset($_SESSION)) {
 			$this->errorsArray["session"] = "No active session found!";
 			return false;
 		}
-		
+
 		if (is_array($key)) {
 			foreach ($key as $field) {
 				$this->unset_session_var($field);
@@ -127,13 +135,14 @@ class Session {
 			$this->unset_session_var($key);
 		}
 	}
-	
+
 	/**
 	 * End the current session
 	 *
 	 * @return void
 	 */
-	public function destroy() {
+	public function destroy()
+	{
 		if (!isset($_SESSION)) {
 			$this->errorsArray["session"] = "No active session found!";
 			return false;
@@ -148,7 +157,8 @@ class Session {
 	 * 
 	 * @return void
 	 */
-	public function reset($id = null) {
+	public function reset($id = null)
+	{
 		if (!isset($_SESSION)) {
 			$this->errorsArray["session"] = "No active session found!";
 			return false;
@@ -164,7 +174,8 @@ class Session {
 	 *
 	 * @return string: session id
 	 */
-	public function id($id = null) {
+	public function id($id = null)
+	{
 		if (!isset($_SESSION['id'])) $this->set("id", $id ?? session_id());
 		return $this->get("id");
 	}
@@ -176,14 +187,15 @@ class Session {
 	 * 
 	 * @return void
 	 */
-	public function regenerate($clearData = false) {
+	public function regenerate($clearData = false)
+	{
 		$this->set("id", session_regenerate_id($clearData));
 	}
 
 	/**
 	 * Encodes the current session data as a string
 	 */
-	public function encode() : string
+	public function encode(): string
 	{
 		return session_encode();
 	}
@@ -201,7 +213,7 @@ class Session {
 	 * 
 	 * @return array
 	 */
-	public function errors() : array
+	public function errors(): array
 	{
 		return $this->errorsArray;
 	}

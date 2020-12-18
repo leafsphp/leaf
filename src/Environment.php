@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf;
 
 /**
@@ -90,7 +91,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env = [];
             $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
             $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-            
+
             $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
             $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""

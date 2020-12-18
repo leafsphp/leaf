@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf;
 
 /**
@@ -32,7 +33,6 @@ class Log
     const EMERGENCY = 1;
     const ALERT     = 2;
     const CRITICAL  = 3;
-    const FATAL     = 3; //DEPRECATED replace with CRITICAL
     const ERROR     = 4;
     const WARN      = 5;
     const NOTICE    = 6;

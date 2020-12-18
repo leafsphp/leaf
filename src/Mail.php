@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf;
 
 use \Leaf\Mail\SMTP;
@@ -12,10 +13,12 @@ use \Leaf\Mail\SMTP;
  * @version 1.0.0
  * @since 2.0.0
  */
-class Mail extends \PHPMailer\PHPMailer\PHPMailer {
+class Mail extends \PHPMailer\PHPMailer\PHPMailer
+{
 	private $errs;
 
-	public function __construct(String $host = null, int $port = null, array $auth = [], bool $debug = true, bool $server_debug = false) {
+	public function __construct(String $host = null, int $port = null, array $auth = [], bool $debug = true, bool $server_debug = false)
+	{
 		parent::__construct($debug);
 
 		if ($host) {
@@ -28,7 +31,8 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 		$this->form = new Form;
 	}
 
-	public function smtp_debug($debug = "SERVER") {
+	public function smtp_debug($debug = "SERVER")
+	{
 		if ($debug == "SERVER") {
 			$this->SMTPDebug = SMTP::DEBUG_SERVER;
 		} else {
@@ -39,7 +43,8 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 	/**
 	 * Quickly Initialise a new SMTP connection
 	 */
-	public function smtp_connect(String $host, int $port, bool $uses_auth = false, String $username = null, String $password = null, $security = "STARTTLS") {
+	public function smtp_connect(String $host, int $port, bool $uses_auth = false, String $username = null, String $password = null, $security = "STARTTLS")
+	{
 		$this->isSMTP();
 		$this->Host = $host;
 		$this->Port = $port;
@@ -58,7 +63,8 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 	/**
 	 * Send a basic email
 	 */
-	public function basic(String $subject, String $content, String $recepient_email, String $sender_name, String $sender_email = null, String $cc = null, String $bcc = null) {
+	public function basic(String $subject, String $content, String $recepient_email, String $sender_name, String $sender_email = null, String $cc = null, String $bcc = null)
+	{
 		if ($sender_email == null) {
 			$sender_email = $this->Username;
 		}
@@ -103,7 +109,8 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 	 * - cc
 	 * - bcc
 	 */
-	public function write(array $email) {
+	public function write(array $email)
+	{
 		if (!isset($email["sender_email"])) {
 			$email["sender_email"] = $this->Username;
 		}
@@ -137,7 +144,7 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 			$this->isHTML(true);
 			$this->Body = $email["body"];
 		}
-		
+
 		if (isset($email["recepient_email"])) {
 			$this->addAddress($email["recepient_email"]);
 		} else {
@@ -152,7 +159,7 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 		if (isset($email["template"])) {
 			$this->loadTemplate($email["template"]);
 		}
-		
+
 		if (isset($email["sender_name"])) {
 			$this->setFrom($email["sender_email"], $email["sender_name"]);
 		} else {
@@ -166,7 +173,8 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 	/**
 	 * Load an already prepared template(file) as email body
 	 */
-	public function loadTemplate(String $path, bool $isReturned = false) {
+	public function loadTemplate(String $path, bool $isReturned = false)
+	{
 		$this->isHTML(true);
 		$this->Body = file_get_contents($path);
 		if ($isReturned == true) {
@@ -191,7 +199,8 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 	 *
 	 * @return bool
 	 */
-	public function attach($path, $name = "", $encoding = parent::ENCODING_BASE64, $type = '', $disposition = 'attachment') {
+	public function attach($path, $name = "", $encoding = parent::ENCODING_BASE64, $type = '', $disposition = 'attachment')
+	{
 		return $this->addAttachment($path, $name, $encoding, $type, $disposition);
 	}
 
@@ -208,7 +217,8 @@ class Mail extends \PHPMailer\PHPMailer\PHPMailer {
 	/**
 	 * Return any errors
 	 */
-	public function errors() {
+	public function errors()
+	{
 		return $this->ErrorInfo . $this->errs;
 	}
 }

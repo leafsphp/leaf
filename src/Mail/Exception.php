@@ -1,4 +1,5 @@
 <?php
+
 namespace Leaf\Mail;
 
 /**
@@ -10,6 +11,7 @@ namespace Leaf\Mail;
  * @version 1.0.0
  * @since 2.0.0
  */
-class Exception extends \PHPMailer\PHPMailer\Exception {
+class Exception extends \PHPMailer\PHPMailer\Exception
+{
 	# Add whatever you want here
 }
