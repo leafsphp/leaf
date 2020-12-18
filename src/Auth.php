@@ -3,6 +3,7 @@
 namespace Leaf;
 
 use Leaf\Helpers\Authentication;
+use Leaf\Helpers\Password;
 
 /**
  * Leaf Simple Auth
@@ -35,8 +36,12 @@ class Auth
 	protected $settings = [
 		"USE_TIMESTAMPS" => true,
 		"PASSWORD_ENCODE" => null,
+		"PASSWORD_VERIFY" => null,
 		"PASSWORD_KEY" => "password",
-		"HIDE_ID" => true
+		"HIDE_ID" => true,
+		"HIDE_PASSWORD" => true,
+		"LOGIN_PARAMS_ERROR" => "Incorrect credentials!",
+		"LOGIN_PASSWORD_ERROR" => "Password is incorrect!",
 	];
 
 	/**
@@ -134,18 +139,36 @@ class Auth
 	public function login(string $table, array $credentials, array $validate = [])
 	{
 		$passKey = $this->settings["PASSWORD_KEY"];
+		$password = $credentials[$passKey];
 
-		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
-			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
-				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
-			} else {
-				$credentials[$passKey] = md5($credentials[$passKey]);
-			}
+		if (isset($credentials[$passKey])) {
+			unset($credentials[$passKey]);
 		}
 
 		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 		if (!$user) {
-			$this->errorsArray["auth"] = "Incorrect credentials, please check and try again";
+			$this->errorsArray["auth"] = $this->settings["LOGIN_PARAMS_ERROR"];
+			return null;
+		}
+
+		$passwordIsValid = true;
+
+		if ($this->settings["PASSWORD_VERIFY"] !== false && !isset($user[$passKey])) {
+			throw new \Exception("Couldn't find password at key $passKey. Set the correct password key to fix this error.");			
+		}
+
+		if ($this->settings["PASSWORD_VERIFY"] !== false && isset($user[$passKey])) {
+			if (is_callable($this->settings["PASSWORD_VERIFY"])) {
+				$passwordIsValid = call_user_func($this->settings["PASSWORD_VERIFY"], $password, $user[$passKey]);
+			} else if ($this->settings["PASSWORD_VERIFY"] === Password::MD5) {
+				$passwordIsValid = (md5($password) === $user[$passKey]);
+			} else {
+				$passwordIsValid = Password::verify($password, $user[$passKey]);
+			}
+		}
+
+		if (!$passwordIsValid) {
+			$this->errorsArray["password"] = $this->settings["LOGIN_PASSWORD_ERROR"];
 			return null;
 		}
 
@@ -155,7 +178,9 @@ class Auth
 			unset($user["id"]);
 		}
 
-		if (isset($user[$passKey]) || !$user[$passKey]) unset($user[$passKey]);
+		if ($this->settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
+			unset($user[$passKey]);
+		}
 
 		if (!$token) {
 			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
@@ -182,11 +207,17 @@ class Auth
 	{
 		$passKey = $this->settings["PASSWORD_KEY"];
 
+		if ($this->settings["PASSWORD_VERIFY"] !== false && !isset($credentials[$passKey])) {
+			throw new \Exception("Couldn't find password at key $passKey. Set the correct password key to fix this error.");
+		}
+
 		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
 			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
 				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
-			} else {
+			} else if ($this->settings["PASSWORD_ENCODE"] === "md5") {
 				$credentials[$passKey] = md5($credentials[$passKey]);
+			} else {
+				$credentials[$passKey] = Password::hash($credentials[$passKey]);
 			}
 		}
 
