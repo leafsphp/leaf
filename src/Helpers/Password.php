@@ -10,22 +10,20 @@ namespace Leaf\Helpers;
  * @since 2.0.0
  */
 class Password {
-	const BIN2HEX = "BIN2HEX";
-	const BCRYPT = PASSWORD_BCRYPT;
-	const BASE64 = "BASE64";
-	const MD5 = "MD5";
-	const SHA1 = "SHA1";
-	const ARGON2 = PASSWORD_ARGON2I;
+	public const BCRYPT = PASSWORD_BCRYPT;
+	public const ARGON2 = PASSWORD_ARGON2I;
+	public const DEFAULT = PASSWORD_DEFAULT;
+	public const MD5 = "md5";
 
 	/**Spice up an inputed password for better security */
-	protected $salt;
+	protected static $spice = null;
 
 	/**
-	 * Get or set password 'salt'
+	 * Get or set password 'spice'
 	 */
-	public function salt($salt = null) {
-		if (!$salt) return $this->salt;
-		$this->salt = $salt;
+	public static function spice($spice = null) {
+		if (!$spice) return static::$spice;
+		static::$spice = $spice;
 	}
 
 	/**
@@ -33,15 +31,15 @@ class Password {
 	 * 
 	 * See the [password algorithm constants](https://secure.php.net/manual/en/password.constants.php) for documentation on the supported options for each algorithm.
 	 */
-	public static function hash(string $password, int $algorithm = self::BCRYPT, array $options = []) {
-		return password_hash($password, $algorithm, $options);
+	public static function hash(string $password, $algorithm = self::DEFAULT, array $options = []) {
+		return password_hash(static::$spice . $password, $algorithm, $options);
 	}
 
 	/** 
 	 * Checks if the given hash matches the given options.
 	 */
-	public static function verify(string $password, string $hash) {
-		return password_verify($password, $hash);
+	public static function verify(string $password, $hashedPassword) {
+		return password_verify(static::$spice . $password, $hashedPassword);
 	}
 
 	/**
@@ -58,14 +56,14 @@ class Password {
 	 * Available as of PHP 7.2.0.
 	 */
 	public static function argon2(string $password, array $options = []) {
-		return password_hash($password, self::ARGON2, $options);
+		return password_hash(static::$spice . $password, self::ARGON2, $options);
 	}
 
 	/** 
 	 * Checks if the given argon2 hash matches the given options.
 	 */
-	public static function argon2_verify(string $password) {
-		return password_verify($password, self::ARGON2);
+	public static function argon2Verify(string $password, string $hashedPassword) {
+		return password_verify(static::$spice . $password, $hashedPassword);
 	}
 
 	/**
@@ -76,57 +74,14 @@ class Password {
 	 */
 	public static function bcrypt(string $password, array $options = [])
 	{
-		return password_hash($password, self::BCRYPT, $options);
+		return password_hash(static::$spice . $password, self::BCRYPT, $options);
 	}
 
 	/** 
 	 * Checks if the given BCRYPT hash matches the given options.
 	 */
-	public static function bcrypt_verify(string $password)
+	public static function bcryptVerify(string $password, string $hashedPassword)
 	{
-		return password_verify($password, self::BCRYPT);
-	}
-
-	/**
-	 * Encode a password based on Leaf's Crux rule
-	 * 
-	 * @param string $password The password to encrypt
-	 * @param mixed $hash_type_1 The Stronger Hash to use
-	 * @param mixed $hash_type_2 The weaker has to use
-	 * 
-	 * @return string CRUX Encoded password
-	 */
-	public function crux(string $password, $hash_type_1 = self::ARGON2, $hash_type_2 = self::MD5) {
-		$first_hash = "";
-		$second_hash = "";
-
-		if ($hash_type_1 === self::BCRYPT) {
-			$first_hash = $this->hash($password, $hash_type_1);
-		} else if ($hash_type_1 === self::ARGON2) {
-			$first_hash = $this->hash($password, $hash_type_1);
-		} else {
-			$first_hash = $this->hash($password, self::BCRYPT);
-		}
-
-		if ($hash_type_2 === self::BASE64) {
-			$second_hash = base64_encode($first_hash);
-		} else {
-			$second_hash = md5($first_hash);
-		}
-
-		return $second_hash;
-	}
-
-	/**
-	 * Weaker faster encryptions
-	 */
-	public static function encrypt($data, $hash = self::BASE64) {
-		if ($hash == self::BASE64) {
-			// 
-		} else if ($hash = self::MD5) {
-			// 
-		} else {
-			// 
-		}
+		return password_verify(static::$spice . $password, $hashedPassword);
 	}
 }
