@@ -263,13 +263,9 @@ class Db
 	}
 
 	/**
-	 * Add a where clause to db query
-	 * 
-	 * @param string|array $condition
-	 * @param string|null $value
-	 * @param string $value
+	 * Controls inner workings of all where blocks
 	 */
-	public function where($condition, $value = null, $comparator = "=", $operation = "AND"): self
+	protected function baseWhere($condition, $value = null, $comparator = "=", $operation = "AND")
 	{
 		$query = "";
 
@@ -318,19 +314,38 @@ class Db
 	}
 
 	/**
-	 * Add a where clause with OR comparator to db query
+	 * Add a where clause to db query
 	 * 
 	 * @param string|array $condition
 	 * @param string|null $value
 	 */
-	public function orWhere($condition, $value = null, $operation = "="): self
+	public function where($condition, $value = null): self
+	{
+		return $this->baseWhere($condition, $value);
+	}
+
+	/**
+	 * Controls inner workings of orWhere
+	 */
+	protected function baseOrWhere($condition, $value = null, $operation = "=")
 	{
 		if (in_array("where", $this->callStack)) {
 			$this->queryData["query"] .= " OR ";
 		}
 
 		$this->callStack[] = "orWhere";
-		return $this->where($condition, $value, $operation, "OR");
+		return $this->baseWhere($condition, $value, $operation, "OR");
+	}
+
+	/**
+	 * Add a where clause with OR comparator to db query
+	 * 
+	 * @param string|array $condition
+	 * @param string|null $value
+	 */
+	public function orWhere($condition, $value = null): self
+	{
+		return $this->baseOrWhere($condition, $value);
 	}
 
 	/**
@@ -342,7 +357,7 @@ class Db
 	public function whereLike($condition, $value = null): self
 	{
 		$this->callStack[] = "whereLike";
-		return $this->where($condition, $value, "LIKE");
+		return $this->baseWhere($condition, $value, "LIKE");
 	}
 
 	/**
