@@ -587,11 +587,11 @@ class Db
 			}
 			$this->queryResult = $stmt->get_result();
 		}
-
+		
 		if ($this->queryData["type"] !== "select") {
 			$this->clearState();
 		}
-
+		
 		return true;
 	}
 
@@ -778,6 +778,7 @@ class Db
 			"hidden" => [],
 			"add" => []
 		];
+		$this->callStack = [];
 	}
 
 	/**

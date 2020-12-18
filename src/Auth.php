@@ -153,9 +153,9 @@ class Auth
 
 		$passwordIsValid = true;
 
-		if ($this->settings["PASSWORD_VERIFY"] !== false && !isset($user[$passKey])) {
-			throw new \Exception("Couldn't find password at key $passKey. Set the correct password key to fix this error.");			
-		}
+		// if ($this->settings["PASSWORD_VERIFY"] !== false && !isset($user[$passKey])) {
+		// 	throw new \Exception("Couldn't find password at key $passKey. Set the correct password key to fix this error.");			
+		// }
 
 		if ($this->settings["PASSWORD_VERIFY"] !== false && isset($user[$passKey])) {
 			if (is_callable($this->settings["PASSWORD_VERIFY"])) {
@@ -207,9 +207,9 @@ class Auth
 	{
 		$passKey = $this->settings["PASSWORD_KEY"];
 
-		if ($this->settings["PASSWORD_VERIFY"] !== false && !isset($credentials[$passKey])) {
-			throw new \Exception("Couldn't find password at key $passKey. Set the correct password key to fix this error.");
-		}
+		// if ($this->settings["PASSWORD_ENCODE"] !== false && !isset($credentials[$passKey])) {
+		// 	throw new \Exception("Couldn't find password at key $passKey. Set the correct password key or set PASSWORD_ENCODE to false to fix this error.");
+		// }
 
 		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
 			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
@@ -280,11 +280,17 @@ class Auth
 	{
 		$passKey = $this->settings["PASSWORD_KEY"];
 
+		// if ($this->settings["PASSWORD_ENCODE"] !== false && !isset($credentials[$passKey])) {
+		// 	throw new \Exception("Couldn't find password at key $passKey. Set the correct password key or set PASSWORD_ENCODE to false to fix this error.");
+		// }
+
 		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
 			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
 				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
-			} else {
+			} else if ($this->settings["PASSWORD_ENCODE"] === "md5") {
 				$credentials[$passKey] = md5($credentials[$passKey]);
+			} else {
+				$credentials[$passKey] = Password::hash($credentials[$passKey]);
 			}
 		}
 
@@ -303,7 +309,7 @@ class Auth
 				$wKeys = array_keys($where);
 				$wValues = array_values($where);
 
-				if (isset($data[$wKeys[0]]) && $data[$wKeys[0]] !== $wValues[0]) {
+				if (isset($data[$wKeys[0]]) && $data[$wKeys[0]] != $wValues[0]) {
 					$this->errorsArray[$unique] = "$unique already exists";
 				}
 			}
@@ -322,6 +328,8 @@ class Auth
 			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
 			return null;
 		}
+
+		unset($credentials["updated_at"]);
 
 		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 		if (!$user) {
