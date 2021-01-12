@@ -307,6 +307,7 @@ class Db
 		if ($this->queryData["type"] === "select" || $this->queryData["type"] === "delete") {
 			$this->queryData["values"] = $params;
 		}
+
 		$this->queryData["query"] .= $query;
 		$this->callStack[] = "where";
 

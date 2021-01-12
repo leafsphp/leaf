@@ -8,13 +8,13 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      * Key-value array of arbitrary data
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Constructor
      * @param array $items Pre-populate set with this key-value array
      */
-    public function __construct($items = array())
+    public function __construct($items = [])
     {
         $this->replace($items);
     }
@@ -154,7 +154,7 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function clear()
     {
-        $this->data = array();
+        $this->data = [];
     }
 
     /**

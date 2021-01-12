@@ -374,7 +374,7 @@ class Request
     {
         $url = $this->getScheme() . '://' . $this->getHost();
         if (($this->getScheme() === 'https' && $this->getPort() !== 443) || ($this->getScheme() === 'http' && $this->getPort() !== 80)) {
-            $url .= sprintf(':%s', $this->getPort());
+            $url .= ":{$this->getPort()}";
         }
 
         return $url;

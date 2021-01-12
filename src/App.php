@@ -12,6 +12,8 @@
 
 namespace Leaf;
 
+use Exception;
+
 /**
  * Leaf Core package
  * @package Leaf
@@ -35,31 +37,9 @@ class App
     protected $name;
 
     /**
-     * @var array
+     * @var \Leaf\Router
      */
-    protected $middleware;
-
-    /**
-     * @var mixed Callable to be invoked if application error
-     */
-    protected $error;
-
-    /**
-     * @var mixed Callable to be invoked if no matching routes are found
-     */
-    protected $notFound;
-
-    /**
-     * @var array
-     */
-    protected $hooks = [
-        'leaf.before' => [[]],
-        'leaf.before.router' => [[]],
-        'leaf.before.dispatch' => [[]],
-        'leaf.after.dispatch' => [[]],
-        'leaf.after.router' => [[]],
-        'leaf.after' => [[]]
-    ];
+    protected $leafRouter;
 
     /********************************************************************************
      * Instantiation and Configuration
@@ -69,7 +49,7 @@ class App
      * Constructor
      * @param  array $userSettings Associative array of application settings
      */
-    public function __construct(array $userSettings = array())
+    public function __construct(array $userSettings = [])
     {
         // Setup IoC container
         $this->container = new \Leaf\Helpers\Set();
@@ -149,15 +129,16 @@ class App
             return $mode;
         };
 
-        // Define default middleware stack
-        $this->middleware = array($this);
-        $this->add(new \Leaf\Middleware\Flash());
-        $this->add(new \Leaf\Middleware\MethodOverride());
-
         // Make default if first instance
         if (is_null(static::getInstance())) {
             $this->setName('default');
         }
+
+        $this->leafRouter = new Router(
+            $this->config('mode'),
+            $this->config('debug') ?? true,
+            $this
+        );
     }
 
     /**
@@ -225,16 +206,12 @@ class App
     public static function getDefaultSettings()
     {
         return [
-            // Application
             'mode' => 'development',
-            // Debugging
             'debug' => true,
-            // Logging
             'log.writer' => null,
             'log.level' => \Leaf\Log::DEBUG,
             'log.enabled' => true,
-            // HTTP
-            'http.version' => '1.1'
+            'http.version' => '1.1',
         ];
     }
 
@@ -331,101 +308,6 @@ class App
      *******************************************************************************/
 
     /**
-     * Add GET|POST|PUT|PATCH|DELETE route
-     *
-     * Adds a new route to the router with associated callable. This
-     * route will only be invoked when the HTTP request's method matches
-     * this route's method.
-     *
-     * ARGUMENTS:
-     *
-     * First:       string  The URL pattern (REQUIRED)
-     * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
-     * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
-     *
-     * The first argument is required and must always be the
-     * route pattern (ie. '/books/:id').
-     *
-     * The last argument is required and must always be the callable object
-     * to be invoked when the route matches an HTTP request.
-     *
-     * You may also provide an unlimited number of in-between arguments;
-     * each interior argument must be callable and will be invoked in the
-     * order specified before the route's callable is invoked.
-     *
-     * USAGE:
-     *
-     * Leaf::get('/foo'[, middleware, middleware, ...], callable);
-     *
-     * @param   array (See notes above)
-     * @return  \Leaf\Route
-     */
-    /**
-     * @var array The route patterns and their handling functions
-     */
-    private $afterRoutes = [];
-    /**
-     * @var array The route patterns and their handling functions
-     */
-    private $appRoutes = [];
-    /**
-     * @var array The before middleware route patterns and their handling functions
-     */
-    private $beforeRoutes = [];
-    /**
-     * @var callable The function to be executed when no route has been matched
-     */
-    protected $notFoundCallback;
-    /**
-     * @var callable The function to be executed when app is under maintainance
-     */
-    protected $downCallback;
-    /**
-     * @var string Current base route, used for (sub)route mounting
-     */
-    private $baseRoute = '';
-    /**
-     * @var string The Request Method that needs to be handled
-     */
-    private $requestedMethod = '';
-    /**
-     * @var string The Server Base Path for Router Execution
-     */
-    private $serverBasePath;
-    /**
-     * @var string Default Controllers Namespace
-     */
-    private $namespace = '';
-    private $route_is_matched = false;
-
-    /**
-     * Get all routes registered in app
-     */
-    public function routes()
-    {
-        return $this->appRoutes;
-    }
-
-    /**
-     * Store a before middleware route and a handling function to be executed when accessed using one of the specified methods.
-     *
-     * @param string          $methods Allowed methods, | delimited
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
-     */
-    public function before($methods, $pattern, $fn)
-    {
-        $pattern = $this->baseRoute . '/' . trim($pattern, '/');
-        $pattern = $this->baseRoute ? rtrim($pattern, '/') : $pattern;
-        foreach (explode('|', $methods) as $method) {
-            $this->beforeRoutes[$method][] = [
-                'pattern' => $pattern,
-                'fn' => $fn,
-            ];
-        }
-    }
-
-    /**
      * Store a route and a handling function to be executed when accessed using one of the specified methods.
      *
      * @param string          $methods Allowed methods, | delimited
@@ -434,19 +316,84 @@ class App
      */
     public function match($methods, $pattern, $fn)
     {
-        $pattern = $this->baseRoute . '/' . trim($pattern, '/');
-        $pattern = $this->baseRoute ? rtrim($pattern, '/') : $pattern;
-        foreach (explode('|', $methods) as $method) {
-            $this->afterRoutes[$method][] = [
-                'pattern' => $pattern,
-                'fn' => $fn,
-            ];
-        }
-        $this->appRoutes[] = [
-            'methods' => explode('|', $methods),
-            'pattern' => $pattern,
-            'fn' => $fn,
-        ];
+        return $this->leafRouter->match($methods, $pattern, $fn);
+    }
+
+    /**
+     * Shorthand for a route accessed using any method.
+     *
+     * @param string          $pattern A route pattern such as /about/system
+     * @param object|callable $fn      The handling function to be executed
+     */
+    public function all($pattern, $fn)
+    {
+        return $this->leafRouter->all($pattern, $fn);
+    }
+
+    /**
+     * Shorthand for a route accessed using GET.
+     *
+     * @param string          $pattern A route pattern such as /about/system
+     * @param object|callable $fn      The handling function to be executed
+     */
+    public function get($pattern, $fn)
+    {
+        return $this->leafRouter->get($pattern, $fn);
+    }
+
+    /**
+     * Shorthand for a route accessed using POST.
+     *
+     * @param string          $pattern A route pattern such as /about/system
+     * @param object|callable $fn      The handling function to be executed
+     */
+    public function post($pattern, $fn)
+    {
+        return $this->leafRouter->post($pattern, $fn);
+    }
+
+    /**
+     * Shorthand for a route accessed using PATCH.
+     *
+     * @param string          $pattern A route pattern such as /about/system
+     * @param object|callable $fn      The handling function to be executed
+     */
+    public function patch($pattern, $fn)
+    {
+        return $this->leafRouter->patch($pattern, $fn);
+    }
+
+    /**
+     * Shorthand for a route accessed using DELETE.
+     *
+     * @param string          $pattern A route pattern such as /about/system
+     * @param object|callable $fn      The handling function to be executed
+     */
+    public function delete($pattern, $fn)
+    {
+        return $this->leafRouter->delete($pattern, $fn);
+    }
+
+    /**
+     * Shorthand for a route accessed using PUT.
+     *
+     * @param string          $pattern A route pattern such as /about/system
+     * @param object|callable $fn      The handling function to be executed
+     */
+    public function put($pattern, $fn)
+    {
+        return $this->leafRouter->put($pattern, $fn);
+    }
+
+    /**
+     * Shorthand for a route accessed using OPTIONS.
+     *
+     * @param string          $pattern A route pattern such as /about/system
+     * @param object|callable $fn      The handling function to be executed
+     */
+    public function options($pattern, $fn)
+    {
+        return $this->leafRouter->options($pattern, $fn);
     }
 
     /**
@@ -460,88 +407,18 @@ class App
      */
     public function redirect($from, $to, $status = 302)
     {
-        $handler = function () use ($to, $status) {
-            return header('location: ' . $to, true, $status);
-        };
-
-        return $this->get($from, $handler);
+        return $this->leafRouter->redirect($from, $to, $status);
     }
 
     /**
-     * Shorthand for a route accessed using any method.
+     * Display a template for a route
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param string $fn      The handling function to be executed
      */
-    public function all($pattern, $fn)
+    public function view($pattern, $template, $data = [])
     {
-        $this->match('GET|POST|PUT|DELETE|OPTIONS|PATCH|HEAD', $pattern, $fn);
-    }
-
-    /**
-     * Shorthand for a route accessed using GET.
-     *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
-     */
-    public function get($pattern, $fn)
-    {
-        $this->match('GET', $pattern, $fn);
-    }
-
-    /**
-     * Shorthand for a route accessed using POST.
-     *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
-     */
-    public function post($pattern, $fn)
-    {
-        $this->match('POST', $pattern, $fn);
-    }
-
-    /**
-     * Shorthand for a route accessed using PATCH.
-     *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
-     */
-    public function patch($pattern, $fn)
-    {
-        $this->match('PATCH', $pattern, $fn);
-    }
-
-    /**
-     * Shorthand for a route accessed using DELETE.
-     *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
-     */
-    public function delete($pattern, $fn)
-    {
-        $this->match('DELETE', $pattern, $fn);
-    }
-
-    /**
-     * Shorthand for a route accessed using PUT.
-     *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
-     */
-    public function put($pattern, $fn)
-    {
-        $this->match('PUT', $pattern, $fn);
-    }
-
-    /**
-     * Shorthand for a route accessed using OPTIONS.
-     *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
-     */
-    public function options($pattern, $fn)
-    {
-        $this->match('OPTIONS', $pattern, $fn);
+        return $this->leafRouter->view($pattern, $template, $data);
     }
 
     /**
@@ -562,56 +439,29 @@ class App
      */
     public function resource(string $pattern, string $controller)
     {
-        $this->match("GET|HEAD", $pattern, "$controller@index");
-        $this->post("$pattern", "$controller@store");
-        $this->match("GET|HEAD", "$pattern/create", "$controller@create");
-        $this->match("POST|DELETE", "$pattern/{id}/delete", "$controller@destroy");
-        $this->match("POST|PUT|PATCH", "$pattern/{id}/edit", "$controller@update");
-        $this->match("GET|HEAD", "$pattern/{id}/edit", "$controller@edit");
-        $this->match("GET|HEAD", "$pattern/{id}", "$controller@show");
+        return $this->leafRouter->resource($pattern, $controller);
     }
 
     /**
      * Mounts a collection of callbacks onto a base route.
      *
-     * @param string   $baseRoute The route sub pattern to mount the callbacks on
-     * @param callable $fn        The callback method
+     * @param string $baseRoute The route sub pattern to mount the callbacks on
+     * @param callable $fn The callback method
      */
     public function mount($baseRoute, $fn)
     {
-        // Track current base route
-        $curBaseRoute = $this->baseRoute;
-        // Build new base route string
-        $this->baseRoute .= $baseRoute;
-        // Call the callable
-        call_user_func($fn);
-        // Restore original base route
-        $this->baseRoute = $curBaseRoute;
+        $this->leafRouter->mount($baseRoute, $fn);
     }
 
     /**
-     * Get the request method used, taking overrides into account.
-     *
-     * @return string The Request method to handle
+     * Alias for mount()
+     * 
+     * @param string $baseRoute The route sub pattern to mount the callbacks on
+     * @param callable $fn The callback method
      */
-    public function getRequestMethod()
+    public function group($baseRoute, $fn)
     {
-        // Take the method as found in $_SERVER
-        $method = $_SERVER['REQUEST_METHOD'];
-        // If it's a HEAD request override it to being GET and prevent any output, as per HTTP Specification
-        // @url http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.4
-        if ($_SERVER['REQUEST_METHOD'] == 'HEAD') {
-            ob_start();
-            $method = 'GET';
-        }
-        // If it's a POST request, check for a method override header
-        elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $headers = $this->headers->all();
-            if (isset($headers['X-HTTP-Method-Override']) && in_array($headers['X-HTTP-Method-Override'], ['PUT', 'DELETE', 'PATCH'])) {
-                $method = $headers['X-HTTP-Method-Override'];
-            }
-        }
-        return $method;
+        $this->leafRouter->group($baseRoute, $fn);
     }
 
     /**
@@ -621,9 +471,7 @@ class App
      */
     public function setNamespace($namespace)
     {
-        if (is_string($namespace)) {
-            $this->namespace = $namespace;
-        }
+        $this->leafRouter->setNamespace($namespace);
     }
 
     /**
@@ -633,144 +481,15 @@ class App
      */
     public function getNamespace()
     {
-        return $this->namespace;
+        return $this->leafRouter->getNamespace();
     }
 
     /**
-     * Set the 404 handling function.
-     *
-     * @param object|callable $fn The function to be executed
+     * Get all routes registered in app
      */
-    public function set404($fn = null)
+    public function routes()
     {
-        if (is_callable($fn)) {
-            $this->notFoundCallback = $fn;
-        } else {
-            $this->notFoundCallback = function () {
-                $this->default404();
-            };
-        }
-    }
-
-    /**
-     * Set a custom maintainace mode callback.
-     *
-     * @param callable $fn The function to be executed
-     */
-    public function setDown(callable $fn)
-    {
-        if (is_callable($fn)) {
-            $this->downCallback = $fn;
-        }
-    }
-
-    /**
-     * Handle a a set of routes: if a match is found, execute the relating handling function.
-     *
-     * @param array $routes       Collection of route patterns and their handling functions
-     * @param bool  $quitAfterRun Does the handle function need to quit after one route was matched?
-     *
-     * @return int The number of routes handled
-     */
-    private function handle($routes, $quitAfterRun = false)
-    {
-        // Counter to keep track of the number of routes we've handled
-        $numHandled = 0;
-        // The current page URL
-        $uri = $this->getCurrentUri();
-        // Loop all routes
-        foreach ($routes as $route) {
-            // Replace all curly braces matches {} into word patterns (like Laravel)
-            $route['pattern'] = preg_replace('/\/{(.*?)}/', '/(.*?)', $route['pattern']);
-            // we have a match!
-            if (preg_match_all('#^' . $route['pattern'] . '$#', $uri, $matches, PREG_OFFSET_CAPTURE)) {
-                // Rework matches to only contain the matches, not the orig string
-                $matches = array_slice($matches, 1);
-                // Extract the matched URL parameters (and only the parameters)
-                $params = array_map(function ($match, $index) use ($matches) {
-                    // We have a following parameter: take the substring from the current param position until the next one's position (thank you PREG_OFFSET_CAPTURE)
-                    if (isset($matches[$index + 1]) && isset($matches[$index + 1][0]) && is_array($matches[$index + 1][0])) {
-                        return trim(substr($match[0][0], 0, $matches[$index + 1][0][1] - $match[0][1]), '/');
-                    } // We have no following parameters: return the whole lot
-                    return isset($match[0][0]) ? trim($match[0][0], '/') : null;
-                }, $matches, array_keys($matches));
-                // Call the handling function with the URL parameters if the desired input is callable
-                $this->invoke($route['fn'], $params);
-                ++$numHandled;
-                // If we need to quit, then quit
-                if ($quitAfterRun) {
-                    break;
-                }
-            }
-        }
-        // Return the number of routes handled
-        return $numHandled;
-    }
-
-    private function invoke($fn, $params = [])
-    {
-        if (is_callable($fn)) {
-            call_user_func_array($fn, $params);
-        }
-        // If not, check the existence of special parameters
-        elseif (stripos($fn, '@') !== false) {
-            // Explode segments of given route
-            list($controller, $method) = explode('@', $fn);
-            // Adjust controller class if namespace has been set
-            if ($this->getNamespace() !== '') {
-                $controller = $this->getNamespace() . '\\' . $controller;
-            }
-            // Check if class exists, if not just ignore and check if the class exists on the default namespace
-            if (class_exists($controller)) {
-                // First check if is a static method, directly trying to invoke it.
-                // If isn't a valid static method, we will try as a normal method invocation.
-                if (call_user_func_array([new $controller(), $method], $params) === false) {
-                    // Try to call the method as an non-static method. (the if does nothing, only avoids the notice)
-                    if (forward_static_call_array([$controller, $method], $params) === false);
-                }
-            }
-        }
-    }
-
-    /**
-     * Define the current relative URI.
-     *
-     * @return string
-     */
-    public function getCurrentUri()
-    {
-        // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
-        $uri = substr(rawurldecode($_SERVER['REQUEST_URI']), strlen($this->getBasePath()));
-        // Don't take query params into account on the URL
-        if (strstr($uri, '?')) {
-            $uri = substr($uri, 0, strpos($uri, '?'));
-        }
-        // Remove trailing slash + enforce a slash at the start
-        return '/' . trim($uri, '/');
-    }
-
-    /**
-     * Return server base Path, and define it if isn't defined.
-     *
-     * @return string
-     */
-    public function getBasePath()
-    {
-        // Check if server base path is defined, if not define it.
-        if ($this->serverBasePath === null) {
-            $this->serverBasePath = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1)) . '/';
-        }
-        return $this->serverBasePath;
-    }
-    /**
-     * Explicilty sets the server base path. To be used when your entry script path differs from your entry URLs.
-     * @see https://github.com/bramus/router/issues/82#issuecomment-466956078
-     *
-     * @param string
-     */
-    public function setBasePath($serverBasePath)
-    {
-        $this->serverBasePath = $serverBasePath;
+        return $this->leafRouter->routes();
     }
 
     /**
@@ -829,6 +548,26 @@ class App
         }
 
         return ob_get_clean();
+    }
+
+    /**
+     * Set the 404 handling function.
+     *
+     * @param object|callable $fn The function to be executed
+     */
+    public function set404($fn = null)
+    {
+        return $this->leafRouter->set404($fn);
+    }
+
+    /**
+     * Set a custom maintainace mode callback.
+     *
+     * @param callable $fn The function to be executed
+     */
+    public function setDown($fn = null)
+    {
+        return $this->leafRouter->setDown($fn);
     }
 
     /********************************************************************************
@@ -1124,7 +863,7 @@ class App
     public function hook($name, $callable, $priority = 10)
     {
         if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = array(array());
+            $this->hooks[$name] = [[]];
         }
         if (is_callable($callable)) {
             $this->hooks[$name][(int) $priority][] = $callable;
@@ -1139,7 +878,7 @@ class App
     public function applyHook($name)
     {
         if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = array(array());
+            $this->hooks[$name] = [[]];
         }
         if (!empty($this->hooks[$name])) {
             // Sort by priority, low to high, if there's more than one priority
@@ -1192,10 +931,10 @@ class App
     public function clearHooks($name = null)
     {
         if (!is_null($name) && isset($this->hooks[(string) $name])) {
-            $this->hooks[(string) $name] = array(array());
+            $this->hooks[(string) $name] = [[]];
         } else {
             foreach ($this->hooks as $key => $value) {
-                $this->hooks[$key] = array(array());
+                $this->hooks[$key] = [[]];
             }
         }
     }
@@ -1212,15 +951,9 @@ class App
      *
      * @param \Leaf\Middleware
      */
-    public function add(\Leaf\Middleware $newMiddleware)
+    public function add(\Leaf\Middleware $middleware)
     {
-        if (in_array($newMiddleware, $this->middleware)) {
-            $middleware_class = get_class($newMiddleware);
-            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
-        }
-        $newMiddleware->setApplication($this);
-        $newMiddleware->setNextMiddleware($this->middleware[0]);
-        array_unshift($this->middleware, $newMiddleware);
+        $this->leafRouter->add($middleware);
     }
 
     /**
@@ -1232,7 +965,7 @@ class App
     {
         $this->response()->cors($allow_origin, $allow_headers);
         if ($evadeOptions) {
-            if ($this->getRequestMethod() === "OPTIONS") {
+            if (Router::getRequestMethod() === "OPTIONS") {
                 $this->response()->throwErr("ok", 200);
             }
         }
@@ -1241,14 +974,6 @@ class App
     /********************************************************************************
      * Runner
      *******************************************************************************/
-
-    /**
-     * Run
-     *
-     * This method invokes the middleware stack, including the core Leaf application;
-     * the result is an array of HTTP status, header, and body. These three items
-     * are returned to the HTTP client.
-     */
     /**
      * Execute the router: Loop all defined before middleware's and routes, and execute the handling function if a match was found.
      *
@@ -1258,77 +983,7 @@ class App
      */
     public function run($callback = null)
     {
-        set_error_handler(array('\Leaf\App', 'handleErrors'));
-
-        if ((strtolower($this->config("mode"))) === "down" || (function_exists('env') && env("APP_DOWN") === true)) {
-            if (is_callable($this->downCallback)) {
-                return $this->invoke($this->downCallback);
-            }
-
-            return $this->invoke(function () {
-                return $this->defaultDown();
-            });
-        }
-
-        //Apply final outer middleware layers
-        if ($this->config('debug')) {
-            //Apply pretty exceptions only in debug to avoid accidental information leakage in production
-            $this->add(new \Leaf\Middleware\PrettyExceptions());
-        }
-
-        //Invoke middleware and application stack
-        $this->middleware[0]->call();
-
-        //Send headers
-        if (headers_sent() === false) {
-            //Send status
-            if (strpos(PHP_SAPI, 'cgi') === 0) {
-                // header(sprintf('Status: %s', \Leaf\Http\Response::getMessageForCode($status)));
-            } else {
-                // header(sprintf('HTTP/%s %s', $this->config('http.version'), \Leaf\Http\Response::getMessageForCode($status)));
-            }
-        }
-
-
-        $this->applyHook('leaf.before.router');
-        // Define which method we need to handle
-        $this->requestedMethod = $this->getRequestMethod();
-        // Handle all before middlewares
-        if (isset($this->beforeRoutes[$this->requestedMethod])) {
-            $this->handle($this->beforeRoutes[$this->requestedMethod]);
-        }
-        $this->applyHook('leaf.before.dispatch');
-        // Handle all routes
-        $numHandled = 0;
-        if (isset($this->afterRoutes[$this->requestedMethod])) {
-            $numHandled = $this->handle($this->afterRoutes[$this->requestedMethod], true);
-        }
-        $this->applyHook('leaf.after.dispatch');
-        // If no route was handled, trigger the 404 (if any)
-        if ($numHandled === 0) {
-            if ($this->notFoundCallback) {
-                $this->invoke($this->notFoundCallback);
-            } else {
-                header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
-            }
-        } else {
-            if ($callback && is_callable($callback)) {
-                $callback();
-            }
-        }
-        // If it originally was a HEAD request, clean up after ourselves by emptying the output buffer
-        if ($_SERVER['REQUEST_METHOD'] == 'HEAD') {
-            ob_end_clean();
-        }
-
-        $this->applyHook('leaf.after.router');
-
-        $this->applyHook('leaf.after');
-
-        restore_error_handler();
-
-        // Return true if a route was handled, false otherwise
-        return $numHandled !== 0;
+        return $this->leafRouter->run($callback);
     }
 
     /**
@@ -1343,7 +998,7 @@ class App
                 // pass flash data into a view
                 // ('flash', $this->environment['leaf.flash']);
             }
-            $this->applyHook('leaf.before');
+            // $this->applyHook('leaf.before');
             ob_start();
 
             $this->stop();
@@ -1362,76 +1017,5 @@ class App
                 }
             }
         }
-    }
-
-    /********************************************************************************
-     * Error Handling and Debugging
-     *******************************************************************************/
-
-    /**
-     * Convert errors into ErrorException objects
-     *
-     * This method catches PHP errors and converts them into \ErrorException objects;
-     * these \ErrorException objects are then thrown and caught by Leaf's
-     * built-in or custom error handlers.
-     *
-     * @param  int            $errno   The numeric type of the Error
-     * @param  string         $errstr  The error message
-     * @param  string         $errfile The absolute path to the affected file
-     * @param  int            $errline The line number of the error in the affected file
-     * @return bool
-     * @throws \ErrorException
-     */
-    public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '')
-    {
-        if (!($errno & error_reporting())) {
-            return;
-        }
-
-        throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
-    }
-
-    /**
-     * Generate diagnostic template markup
-     *
-     * This method accepts a title and body content to generate an HTML document layout.
-     *
-     * @param  string   $title  The title of the HTML template
-     * @param  string   $body   The body content of the HTML template
-     * @return string
-     */
-    protected static function generateTemplateMarkup($title, $body)
-    {
-        return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body><h1 style=\"color: #038f03;\">%s</h1>%s</body></html>", $title, $title, $body);
-    }
-
-    /**
-     * Default Not Found handler
-     */
-    protected function defaultDown()
-    {
-        echo static::generateTemplateMarkup("Oops! We're down for maintainance.", '<p style="font-size: 22px;">We\'re working quickly to get back up and running, please check back soon.</p>');
-    }
-
-    /**
-     * Default Not Found handler
-     */
-    protected function defaultNotFound()
-    {
-        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a style="color: #038f03;" href="' . $this->request->getRootUri() . '/">Go back home</a>');
-    }
-
-    public function default404()
-    {
-        $this->defaultNotFound();
-    }
-
-    /**
-     * Default Error handler
-     */
-    protected function defaultError($e)
-    {
-        $this->getLog()->error($e);
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }

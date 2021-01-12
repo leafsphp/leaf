@@ -30,8 +30,8 @@ abstract class Factory
 
 	public function __construct()
 	{
-		if (class_exists(\Faker\Factory::class)) {
-			$this->faker = \Faker\Factory::create();
+		if (class_exists(Faker\Factory::class)) {
+			$this->faker = Faker\Factory::create();
 		}
 	}
 

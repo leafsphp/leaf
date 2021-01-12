@@ -31,6 +31,16 @@ class Auth
 	protected $lifeTime = null;
 
 	/**
+	 * @var \Leaf\Http\Session
+	 */
+	protected $session;
+
+	/**
+	 * All defined session middleware
+	 */
+	protected $middleware = [];
+
+	/**
 	 * Auth Settings
 	 */
 	protected $settings = [
@@ -42,6 +52,12 @@ class Auth
 		"HIDE_PASSWORD" => true,
 		"LOGIN_PARAMS_ERROR" => "Incorrect credentials!",
 		"LOGIN_PASSWORD_ERROR" => "Password is incorrect!",
+		"USE_SESSION" => false,
+		"SESSION_ON_REGISTER" => false,
+		"GUARD_LOGIN" => "/auth/login",
+		"GUARD_REGISTER" => "/auth/register",
+		"GUARD_HOME" => "/home",
+		"SAVE_SESSION_JWT" => false,
 	];
 
 	/**
@@ -49,10 +65,14 @@ class Auth
 	 */
 	public $db;
 
-	public function __construct()
+	public function __construct($useSession = false)
 	{
 		$this->form = new Form;
 		$this->db = new Db;
+
+		if ($useSession) {
+			$this->useSession();
+		}
 	}
 
 	/**
@@ -116,15 +136,153 @@ class Auth
 	/**
 	 * Set auth config
 	 */
-	public function config($config, $value = "")
+	public function config($config, $value = null)
 	{
 		if (is_array($config)) {
 			foreach ($config as $key => $configValue) {
 				$this->config($key, $configValue);
 			}
 		} else {
+			if (!$value) return $this->settings[$config] ?? null;
 			$this->settings[$config] = $value;
 		}
+	}
+
+	/**
+	 * Exception for experimental features
+	 */
+	protected function experimental($method)
+	{
+		if (!$this->config("USE_SESSION")) {
+			trigger_error("Auth::$method is experimental. Turn on USE_SESSION to use this feature.");
+		}
+	}
+
+	/**
+	 * Manually start an auth session
+	 */
+	public function useSession()
+	{
+		$this->session = new \Leaf\Http\Session(false);
+		$this->config("USE_SESSION", true);
+
+		session_start();
+
+		if (!$this->session->get("SESSION_STARTED_AT")) {
+			$this->session->set("SESSION_STARTED_AT", time());
+		}
+
+		$this->session->set("SESSION_LAST_ACTIVITY", time());
+	}
+
+	/**
+	 * Session Length
+	 */
+	public function sessionLength()
+	{
+		$this->experimental("sessionLength");
+
+		return time() - $this->session->get("SESSION_STARTED_AT");
+	}
+
+	/**
+	 * Session last active
+	 */
+	public function sessionActive()
+	{
+		$this->experimental("sessionActive");
+
+		return time() - $this->session->get("SESSION_LAST_ACTIVITY");
+	}
+
+	/**
+	 * Refresh session
+	 */
+	public function refresh($clearData = true)
+	{
+		$this->experimental("refresh");
+
+		$success = $this->session->regenerate($clearData);
+
+		$this->session->set("SESSION_STARTED_AT", time());
+		$this->session->set("SESSION_LAST_ACTIVITY", time());
+		$this->session->set("AUTH_SESISON", true);
+
+		return $success;
+	}
+
+	/**
+	 * Define/Return session middleware
+	 * 
+	 * **This method only works with session auth**
+	 */
+	public function middleware(string $name, callable $handler = null)
+	{
+		$this->experimental("middleware");
+
+		if (!$handler) return $this->middleware[$name];
+
+		$this->middleware[$name] = $handler;
+	}
+
+	/**
+	 * Check session status
+	 */
+	public function session()
+	{
+		$this->experimental("session");
+
+		return $this->session->get("AUTH_USER") ?? false;
+	}
+
+	/**
+	 * End a session
+	 */
+	public function endSession($location = null)
+	{
+		$this->experimental("endSession");
+
+		$this->session->destroy();
+	
+		if ($location) {
+			$route = $this->config($location) ?? $location;
+			(new Http\Response)->redirect($route);
+		}
+	}
+
+	/**
+	 * A simple auth guard: 'guest' pages can't be viewed when logged in,
+	 * 'auth' pages can't be viewed without authentication
+	 * 
+	 * @param array|string $type The type of guard/guard options
+	 */
+	public function guard($type)
+	{
+		$this->experimental("guard");
+
+		if (is_array($type)) {
+			if (isset($type["hasAuth"])) {
+				$type = $type["hasAuth"] ? 'auth' : 'guest';
+			}
+		}
+
+		if ($type === 'guest' && $this->session()) {
+			exit(header("location: " . $this->config("GUARD_HOME"), true, 302));
+		}
+
+		if ($type === 'auth' && !$this->session()) {
+			exit(header("location: " . $this->config("GUARD_LOGIN"), true, 302));
+		}
+	}
+
+	/**
+	 * Save some data to auth session
+	 */
+	protected function saveToSession($key, $data)
+	{
+		$this->experimental("saveToSession");
+
+		$this->session->set($key, $data);
 	}
 
 	/**
@@ -170,6 +328,10 @@ class Auth
 
 		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
 
+		if (isset($user["id"])) {
+			$userId = $user["id"];
+		}
+
 		if ($this->settings["HIDE_ID"]) {
 			unset($user["id"]);
 		}
@@ -181,6 +343,21 @@ class Auth
 		if (!$token) {
 			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
 			return null;
+		}
+
+		if ($this->config("USE_SESSION")) {
+			if (isset($userId)) {
+				$user["id"] = $userId;
+			}
+
+			$this->saveToSession("AUTH_USER", $user);
+			$this->saveToSession("HAS_SESSION", true);
+
+			if ($this->config("SAVE_SESSION_JWT")) {
+				$this->saveToSession("AUTH_TOKEN", $token);
+			}
+
+			exit(header("location: " . $this->config("GUARD_HOME")));
 		}
 
 		$response["user"] = $user;
@@ -240,6 +417,10 @@ class Auth
 
 		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
 
+		if (isset($user["id"])) {
+			$userId = $user["id"];
+		}
+
 		if ($this->settings["HIDE_ID"]) {
 			unset($user["id"]);
 		}
@@ -251,6 +432,25 @@ class Auth
 		if (!$token) {
 			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
 			return null;
+		}
+
+		if ($this->config("USE_SESSION")) {
+			if ($this->config("SESSION_ON_REGISTER")) {
+				if (isset($userId)) {
+					$user["id"] = $userId;
+				}
+
+				$this->saveToSession("AUTH_USER", $user);
+				$this->saveToSession("HAS_SESSION", true);
+
+				if ($this->config("SAVE_SESSION_JWT")) {
+					$this->saveToSession("AUTH_TOKEN", $token);
+				}
+
+				exit(header("location: " . $this->config("GUARD_HOME")));
+			} else {
+				exit(header("location: " . $this->config("GUARD_LOGIN")));
+			}
 		}
 
 		$response["user"] = $user;
@@ -319,7 +519,9 @@ class Auth
 			return null;
 		}
 
-		unset($credentials["updated_at"]);
+		if (isset($credentials["updated_at"])) {
+			unset($credentials["updated_at"]);
+		}
 
 		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 		if (!$user) {
@@ -329,7 +531,11 @@ class Auth
 
 		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
 
-		if ($this->settings["HIDE_ID"]) {
+		if (isset($user["id"])) {
+			$userId = $user["id"];
+		}
+
+		if ($this->settings["HIDE_ID"] && isset($user["id"])) {
 			unset($user["id"]);
 		}
 
@@ -340,6 +546,21 @@ class Auth
 		if (!$token) {
 			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
 			return null;
+		}
+
+		if ($this->config("USE_SESSION")) {
+			if (isset($userId)) {
+				$user["id"] = $userId;
+			}
+
+			$this->saveToSession("AUTH_USER", $user);
+			$this->saveToSession("HAS_SESSION", true);
+
+			if ($this->config("SAVE_SESSION_JWT")) {
+				$this->saveToSession("AUTH_TOKEN", $token);
+			}
+
+			return $user;
 		}
 
 		$response["user"] = $user;
@@ -400,7 +621,13 @@ class Auth
 	 */
 	public function user($table = "users", $hidden = [])
 	{
-		if (!$this->id()) return null;
+		if (!$this->id()) {
+			if ($this->config("USE_SESSION")) {
+				return $this->session->get("AUTH_USER");
+			}
+
+			return null;
+		}
 
 		$user = $this->db->select($table)->where("id", $this->id())->fetchAssoc();
 
@@ -420,6 +647,10 @@ class Auth
 	 */
 	public function id()
 	{
+		if ($this->config("USE_SESSION")) {
+			return $this->session->get("AUTH_USER")["id"] ?? null;
+		}
+
 		$payload = $this->validateToken($this->getSecretKey());
 		if (!$payload) return null;
 		return $payload->user_id;

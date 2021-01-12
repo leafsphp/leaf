@@ -12,7 +12,7 @@ namespace Leaf;
 abstract class Middleware
 {
     /**
-     * @var \Leaf\Leaf Reference to the primary application instance
+     * @var \Leaf\App Reference to the primary application instance
      */
     protected $app;
 
@@ -27,7 +27,7 @@ abstract class Middleware
      * This method injects the primary Leaf application instance into
      * this middleware.
      *
-     * @param  \Leaf\Leaf $application
+     * @param  \Leaf\App $application
      */
     final public function setApplication($application)
     {
@@ -40,7 +40,7 @@ abstract class Middleware
      * This method retrieves the application previously injected
      * into this middleware.
      *
-     * @return \Leaf\Leaf
+     * @return \Leaf\App
      */
     final public function getApplication()
     {
@@ -54,7 +54,7 @@ abstract class Middleware
      * this middleware so that it may optionally be called
      * when appropriate.
      *
-     * @param \Leaf|\Leaf\Middleware
+     * @param \Leaf\Middleware
      */
     final public function setNextMiddleware($nextMiddleware)
     {
@@ -67,7 +67,7 @@ abstract class Middleware
      * This method retrieves the next downstream middleware
      * previously injected into this middleware.
      *
-     * @return \Leaf\Leaf|\Leaf\Middleware
+     * @return \Leaf\App|\Leaf\Middleware
      */
     final public function getNextMiddleware()
     {

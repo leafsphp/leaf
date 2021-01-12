@@ -89,7 +89,7 @@ class FS
 	 *
 	 * @param string $dirname: the name of the directory to list
 	 *
-	 * @return void
+	 * @return array|void
 	 */
 	public static function listDir($dirname, $pattern = null)
 	{
@@ -366,6 +366,99 @@ class FS
 			self::$errorsArray[$filename] = "Unable to copy file";
 			return false;
 		}
+	}
+
+	/**
+	 * Recursively copy through a folder
+	 */
+	public static function deepCopy($source, $destination)
+	{
+		$dir = opendir($source);
+		@mkdir($destination);
+
+		while (false !== ($file = readdir($dir))) {
+			if (($file != '.') && ($file != '..')) {
+				if (is_dir("$source/$file")) {
+					static::deepCopy("$source/$file", "$destination/$file");
+				} else {
+					static::copyFile("$source/$file", "$destination/$file");
+				}
+			}
+		}
+
+		closedir($dir);
+	}
+
+	/**
+	 * Copy a file, or recursively copy a folder and its contents
+	 * 
+	 * @author      Aidan Lister <aidan@php.net>
+	 * @version     1.0.1
+	 * @link        http://aidanlister.com/2004/04/recursively-copying-directories-in-php/
+	 * @param       string   $source    Source path
+	 * @param       string   $dest      Destination path
+	 * @param       int      $permissions New folder creation permissions
+	 * @return      bool     Returns true on success, false on failure
+	 */
+	public static function superCopy($source, $dest, $permissions = 0755)
+	{
+		$sourceHash = static::hashDirectory($source);
+		// Check for symlinks
+		if (is_link($source)) {
+			return symlink(readlink($source), $dest);
+		}
+
+		// Simple copy for a file
+		if (is_file($source)) {
+			return copy($source, $dest);
+		}
+
+		// Make destination directory
+		if (!is_dir($dest)) {
+			mkdir($dest, $permissions);
+		}
+
+		// Loop through the folder
+		$dir = dir($source);
+		while (false !== $entry = $dir->read()) {
+			// Skip pointers
+			if ($entry == '.' || $entry == '..') {
+				continue;
+			}
+
+			// Deep copy directories
+			if ($sourceHash != static::hashDirectory($source . "/" . $entry)) {
+				static::superCopy("$source/$entry", "$dest/$entry", $permissions);
+			}
+		}
+
+		// Clean up
+		$dir->close();
+		return true;
+	}
+
+	public static function hashDirectory($directory)
+	{
+		if (!is_dir($directory)) {
+			return false;
+		}
+
+		$files = array();
+		$dir = dir($directory);
+
+		while (false !== ($file = $dir->read())) {
+			if ($file != '.' and $file != '..') {
+				if (is_dir($directory . '/' . $file)) {
+					$files[] = static::hashDirectory($directory . '/' . $file);
+				} else {
+					$files[] = md5_file($directory . '/' . $file);
+				}
+			}
+		}
+
+		$dir->close();
+
+		return md5(implode('', $files));
 	}
 
 	/**

@@ -12,7 +12,7 @@ namespace Leaf\Http;
  */
 class Session
 {
-	protected $errorsArray = [];
+	protected static $errorsArray = [];
 
 	public function __construct($start = true)
 	{
@@ -26,13 +26,13 @@ class Session
 	 *
 	 * @return string, string: session variable
 	 */
-	public function get($param, bool $sanitize = true)
+	public static function get($param, bool $sanitize = true)
 	{
 		if (is_array($param)) {
 			$fields = [];
 
 			foreach ($param as $item) {
-				$fields[$item] = $this->get($item, $sanitize);
+				$fields[$item] = static::get($item, $sanitize);
 			}
 			return $fields;
 		} else {
@@ -41,7 +41,7 @@ class Session
 				if ($sanitize) $data = \Leaf\Util::sanitize($data);
 				return $data;
 			} else {
-				$this->errorsArray[$param] = "$param not found in session, initialise it or check your spelling";
+				static::$errorsArray[$param] = "$param not found in session, initialise it or check your spelling";
 				return false;
 			}
 		}
@@ -57,12 +57,12 @@ class Session
 	 * 
 	 * @return mixed the requested value or the default value
 	 */
-	public function retrieve($key, $defaultValue = null)
+	public static function retrieve($key, $defaultValue = null)
 	{
 		if (!isset($_SESSION[$key])) return $defaultValue;
 
-		$value = $this->get($key);
-		$this->unset_session_var($key);
+		$value = static::get($key);
+		static::unset_session_var($key);
 
 		return $value;
 	}
@@ -72,10 +72,10 @@ class Session
 	 *
 	 * @return array|null array of session variables
 	 */
-	public function body()
+	public static function body()
 	{
 		if (!isset($_SESSION)) {
-			$this->errorsArray["session"] = "No active session found!";
+			static::$errorsArray["session"] = "No active session found!";
 			return false;
 		}
 
@@ -94,11 +94,11 @@ class Session
 	 *
 	 * @return void
 	 */
-	public function set($key, $value = null)
+	public static function set($key, $value = null)
 	{
 		if (is_array($key)) {
 			foreach ($key as $name => $val) {
-				$this->set($name, $val);
+				static::set($name, $val);
 			}
 		} else {
 			$_SESSION[$key] = $value;
@@ -108,7 +108,7 @@ class Session
 	/**
 	 * Remove a session variable
 	 */
-	protected function unset_session_var($key)
+	protected static function unset_session_var($key)
 	{
 		unset($_SESSION[$key]);
 	}
@@ -120,19 +120,19 @@ class Session
 	 *
 	 * @return void|false
 	 */
-	public function unset($key)
+	public static function unset($key)
 	{
 		if (!isset($_SESSION)) {
-			$this->errorsArray["session"] = "No active session found!";
+			static::$errorsArray["session"] = "No active session found!";
 			return false;
 		}
 
 		if (is_array($key)) {
 			foreach ($key as $field) {
-				$this->unset_session_var($field);
+				static::unset_session_var($field);
 			}
 		} else {
-			$this->unset_session_var($key);
+			static::unset_session_var($key);
 		}
 	}
 
@@ -141,10 +141,10 @@ class Session
 	 *
 	 * @return void
 	 */
-	public function destroy()
+	public static function destroy()
 	{
 		if (!isset($_SESSION)) {
-			$this->errorsArray["session"] = "No active session found!";
+			static::$errorsArray["session"] = "No active session found!";
 			return false;
 		}
 		session_destroy();
@@ -157,14 +157,14 @@ class Session
 	 * 
 	 * @return void
 	 */
-	public function reset($id = null)
+	public static function reset($id = null)
 	{
 		if (!isset($_SESSION)) {
-			$this->errorsArray["session"] = "No active session found!";
+			static::$errorsArray["session"] = "No active session found!";
 			return false;
 		}
 		session_reset();
-		$this->set("id", $id ?? session_id());
+		static::set("id", $id ?? session_id());
 	}
 
 	/**
@@ -174,10 +174,10 @@ class Session
 	 *
 	 * @return string: session id
 	 */
-	public function id($id = null)
+	public static function id($id = null)
 	{
-		if (!isset($_SESSION['id'])) $this->set("id", $id ?? session_id());
-		return $this->get("id");
+		if (!isset($_SESSION['id'])) static::set("id", $id ?? session_id());
+		return static::get("id");
 	}
 
 	/**
@@ -187,15 +187,15 @@ class Session
 	 * 
 	 * @return void
 	 */
-	public function regenerate($clearData = false)
+	public static function regenerate($clearData = false)
 	{
-		$this->set("id", session_regenerate_id($clearData));
+		return session_regenerate_id($clearData);
 	}
 
 	/**
 	 * Encodes the current session data as a string
 	 */
-	public function encode(): string
+	public static function encode(): string
 	{
 		return session_encode();
 	}
@@ -203,7 +203,7 @@ class Session
 	/**
 	 * Decodes session data from a string
 	 */
-	public function decode($data)
+	public static function decode($data)
 	{
 		return session_decode($data);
 	}
@@ -213,8 +213,8 @@ class Session
 	 * 
 	 * @return array
 	 */
-	public function errors(): array
+	public static function errors(): array
 	{
-		return $this->errorsArray;
+		return static::$errorsArray;
 	}
 };

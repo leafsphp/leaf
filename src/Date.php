@@ -52,6 +52,14 @@ class Date
 	}
 
 	/**
+	 * Parse unix date
+	 */
+	public static function rawDate($date, $format = 'D, d M Y H:i:s')
+	{
+		return date($format, $date);
+	}
+
+	/**
 	 * Return current date(timestamp)
 	 */
 	public static function now($useTFFormat = true)

@@ -14,8 +14,7 @@ class Password
 {
 	public const BCRYPT = PASSWORD_BCRYPT;
 	public const ARGON2 = PASSWORD_ARGON2I;
-	public const
-	DEFAULT = PASSWORD_DEFAULT;
+	public const DEFAULT = PASSWORD_DEFAULT;
 	public const MD5 = "md5";
 
 	/**Spice up an inputed password for better security */
@@ -35,8 +34,7 @@ class Password
 	 * 
 	 * See the [password algorithm constants](https://secure.php.net/manual/en/password.constants.php) for documentation on the supported options for each algorithm.
 	 */
-	public static function hash(string $password, $algorithm = self::
-	DEFAULT, array $options = [])
+	public static function hash(string $password, $algorithm = self::DEFAULT, array $options = [])
 	{
 		return password_hash(static::$spice . $password, $algorithm, $options);
 	}

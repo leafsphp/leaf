@@ -23,7 +23,7 @@ class PrettyExceptions extends \Leaf\Middleware
      * Constructor
      * @param array $settings
      */
-    public function __construct($settings = array())
+    public function __construct($settings = [])
     {
         $this->settings = $settings;
     }
@@ -36,13 +36,12 @@ class PrettyExceptions extends \Leaf\Middleware
         try {
             $this->next->call();
         } catch (\Exception $e) {
-            $log = $this->app->getLog(); // Force Leaf to append log to env if not already
-            $env = $this->app->environment();
-            $env['leaf.log'] = $log;
-            $env['leaf.log']->error($e);
-            $this->app->contentType('text/html');
-            $this->app->response()->status(500);
-            $this->app->response()->body($this->renderBody($env, $e));
+            // $log = $this->app->getLog(); // Force Leaf to append log to env if not already
+            // $env = $this->app->environment();
+            // $env['leaf.log'] = $log;
+            // $env['leaf.log']->error($e);
+            $this->app->response()->headers->contentHtml(500);
+            exit($this->app->response()->markup($this->renderBody($e)));
         }
     }
 
@@ -52,7 +51,7 @@ class PrettyExceptions extends \Leaf\Middleware
      * @param  \Exception $exception
      * @return string
      */
-    protected function renderBody(&$env, $exception)
+    protected function renderBody($exception)
     {
         $title = 'Leaf Application Error';
         $code = $exception->getCode();
@@ -60,7 +59,7 @@ class PrettyExceptions extends \Leaf\Middleware
         $file = $exception->getFile();
         $line = $exception->getLine();
         $trace = str_replace(array('#', "\n"), array('<div>#', '</div>'), htmlspecialchars($exception->getTraceAsString()));
-        $html = sprintf('<h1>%s</h1>', $title);
+        $html = sprintf('<h1 style="color:#038f03;">%s</h1>', $title);
         $html .= '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
         $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
@@ -78,9 +77,9 @@ class PrettyExceptions extends \Leaf\Middleware
         }
         if ($trace) {
             $html .= '<h2>Trace</h2>';
-            $html .= sprintf('<pre>%s</pre>', $trace);
+            $html .= sprintf('<pre style="padding:20px;background:#ddd;overflow-x:scroll;">%s</pre>', $trace);
         }
 
-        return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>%s</body></html>", $title, $html);
+        return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:40px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{color:#038f03;display:inline-block;width:65px;}</style></head><body>%s</body></html>", $title, $html);
     }
 }
