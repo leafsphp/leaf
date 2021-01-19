@@ -7,43 +7,44 @@ use Leaf\Helpers\Password;
 
 /**
  * Leaf Simple Auth
- * ---------------
- * Perform simple authentication tasks.
+ * -------------------------
+ * Authentication made easy.
  * 
  * @author Michael Darko
  * @since 1.5.0
+ * @version 2.0.0
  */
 class Auth
 {
 	/**
 	 * All errors caught
 	 */
-	protected $errorsArray = [];
+	protected static $errorsArray = [];
 
 	/**
 	 * Token secret
 	 */
-	protected $secretKey = "TOKEN_SECRET";
+	protected static $secretKey = "TOKEN_SECRET";
 
 	/**
 	 * Token Lifetime
 	 */
-	protected $lifeTime = null;
+	protected static $lifeTime = null;
 
 	/**
 	 * @var \Leaf\Http\Session
 	 */
-	protected $session;
+	protected static $session;
 
 	/**
 	 * All defined session middleware
 	 */
-	protected $middleware = [];
+	protected static $middleware = [];
 
 	/**
 	 * Auth Settings
 	 */
-	protected $settings = [
+	protected static $settings = [
 		"USE_TIMESTAMPS" => true,
 		"PASSWORD_ENCODE" => null,
 		"PASSWORD_VERIFY" => null,
@@ -63,15 +64,20 @@ class Auth
 	/**
 	 * @var \Leaf\Db
 	 */
-	public $db;
+	public static $db;
+
+	/**
+	 * @var \Leaf\Form
+	 */
+	public static $form;
 
 	public function __construct($useSession = false)
 	{
-		$this->form = new Form;
-		$this->db = new Db;
+		static::$form = new Form;
+		static::$db = new Db;
 
 		if ($useSession) {
-			$this->useSession();
+			static::$useSession();
 		}
 	}
 
@@ -83,17 +89,20 @@ class Auth
 	 * @param string $host The db password
 	 * @param string $host The db name
 	 */
-	public function connect(string $host, string $user, string $password, string $dbname): void
+	public static function connect(string $host, string $user, string $password, string $dbname): void
 	{
-		$this->db->connect($host, $user, $password, $dbname);
+		static::$form = new Form;
+		static::$db = new Db;
+
+		static::$db->connect($host, $user, $password, $dbname);
 	}
 
 	/**
 	 * Create a database connection from env variables
 	 */
-	public function autoConnect(): void
+	public static function autoConnect(): void
 	{
-		$this->connect(
+		static::connect(
 			getenv("DB_HOST"),
 			getenv("DB_USERNAME"),
 			getenv("DB_PASSWORD"),
@@ -108,11 +117,11 @@ class Auth
 	 * 
 	 * @return int|string|void
 	 */
-	public function tokenLifetime($lifeTime = null)
+	public static function tokenLifetime($lifeTime = null)
 	{
-		if (!$lifeTime) return $this->lifeTime;
+		if (!$lifeTime) return static::$lifeTime;
 
-		$this->lifeTime = $lifeTime;
+		static::$lifeTime = $lifeTime;
 	}
 
 	/**
@@ -120,40 +129,40 @@ class Auth
 	 * 
 	 * @param string $secretKey
 	 */
-	public function setSecretKey(string $secretKey)
+	public static function setSecretKey(string $secretKey)
 	{
-		$this->secretKey = $secretKey;
+		static::$secretKey = $secretKey;
 	}
 
 	/**
 	 * Get auth secret key
 	 */
-	public function getSecretKey()
+	public static function getSecretKey()
 	{
-		return $this->secretKey;
+		return static::$secretKey;
 	}
 
 	/**
 	 * Set auth config
 	 */
-	public function config($config, $value = null)
+	public static function config($config, $value = null)
 	{
 		if (is_array($config)) {
 			foreach ($config as $key => $configValue) {
-				$this->config($key, $configValue);
+				static::config($key, $configValue);
 			}
 		} else {
-			if (!$value) return $this->settings[$config] ?? null;
-			$this->settings[$config] = $value;
+			if (!$value) return static::$settings[$config] ?? null;
+			static::$settings[$config] = $value;
 		}
 	}
 
 	/**
 	 * Exception for experimental features
 	 */
-	protected function experimental($method)
+	protected static function experimental($method)
 	{
-		if (!$this->config("USE_SESSION")) {
+		if (!static::config("USE_SESSION")) {
 			trigger_error("Auth::$method is experimental. Turn on USE_SESSION to use this feature.");
 		}
 	}
@@ -161,52 +170,52 @@ class Auth
 	/**
 	 * Manually start an auth session
 	 */
-	public function useSession()
+	public static function useSession()
 	{
-		$this->session = new \Leaf\Http\Session(false);
-		$this->config("USE_SESSION", true);
+		static::$session = new \Leaf\Http\Session(false);
+		static::config("USE_SESSION", true);
 
 		session_start();
 
-		if (!$this->session->get("SESSION_STARTED_AT")) {
-			$this->session->set("SESSION_STARTED_AT", time());
+		if (!static::$session->get("SESSION_STARTED_AT")) {
+			static::$session->set("SESSION_STARTED_AT", time());
 		}
 
-		$this->session->set("SESSION_LAST_ACTIVITY", time());
+		static::$session->set("SESSION_LAST_ACTIVITY", time());
 	}
 
 	/**
 	 * Session Length
 	 */
-	public function sessionLength()
+	public static function sessionLength()
 	{
-		$this->experimental("sessionLength");
+		static::experimental("sessionLength");
 
-		return time() - $this->session->get("SESSION_STARTED_AT");
+		return time() - static::$session->get("SESSION_STARTED_AT");
 	}
 
 	/**
 	 * Session last active
 	 */
-	public function sessionActive()
+	public static function sessionActive()
 	{
-		$this->experimental("sessionActive");
+		static::experimental("sessionActive");
 
-		return time() - $this->session->get("SESSION_LAST_ACTIVITY");
+		return time() - static::$session->get("SESSION_LAST_ACTIVITY");
 	}
 
 	/**
 	 * Refresh session
 	 */
-	public function refresh($clearData = true)
+	public static function refresh($clearData = true)
 	{
-		$this->experimental("refresh");
+		static::experimental("refresh");
 
-		$success = $this->session->regenerate($clearData);
+		$success = static::$session->regenerate($clearData);
 
-		$this->session->set("SESSION_STARTED_AT", time());
-		$this->session->set("SESSION_LAST_ACTIVITY", time());
-		$this->session->set("AUTH_SESISON", true);
+		static::$session->set("SESSION_STARTED_AT", time());
+		static::$session->set("SESSION_LAST_ACTIVITY", time());
+		static::$session->set("AUTH_SESISON", true);
 
 		return $success;
 	}
@@ -216,36 +225,36 @@ class Auth
 	 * 
 	 * **This method only works with session auth**
 	 */
-	public function middleware(string $name, callable $handler = null)
+	public static function middleware(string $name, callable $handler = null)
 	{
-		$this->experimental("middleware");
+		static::experimental("middleware");
 
-		if (!$handler) return $this->middleware[$name];
+		if (!$handler) return static::$middleware[$name];
 
-		$this->middleware[$name] = $handler;
+		static::$middleware[$name] = $handler;
 	}
 
 	/**
 	 * Check session status
 	 */
-	public function session()
+	public static function session()
 	{
-		$this->experimental("session");
+		static::experimental("session");
 
-		return $this->session->get("AUTH_USER") ?? false;
+		return static::$session->get("AUTH_USER") ?? false;
 	}
 
 	/**
 	 * End a session
 	 */
-	public function endSession($location = null)
+	public static function endSession($location = null)
 	{
-		$this->experimental("endSession");
+		static::experimental("endSession");
 
-		$this->session->destroy();
+		static::$session->destroy();
 	
 		if ($location) {
-			$route = $this->config($location) ?? $location;
+			$route = static::config($location) ?? $location;
 			(new Http\Response)->redirect($route);
 		}
 	}
@@ -256,9 +265,9 @@ class Auth
 	 * 
 	 * @param array|string $type The type of guard/guard options
 	 */
-	public function guard($type)
+	public static function guard($type)
 	{
-		$this->experimental("guard");
+		static::experimental("guard");
 
 		if (is_array($type)) {
 			if (isset($type["hasAuth"])) {
@@ -266,23 +275,23 @@ class Auth
 			}
 		}
 
-		if ($type === 'guest' && $this->session()) {
-			exit(header("location: " . $this->config("GUARD_HOME"), true, 302));
+		if ($type === 'guest' && static::session()) {
+			exit(header("location: " . static::config("GUARD_HOME"), true, 302));
 		}
 
-		if ($type === 'auth' && !$this->session()) {
-			exit(header("location: " . $this->config("GUARD_LOGIN"), true, 302));
+		if ($type === 'auth' && !static::session()) {
+			exit(header("location: " . static::config("GUARD_LOGIN"), true, 302));
 		}
 	}
 
 	/**
 	 * Save some data to auth session
 	 */
-	protected function saveToSession($key, $data)
+	protected static function saveToSession($key, $data)
 	{
-		$this->experimental("saveToSession");
+		static::experimental("saveToSession");
 
-		$this->session->set($key, $data);
+		static::$session->set($key, $data);
 	}
 
 	/**
@@ -294,27 +303,27 @@ class Auth
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function login(string $table, array $credentials, array $validate = [])
+	public static function login(string $table, array $credentials, array $validate = [])
 	{
-		$passKey = $this->settings["PASSWORD_KEY"];
+		$passKey = static::$settings["PASSWORD_KEY"];
 		$password = $credentials[$passKey];
 
 		if (isset($credentials[$passKey])) {
 			unset($credentials[$passKey]);
 		}
 
-		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
+		$user = static::$db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 		if (!$user) {
-			$this->errorsArray["auth"] = $this->settings["LOGIN_PARAMS_ERROR"];
+			static::$errorsArray["auth"] = static::$settings["LOGIN_PARAMS_ERROR"];
 			return null;
 		}
 
 		$passwordIsValid = true;
 
-		if ($this->settings["PASSWORD_VERIFY"] !== false && isset($user[$passKey])) {
-			if (is_callable($this->settings["PASSWORD_VERIFY"])) {
-				$passwordIsValid = call_user_func($this->settings["PASSWORD_VERIFY"], $password, $user[$passKey]);
-			} else if ($this->settings["PASSWORD_VERIFY"] === Password::MD5) {
+		if (static::$settings["PASSWORD_VERIFY"] !== false && isset($user[$passKey])) {
+			if (is_callable(static::$settings["PASSWORD_VERIFY"])) {
+				$passwordIsValid = call_user_func(static::$settings["PASSWORD_VERIFY"], $password, $user[$passKey]);
+			} else if (static::$settings["PASSWORD_VERIFY"] === Password::MD5) {
 				$passwordIsValid = (md5($password) === $user[$passKey]);
 			} else {
 				$passwordIsValid = Password::verify($password, $user[$passKey]);
@@ -322,42 +331,42 @@ class Auth
 		}
 
 		if (!$passwordIsValid) {
-			$this->errorsArray["password"] = $this->settings["LOGIN_PASSWORD_ERROR"];
+			static::$errorsArray["password"] = static::$settings["LOGIN_PASSWORD_ERROR"];
 			return null;
 		}
 
-		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
+		$token = Authentication::generateSimpleToken($user["id"], static::$secretKey, static::$lifeTime);
 
 		if (isset($user["id"])) {
 			$userId = $user["id"];
 		}
 
-		if ($this->settings["HIDE_ID"]) {
+		if (static::$settings["HIDE_ID"]) {
 			unset($user["id"]);
 		}
 
-		if ($this->settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
+		if (static::$settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
 			unset($user[$passKey]);
 		}
 
 		if (!$token) {
-			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+			static::$errorsArray = array_merge(static::$errorsArray, Authentication::errors());
 			return null;
 		}
 
-		if ($this->config("USE_SESSION")) {
+		if (static::config("USE_SESSION")) {
 			if (isset($userId)) {
 				$user["id"] = $userId;
 			}
 
-			$this->saveToSession("AUTH_USER", $user);
-			$this->saveToSession("HAS_SESSION", true);
+			static::saveToSession("AUTH_USER", $user);
+			static::saveToSession("HAS_SESSION", true);
 
-			if ($this->config("SAVE_SESSION_JWT")) {
-				$this->saveToSession("AUTH_TOKEN", $token);
+			if (static::config("SAVE_SESSION_JWT")) {
+				static::saveToSession("AUTH_TOKEN", $token);
 			}
 
-			exit(header("location: " . $this->config("GUARD_HOME")));
+			exit(header("location: " . static::config("GUARD_HOME")));
 		}
 
 		$response["user"] = $user;
@@ -376,80 +385,80 @@ class Auth
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function register(string $table, array $credentials, array $uniques = [], array $validate = [])
+	public static function register(string $table, array $credentials, array $uniques = [], array $validate = [])
 	{
-		$passKey = $this->settings["PASSWORD_KEY"];
+		$passKey = static::$settings["PASSWORD_KEY"];
 
-		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
-			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
-				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
-			} else if ($this->settings["PASSWORD_ENCODE"] === "md5") {
+		if (static::$settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
+			if (is_callable(static::$settings["PASSWORD_ENCODE"])) {
+				$credentials[$passKey] = call_user_func(static::$settings["PASSWORD_ENCODE"], $credentials[$passKey]);
+			} else if (static::$settings["PASSWORD_ENCODE"] === "md5") {
 				$credentials[$passKey] = md5($credentials[$passKey]);
 			} else {
 				$credentials[$passKey] = Password::hash($credentials[$passKey]);
 			}
 		}
 
-		if ($this->settings["USE_TIMESTAMPS"]) {
+		if (static::$settings["USE_TIMESTAMPS"]) {
 			$now = Date::now();
 			$credentials["created_at"] = $now;
 			$credentials["updated_at"] = $now;
 		}
 
 		try {
-			$query = $this->db->insert($table)->params($credentials)->unique($uniques)->validate($validate)->execute();
+			$query = static::$db->insert($table)->params($credentials)->unique($uniques)->validate($validate)->execute();
 		} catch (\Throwable $th) {
-			$this->errorsArray["dev"] = $th->getMessage();
+			static::$errorsArray["dev"] = $th->getMessage();
 			return null;
 		}
 
 		if (!$query) {
-			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			static::$errorsArray = array_merge(static::$errorsArray, static::$db->errors());
 			return null;
 		}
 
-		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
+		$user = static::$db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 
 		if (!$user) {
-			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			static::$errorsArray = array_merge(static::$errorsArray, static::$db->errors());
 			return null;
 		}
 
-		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
+		$token = Authentication::generateSimpleToken($user["id"], static::$secretKey, static::$lifeTime);
 
 		if (isset($user["id"])) {
 			$userId = $user["id"];
 		}
 
-		if ($this->settings["HIDE_ID"]) {
+		if (static::$settings["HIDE_ID"]) {
 			unset($user["id"]);
 		}
 
-		if ($this->settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
+		if (static::$settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
 			unset($user[$passKey]);
 		}
 
 		if (!$token) {
-			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+			static::$errorsArray = array_merge(static::$errorsArray, Authentication::errors());
 			return null;
 		}
 
-		if ($this->config("USE_SESSION")) {
-			if ($this->config("SESSION_ON_REGISTER")) {
+		if (static::config("USE_SESSION")) {
+			if (static::config("SESSION_ON_REGISTER")) {
 				if (isset($userId)) {
 					$user["id"] = $userId;
 				}
 
-				$this->saveToSession("AUTH_USER", $user);
-				$this->saveToSession("HAS_SESSION", true);
+				static::saveToSession("AUTH_USER", $user);
+				static::saveToSession("HAS_SESSION", true);
 
-				if ($this->config("SAVE_SESSION_JWT")) {
-					$this->saveToSession("AUTH_TOKEN", $token);
+				if (static::config("SAVE_SESSION_JWT")) {
+					static::saveToSession("AUTH_TOKEN", $token);
 				}
 
-				exit(header("location: " . $this->config("GUARD_HOME")));
+				exit(header("location: " . static::config("GUARD_HOME")));
 			} else {
-				exit(header("location: " . $this->config("GUARD_LOGIN")));
+				exit(header("location: " . static::config("GUARD_LOGIN")));
 			}
 		}
 
@@ -470,21 +479,21 @@ class Auth
 	 * 
 	 * @return array user: all user info + tokens + session data
 	 */
-	public function update(string $table, array $credentials, array $where, array $uniques = [], array $validate = [])
+	public static function update(string $table, array $credentials, array $where, array $uniques = [], array $validate = [])
 	{
-		$passKey = $this->settings["PASSWORD_KEY"];
+		$passKey = static::$settings["PASSWORD_KEY"];
 
-		if ($this->settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
-			if (is_callable($this->settings["PASSWORD_ENCODE"])) {
-				$credentials[$passKey] = call_user_func($this->settings["PASSWORD_ENCODE"], $credentials[$passKey]);
-			} else if ($this->settings["PASSWORD_ENCODE"] === "md5") {
+		if (static::$settings["PASSWORD_ENCODE"] !== false && isset($credentials[$passKey])) {
+			if (is_callable(static::$settings["PASSWORD_ENCODE"])) {
+				$credentials[$passKey] = call_user_func(static::$settings["PASSWORD_ENCODE"], $credentials[$passKey]);
+			} else if (static::$settings["PASSWORD_ENCODE"] === "md5") {
 				$credentials[$passKey] = md5($credentials[$passKey]);
 			} else {
 				$credentials[$passKey] = Password::hash($credentials[$passKey]);
 			}
 		}
 
-		if ($this->settings["USE_TIMESTAMPS"]) {
+		if (static::$settings["USE_TIMESTAMPS"]) {
 			$credentials["updated_at"] = Date::now();
 		}
 
@@ -494,28 +503,28 @@ class Auth
 					(new Http\Response)->throwErr(["error" => "$unique not found in credentials."]);
 				}
 
-				$data = $this->db->select($table)->where($unique, $credentials[$unique])->fetchAssoc();
+				$data = static::$db->select($table)->where($unique, $credentials[$unique])->fetchAssoc();
 
 				$wKeys = array_keys($where);
 				$wValues = array_values($where);
 
 				if (isset($data[$wKeys[0]]) && $data[$wKeys[0]] != $wValues[0]) {
-					$this->errorsArray[$unique] = "$unique already exists";
+					static::$errorsArray[$unique] = "$unique already exists";
 				}
 			}
 
-			if (count($this->errorsArray) > 0) return null;
+			if (count(static::$errorsArray) > 0) return null;
 		}
 
 		try {
-			$query = $this->db->update($table)->params($credentials)->where($where)->validate($validate)->execute();
+			$query = static::$db->update($table)->params($credentials)->where($where)->validate($validate)->execute();
 		} catch (\Throwable $th) {
-			$this->errorsArray["dev"] = $th->getMessage();
+			static::$errorsArray["dev"] = $th->getMessage();
 			return null;
 		}
 
 		if (!$query) {
-			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			static::$errorsArray = array_merge(static::$errorsArray, static::$db->errors());
 			return null;
 		}
 
@@ -523,41 +532,41 @@ class Auth
 			unset($credentials["updated_at"]);
 		}
 
-		$user = $this->db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
+		$user = static::$db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
 		if (!$user) {
-			$this->errorsArray = array_merge($this->errorsArray, $this->db->errors());
+			static::$errorsArray = array_merge(static::$errorsArray, static::$db->errors());
 			return null;
 		}
 
-		$token = Authentication::generateSimpleToken($user["id"], $this->secretKey, $this->lifeTime);
+		$token = Authentication::generateSimpleToken($user["id"], static::$secretKey, static::$lifeTime);
 
 		if (isset($user["id"])) {
 			$userId = $user["id"];
 		}
 
-		if ($this->settings["HIDE_ID"] && isset($user["id"])) {
+		if (static::$settings["HIDE_ID"] && isset($user["id"])) {
 			unset($user["id"]);
 		}
 
-		if ($this->settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
+		if (static::$settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
 			unset($user[$passKey]);
 		}
 
 		if (!$token) {
-			$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+			static::$errorsArray = array_merge(static::$errorsArray, Authentication::errors());
 			return null;
 		}
 
-		if ($this->config("USE_SESSION")) {
+		if (static::config("USE_SESSION")) {
 			if (isset($userId)) {
 				$user["id"] = $userId;
 			}
 
-			$this->saveToSession("AUTH_USER", $user);
-			$this->saveToSession("HAS_SESSION", true);
+			static::saveToSession("AUTH_USER", $user);
+			static::saveToSession("HAS_SESSION", true);
 
-			if ($this->config("SAVE_SESSION_JWT")) {
-				$this->saveToSession("AUTH_TOKEN", $token);
+			if (static::config("SAVE_SESSION_JWT")) {
+				static::saveToSession("AUTH_TOKEN", $token);
 			}
 
 			return $user;
@@ -575,12 +584,12 @@ class Auth
 	 * @param string $token The token validate
 	 * @param string $secretKey The secret key used to encode token
 	 */
-	public function validate($token, $secretKey = null)
+	public static function validate($token, $secretKey = null)
 	{
-		$payload = Authentication::validate($token, $secretKey ?? $this->secretKey);
+		$payload = Authentication::validate($token, $secretKey ?? static::$secretKey);
 		if ($payload) return $payload;
 
-		$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+		static::$errorsArray = array_merge(static::$errorsArray, Authentication::errors());
 
 		return null;
 	}
@@ -590,12 +599,12 @@ class Auth
 	 * 
 	 * @param string $secretKey The secret key used to encode token
 	 */
-	public function validateToken($secretKey = null)
+	public static function validateToken($secretKey = null)
 	{
-		$payload = Authentication::validateToken($secretKey ?? $this->secretKey);
+		$payload = Authentication::validateToken($secretKey ?? static::$secretKey);
 		if ($payload) return $payload;
 
-		$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+		static::$errorsArray = array_merge(static::$errorsArray, Authentication::errors());
 
 		return null;
 	}
@@ -603,12 +612,12 @@ class Auth
 	/**
 	 * Get Bearer token
 	 */
-	public function getBearerToken()
+	public static function getBearerToken()
 	{
 		$token = Authentication::getBearerToken();
 		if ($token) return $token;
 
-		$this->errorsArray = array_merge($this->errorsArray, Authentication::errors());
+		static::$errorsArray = array_merge(static::$errorsArray, Authentication::errors());
 
 		return null;
 	}
@@ -619,17 +628,17 @@ class Auth
 	 * @param string $table The table to look for user
 	 * @param array $hidden Fields to hide from user array
 	 */
-	public function user($table = "users", $hidden = [])
+	public static function user($table = "users", $hidden = [])
 	{
-		if (!$this->id()) {
-			if ($this->config("USE_SESSION")) {
-				return $this->session->get("AUTH_USER");
+		if (!static::id()) {
+			if (static::config("USE_SESSION")) {
+				return static::$session->get("AUTH_USER");
 			}
 
 			return null;
 		}
 
-		$user = $this->db->select($table)->where("id", $this->id())->fetchAssoc();
+		$user = static::$db->select($table)->where("id", static::id())->fetchAssoc();
 
 		if (count($hidden) > 0) {
 			foreach ($hidden as $item) {
@@ -645,13 +654,13 @@ class Auth
 	/**
 	 * Return the user id encoded in token 
 	 */
-	public function id()
+	public static function id()
 	{
-		if ($this->config("USE_SESSION")) {
-			return $this->session->get("AUTH_USER")["id"] ?? null;
+		if (static::config("USE_SESSION")) {
+			return static::$session->get("AUTH_USER")["id"] ?? null;
 		}
 
-		$payload = $this->validateToken($this->getSecretKey());
+		$payload = static::validateToken(static::getSecretKey());
 		if (!$payload) return null;
 		return $payload->user_id;
 	}
@@ -659,16 +668,16 @@ class Auth
 	/**
 	 * Return form field
 	 */
-	public function get($param)
+	public static function get($param)
 	{
-		return $this->form->get($param);
+		return static::$form->get($param);
 	}
 
 	/**
 	 * Get all authentication errors as associative array
 	 */
-	public function errors(): array
+	public static function errors(): array
 	{
-		return $this->errorsArray;
+		return static::$errorsArray;
 	}
 }

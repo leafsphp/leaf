@@ -1,7 +1,33 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.4.0 - Christmas Tree🎄 - 18th December 2020
+## v2.4.1 - 🍁 Marvel-of-peru - 12th January 2020
+
+v2.4.1 continues the usability reforms from the previous versions. It also contains fixes for all bugs discovered in previous versions as well as new features.
+
+**Please update from v2.4.0 to v2.4.1 to fix any issues you encountered with the system. Any inconveniences are deeply regretted🙏.**
+
+### Added
+
+- Added support for session based authenticatication instead of just JWT
+- Added `Route::view`
+
+### Fixed
+
+- Fixed all known bugs from previous versions
+
+### Changed
+
+- Separated Router module from app module
+- Made all `Leaf\Http\Session` methods static
+
+### Removed
+
+- Removed app down feature
+
+## v2.4.0 - Christmas Tree🎄 - 18th December 2020 ***DELETED***
+
+**Please update from v2.4.0 to v2.4.1 to fix any issues you encountered with the system. Any inconveniences are deeply regretted🙏. This release has officially been deleted.**
 
 Christmas tree follows up on the previous beta release, fixes up all bugs found during the beta testing phase and packs in newer extensions that make Leaf even more usable.
 
