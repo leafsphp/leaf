@@ -28,10 +28,10 @@
     "minimum-stability": "stable",
     "require": {
         "leafs/blade": "^1.2",
-        "illuminate/database": "^8.0",
-        "illuminate/container": "^8.0",
-        "illuminate/events": "^8.0",
+        "illuminate/database": "^7.0",
+        "illuminate/container": "^7.0",
+        "illuminate/events": "^7.0",
         "phpmailer/phpmailer": "^6.2",
-        "illuminate/view": "^8.0"
+        "illuminate/view": "^7.0"
     }
 }
