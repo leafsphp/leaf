@@ -1,6 +1,85 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.4.2 - 🥬 Desert Wishbone-bush - 3rd February 2021
+
+This version of Leaf continues the goal of making Leaf features more flexible and increasing usability.
+
+### Added
+
+- Added option to turn off experimental method warnings
+
+- Added `Form::rule` which allows you to create your own rules for form validation.
+
+```php
+Form::rule("max", function($field, $value, $params) {
+    if (strlen($value) > $params) {
+        Form::addError($field, "$field can't be more than $params characters");
+        return false;
+    }
+});
+```
+
+- Added internal `Leaf\Form` feature which allows you to pass parameters to validation rules.
+
+```php
+$validation = Form::validate([
+    // To pass a param to a rule, just use :
+    "username" => "max:3",
+]);
+```
+
+- Added `Form::addError` which allows you to add errors to be returned in `Form::errors()`
+
+```php
+Form::addError($field, "$field can't be more than $params characters");
+```
+
+- Added max and min rules by default
+
+```php
+$validation = Form::validate([
+    "username" => "max:1",
+    "password" => "min:81",
+]);
+```
+
+- Guards can be used even in API mode. This will alert you if you're not eligible to view a particular page.
+
+### Fixed
+
+- Updated dependencies with security patches
+
+- Fixed multiple validation break from v2.4.2 beta.
+
+### Changed
+
+- Made `Leaf\Form` methods static. They can now be called from anywhere within your Leaf app.
+
+### Removed
+
+- No removals
+
+## v2.4.2 [BETA] - 🥬 Desert Wishbone-bush (Beta) - 20th January 2021
+
+This release mainly focuses on security patches for all Leaf based libraries. It contains updated dependencies and internal code patches to make your apps even more secure.
+
+### Added
+
+- No additions
+
+### Fixed
+
+- Updated dependencies with security patches
+
+### Changed
+
+- Made `Leaf\Auth` methods static. They can now be called from anywhere within your Leaf app.
+
+### Removed
+
+- No removals
+
 ## v2.4.1 - 🍁 Marvel-of-peru - 12th January 2020
 
 v2.4.1 continues the usability reforms from the previous versions. It also contains fixes for all bugs discovered in previous versions as well as new features.

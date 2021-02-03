@@ -59,6 +59,7 @@ class Auth
 		"GUARD_REGISTER" => "/auth/register",
 		"GUARD_HOME" => "/home",
 		"SAVE_SESSION_JWT" => false,
+		"EXPERIMENTAL_WARNINGS" => true,
 	];
 
 	/**
@@ -145,12 +146,14 @@ class Auth
 	/**
 	 * Set auth config
 	 */
-	public static function config($config, $value = null)
+	public static function config($config = null, $value = null)
 	{
+		if (!$config) {
+			return static::$settings;
+		}
+
 		if (is_array($config)) {
-			foreach ($config as $key => $configValue) {
-				static::config($key, $configValue);
-			}
+			static::$settings = array_merge(static::$settings, $config);
 		} else {
 			if (!$value) return static::$settings[$config] ?? null;
 			static::$settings[$config] = $value;
@@ -162,6 +165,14 @@ class Auth
 	 */
 	protected static function experimental($method)
 	{
+		if (!static::$session && static::$settings["USE_SESSION"]) {
+			static::$session = new \Leaf\Http\Session(false);
+		}
+
+		if (!static::config("EXPERIMENTAL_WARNINGS")) {
+			return;
+		}
+
 		if (!static::config("USE_SESSION")) {
 			trigger_error("Auth::$method is experimental. Turn on USE_SESSION to use this feature.");
 		}
@@ -241,6 +252,10 @@ class Auth
 	{
 		static::experimental("session");
 
+		if (!static::$session) {
+			return false;
+		}
+
 		return static::$session->get("AUTH_USER") ?? false;
 	}
 
@@ -268,6 +283,16 @@ class Auth
 	public static function guard($type)
 	{
 		static::experimental("guard");
+
+		if (!static::config("USE_SESSION")) {
+			if ($type === 'guest' && static::user()) {
+				(new Http\Response)->throwErr("You can't view this page while you're logged in!");
+			}
+
+			if ($type === 'auth' && !static::user()) {
+				return;
+			}
+		}
 
 		if (is_array($type)) {
 			if (isset($type["hasAuth"])) {
@@ -670,7 +695,7 @@ class Auth
 	 */
 	public static function get($param)
 	{
-		return static::$form->get($param);
+		return static::$form::get($param);
 	}
 
 	/**

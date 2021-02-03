@@ -5,25 +5,168 @@ namespace Leaf;
 use Leaf\Http\Request;
 
 /**
- *  Leaf Forms
- *  --------
- *  Simple Form Validation with Leaf
+ * Leaf Forms
+ * --------
+ * Simple Form Validation with Leaf.
+ * 
+ * @since v1.0
+ * @author Michael Darko <mickd22@gmail.com>
  */
-class Form extends Request
+class Form
 {
 	/**
 	 * Array holding all caught errors
 	 */
-	protected $errorsArray = [];
+	protected static $errorsArray = [];
+
+	/**
+	 * Default and registered validation rules
+	 */
+	protected static $rules = [
+		"required" => null,
+		"number" => null,
+		"text" => null,
+		"textonly" => null,
+		"validusername" => null,
+		"username" => null,
+		"email" => null,
+		"nospaces" => null
+	];
+
+	public static function addError($field, $error)
+	{
+		static::$errorsArray[$field] = $error;
+	}
+
+	/**
+	 * Load default rules
+	 */
+	protected static function rules()
+	{
+		$rules = [
+			"required" => function ($field, $value) {
+				if (($value == "" || $value == null)) {
+					static::$errorsArray[$field] = "$field is required";
+					return false;
+				}
+			},
+			"number" => function ($field, $value) {
+				if (($value == "" || $value == null || !preg_match('/^[0-9]+$/', $value))) {
+					static::$errorsArray[$field] = "$field must only contain numbers";
+					return false;
+				}
+			},
+			"text" => function ($field, $value) {
+				if (($value == "" || $value == null || !preg_match('/^[_a-zA-Z ]+$/', $value))) {
+					static::$errorsArray[$field] = "$field must only contain text and spaces";
+					return false;
+				}
+			},
+			"textonly" => function ($field, $value) {
+				if (($value == "" || $value == null || !preg_match('/^[_a-zA-Z]+$/', $value))) {
+					static::$errorsArray[$field] = "$field must only contain text";
+					return false;
+				}
+			},
+			"validusername" => function ($field, $value) {
+				if (($value == "" || $value == null || !preg_match('/^[_a-zA-Z0-9]+$/', $value))) {
+					static::$errorsArray[$field] = $field . " must only contain characters 0-9, A-Z and _";
+					return false;
+				}
+			},
+			"username" => function ($field, $value) {
+				if (($value == "" || $value == null || !preg_match('/^[_a-zA-Z0-9]+$/', $value))) {
+					static::$errorsArray[$field] = "$field must only contain characters 0-9, A-Z and _";
+					return false;
+				}
+			},
+			"email" => function ($field, $value) {
+				if (($value == "" || $value == null || !!filter_var($value, 274) == false)) {
+					static::$errorsArray[$field] = "$field must be a valid email";
+					return false;
+				}
+			},
+			"nospaces" => function ($field, $value) {
+				if (($value == "" || $value == null || !preg_match('/^[ ]+$/', $value))) {
+					static::$errorsArray[$field] = "$field can't contain any spaces";
+					return false;
+				}
+			},
+			"max" => function ($field, $value, $params) {
+				if (strlen($value) > $params) {
+					static::$errorsArray[$field] = "$field can't be more than $params characters";
+					return false;
+				}
+			},
+			"min" => function ($field, $value, $params) {
+				if (strlen($value) < $params) {
+					static::$errorsArray[$field] = "$field can't be less than $params characters";
+					return false;
+				}
+			}
+		];
+		
+		static::$rules = array_merge(static::$rules, $rules);
+	}
+
+	/**
+	 * Apply a form rule
+	 */
+	protected static function applyRule($rule)
+	{
+		$rulePart = explode(":", $rule);
+		$mainRule = $rulePart[0];
+
+		$supportedRules = static::supportedRules();
+
+		if (!in_array($mainRule, $supportedRules)) {
+			trigger_error("$mainRule  is not a supported rule. Supported rules are " . json_encode($supportedRules));
+		}
+
+		$formRule = static::$rules[$mainRule];
+
+		if (count($rulePart) > 1) {
+			return [$formRule, $rulePart[1]];
+		}
+
+		return $formRule;
+	}
+
+	/**
+	 * Get a list of all supported rules.
+	 * This includes default and custom rules.
+	 */
+	public static function supportedRules()
+	{
+		$supportedRules = [];
+
+		foreach (static::$rules as $key => $value) {
+			$supportedRules[] = $key;
+		}
+
+		return $supportedRules;
+	}
+
+	/**
+	 * Define custom rules
+	 */
+	public static function rule($name, $handler = null)
+	{
+		if (is_array($name)) {
+			static::$rules = array_merge(static::$rules, $name);
+		} else {
+			static::$rules[$name] = $handler;
+		}
+	}
 
 	/**
 	 * make sure that the form data is safe to work with
 	 *
 	 * @param string $data: The data gotten from the form field
 	 *
-	 * @return string, string: The parsed data
+	 * @return string
 	 */
-	public function sanitizeInput($data)
+	public static function sanitizeInput($data)
 	{
 		return htmlspecialchars(stripslashes(trim($data)));
 	}
@@ -36,12 +179,10 @@ class Form extends Request
 	 * 
 	 * @return void
 	 */
-	public function validate(array $rules, array $messages = [])
+	public static function validate(array $rules, array $messages = [])
 	{
-		$supportedRules = ["required", "number", "text", "textonly", "validusername", "email", "nospaces"];
-
 		$fields = [];
-		$req = new \Leaf\Http\Request;
+		$req = new Request;
 
 		foreach ($rules as $param => $rule) {
 			array_push($fields, ["name" => $param, "value" => $req->get($param), "rule" => $rule]);
@@ -51,25 +192,15 @@ class Form extends Request
 			if (is_array($field["rule"])) {
 				foreach ($field["rule"] as $rule) {
 					$rule = strtolower($rule);
-
-					if (!in_array($rule, $supportedRules)) {
-						echo $rule . " is not a supported rule<br>";
-						echo "Supported rules are " . json_encode($supportedRules);
-						exit();
-					}
-					return $this->validateField($field["name"], $field["value"], $rule);
+					static::validateField($field["name"], $field["value"], $rule);
 				}
 			} else {
 				$field["rule"] = strtolower($field["rule"]);
-
-				if (!in_array($field["rule"], $supportedRules)) {
-					echo $field["rule"] . " is not a supported rule<br>";
-					echo "Supported rules are " . json_encode($supportedRules);
-					exit();
-				}
-				return $this->validateField($field["name"], $field["value"], $field["rule"]);
+				static::validateField($field["name"], $field["value"], $field["rule"]);
 			}
 		}
+
+		return (count(static::$errorsArray) === 0);
 	}
 
 	/**
@@ -80,9 +211,9 @@ class Form extends Request
 	 * 
 	 * @return void
 	 */
-	public function validateData(array $rules, array $messages = [])
+	public static function validateData(array $rules, array $messages = [])
 	{
-		$supportedRules = ["required", "number", "text", "textonly", "validusername", "email", "nospaces"];
+		$supportedRules = static::supportedRules();
 
 		$fields = [];
 
@@ -93,24 +224,12 @@ class Form extends Request
 		foreach ($fields as $field) {
 			if (is_array($field["rule"])) {
 				foreach ($field["rule"] as $rule) {
-					$rule = strtolower($rule);
-
-					if (!in_array($rule, $supportedRules)) {
-						echo $rule . " is not a supported rule<br>";
-						echo "Supported rules are " . json_encode($supportedRules);
-						exit();
-					}
-					return $this->validateField($field["name"], $field["value"], $rule);
+					$rule = strtolower($rule);	
+					return static::validateField($field["name"], $field["value"], $rule);
 				}
 			} else {
 				$field["rule"] = strtolower($field["rule"]);
-
-				if (!in_array($field["rule"], $supportedRules)) {
-					echo $field["rule"] . " is not a supported rule<br>";
-					echo "Supported rules are " . json_encode($supportedRules);
-					exit();
-				}
-				return $this->validateField($field["name"], $field["value"], $field["rule"]);
+				return static::validateField($field["name"], $field["value"], $field["rule"]);
 			}
 		}
 	}
@@ -122,42 +241,21 @@ class Form extends Request
 	 * @param string $fieldValue The value of the field to validate
 	 * @param string $rule The rule to apply
 	 */
-	public function validateField($fieldName, $fieldValue, $rule)
+	public static function validateField($fieldName, $fieldValue, $rule)
 	{
+		static::rules();
+
 		$isValid = true;
 
-		if ($rule == "required" && ($fieldValue == "" || $fieldValue == null)) {
-			$this->errorsArray[$fieldName] = $fieldName . " is required";
-			$isValid = false;
+		$data = static::applyRule($rule);
+		
+		if (is_array($data)) {
+			$data = $data[0]($fieldName, $fieldValue, $data[1] ?? null);
+		} else {
+			$data = $data($fieldName, $fieldValue);
 		}
 
-		if ($rule == "number" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[0-9]+$/', $fieldValue))) {
-			$this->errorsArray[$fieldName] = $fieldName . " must only contain numbers";
-			$isValid = false;
-		}
-
-		if ($rule == "text" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[_a-zA-Z ]+$/', $fieldValue))) {
-			$this->errorsArray[$fieldName] = $fieldName . " must only contain text and spaces";
-			$isValid = false;
-		}
-
-		if ($rule == "textonly" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[_a-zA-Z]+$/', $fieldValue))) {
-			$this->errorsArray[$fieldName] = $fieldName . " must only contain text";
-			$isValid = false;
-		}
-
-		if ($rule == "validusername" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[_a-zA-Z0-9]+$/', $fieldValue))) {
-			$this->errorsArray[$fieldName] = $fieldName . " must only contain characters 0-9, A-Z and _";
-			$isValid = false;
-		}
-
-		if ($rule == "email" && ($fieldValue == "" || $fieldValue == null || !!filter_var($fieldValue, 274) == false)) {
-			$this->errorsArray[$fieldName] = $fieldName . " must be a valid email";
-			$isValid = false;
-		}
-
-		if ($rule == "nospaces" && ($fieldValue == "" || $fieldValue == null || !preg_match('/^[ ]+$/', $fieldValue))) {
-			$this->errorsArray[$fieldName] = $fieldName . " can't contain any spaces";
+		if ($data === false) {
 			$isValid = false;
 		}
 
@@ -167,7 +265,7 @@ class Form extends Request
 	/**
 	 * Directly "submit" a form without having to work with any mark-up
 	 */
-	public function submit(string $method, string $action, array $fields)
+	public static function submit(string $method, string $action, array $fields)
 	{
 		$form_fields = "";
 
@@ -181,7 +279,7 @@ class Form extends Request
 		";
 	}
 
-	public function isEmail($value)
+	public static function isEmail($value)
 	{
 		return !!filter_var($value, 274);
 	}
@@ -191,9 +289,19 @@ class Form extends Request
 	 *
 	 * @return string
 	 */
-	public function returnFields()
+	public static function body()
 	{
-		return $this->body();
+		return (new Request)->body();
+	}
+
+	/**
+	 * Return the form fields+data
+	 *
+	 * @return string
+	 */
+	public static function get()
+	{
+		return (new Request)->body();
 	}
 
 	/**
@@ -201,8 +309,8 @@ class Form extends Request
 	 *
 	 * @return array
 	 */
-	public function errors()
+	public static function errors()
 	{
-		return $this->errorsArray;
+		return static::$errorsArray;
 	}
 }
