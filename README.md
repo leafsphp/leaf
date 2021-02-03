@@ -3,7 +3,7 @@
     <br><br>
     <img src="https://leaf-docs.netlify.app/images/logo.png" height="100"/>
     <h1 align="center">Leaf PHP Framework</h1>
-    <br><br><br>
+    <br><br>
 </p>
 
 # Leaf PHP
@@ -33,39 +33,30 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 <?php
 require __DIR__ . 'vendor/autoload.php';
 
-// Instantiate Leaf
 $app = new Leaf\App;
-// Instanciate auth helper
 $auth = new Leaf\Auth;
-// connect to db
+
 $auth->connect("host", "user", "pass", "db name");
 
-// Add routes
 $app->get('/', function() use($app) {
    $app->response()->respond("My first Leaf app");
 });
 
-// Simple login example
 $app->post('/auth/login', function() use($app, $auth) {
     $credentials = $app->request()->get(["username", "password"]);
 
-    // login and generate a JWT
     $user = $auth->login("users", $credentials, [
-        // this array is validation for our credentials
-        "username" => "ValidUsername",
+        "username" => ["username", "min:3"],
         "password" => ["text", "NoSpaces"]
     ]);
 
-    // if user isn't found or validation fails, throw the errors
     if (!$user) {
         $app->response()->throwErr($auth->errors());
     }
 
-    // If there's no error, output the user and the generated token
     $app->response()->json($user);
 });
 
-// Don't forget to call app run
 $app->run();
 ```
 
