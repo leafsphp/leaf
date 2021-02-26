@@ -38,16 +38,18 @@ $auth = new Leaf\Auth;
 
 $auth->connect("host", "user", "pass", "db name");
 
+// Base example
 $app->get('/', function() use($app) {
    $app->response()->respond("My first Leaf app");
 });
 
+// Full login example
 $app->post('/auth/login', function() use($app, $auth) {
     $credentials = $app->request()->get(["username", "password"]);
 
     $user = $auth->login("users", $credentials, [
-        "username" => ["username", "min:3"],
-        "password" => ["text", "NoSpaces"]
+        "username" => ["username", "max:15"],
+        "password" => ["text", "NoSpaces", "min:8"],
     ]);
 
     if (!$user) {

@@ -284,19 +284,19 @@ class Auth
 	{
 		static::experimental("guard");
 
+		if (is_array($type)) {
+			if (isset($type["hasAuth"])) {
+				$type = $type["hasAuth"] ? 'auth' : 'guest';
+			}
+		}
+
 		if (!static::config("USE_SESSION")) {
 			if ($type === 'guest' && static::user()) {
-				(new Http\Response)->throwErr("You can't view this page while you're logged in!");
+				(new Http\Response)->throwErr(["auth" => "You can't view this page while you're logged in!"]);
 			}
 
 			if ($type === 'auth' && !static::user()) {
 				return;
-			}
-		}
-
-		if (is_array($type)) {
-			if (isset($type["hasAuth"])) {
-				$type = $type["hasAuth"] ? 'auth' : 'guest';
 			}
 		}
 
@@ -525,7 +525,7 @@ class Auth
 		if (count($uniques) > 0) {
 			foreach ($uniques as $unique) {
 				if (!isset($credentials[$unique])) {
-					(new Http\Response)->throwErr(["error" => "$unique not found in credentials."]);
+					trigger_error("$unique not found in credentials: " . json_encode($credentials));
 				}
 
 				$data = static::$db->select($table)->where($unique, $credentials[$unique])->fetchAssoc();

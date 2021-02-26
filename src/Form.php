@@ -182,10 +182,9 @@ class Form
 	public static function validate(array $rules, array $messages = [])
 	{
 		$fields = [];
-		$req = new Request;
 
 		foreach ($rules as $param => $rule) {
-			array_push($fields, ["name" => $param, "value" => $req->get($param), "rule" => $rule]);
+			array_push($fields, ["name" => $param, "value" => Request::get($param), "rule" => $rule]);
 		}
 
 		foreach ($fields as $field) {
@@ -213,8 +212,6 @@ class Form
 	 */
 	public static function validateData(array $rules, array $messages = [])
 	{
-		$supportedRules = static::supportedRules();
-
 		$fields = [];
 
 		foreach ($rules as $param => $rule) {
@@ -291,7 +288,7 @@ class Form
 	 */
 	public static function body()
 	{
-		return (new Request)->body();
+		return Request::body();
 	}
 
 	/**
@@ -301,7 +298,7 @@ class Form
 	 */
 	public static function get()
 	{
-		return (new Request)->body();
+		return Request::body();
 	}
 
 	/**

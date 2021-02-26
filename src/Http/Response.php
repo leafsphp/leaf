@@ -3,8 +3,8 @@
 namespace Leaf\Http;
 
 /**
- * Response
- * -------------- 
+ * Leaf HTTP Response
+ * -----------
  * This is a simple abstraction over top an HTTP response. This
  * provides methods to set the HTTP status, the HTTP headers,
  * and the HTTP body.
@@ -17,12 +17,12 @@ class Response
     /**
      * @var int HTTP status code
      */
-    protected $status;
+    protected static $status;
 
     /**
      * @var \Leaf\Http\Headers
      */
-    public $headers;
+    public static $headers;
 
     /**
      * @var array HTTP response codes and messages
@@ -89,7 +89,7 @@ class Response
 
     public function __construct()
     {
-        $this->headers = new Headers;
+        static::$headers = new Headers;
         Headers::contentHtml();
     }
 
@@ -101,7 +101,7 @@ class Response
      * @param bool $showCode Show response code in body?
      * @param bool $useMessage Show message instead of code
      */
-    public function json($data, int $code = 200, bool $showCode = false, bool $useMessage = false)
+    public static function json($data, int $code = 200, bool $showCode = false, bool $useMessage = false)
     {
         if ($showCode) {
             $dataToPrint = ["data" => $data, "code" => $code];
@@ -120,7 +120,7 @@ class Response
     /**
      * Throw an error and break the application
      */
-    public function throwErr($error, int $code = 500, bool $useMessage = false)
+    public static function throwErr($error, int $code = 500, bool $useMessage = false)
     {
         $dataToPrint = ["error" => $error, "code" => $code];
         if ($useMessage) $dataToPrint = ["error" => $error, "message" => isset(self::$messages[$code]) ? self::$messages[$code] : $code];
@@ -130,13 +130,13 @@ class Response
         exit();
     }
 
-    public function page(string $file, int $code = null)
+    public static function page(string $file, int $code = null)
     {
         Headers::contentHtml($code);
         require $file;
     }
 
-    public function markup(String $markup, int $code = null)
+    public static function markup(String $markup, int $code = null)
     {
         Headers::contentHtml($code);
         echo <<<EOT
@@ -144,7 +144,7 @@ $markup
 EOT;
     }
 
-    public function cors(String $allow_origin = "*", String $allow_headers = "*")
+    public static function cors(String $allow_origin = "*", String $allow_headers = "*")
     {
         Headers::accessControl(["Allow-Origin" => $allow_origin, "Allow-Headers" => $allow_headers]);
     }
@@ -156,7 +156,7 @@ EOT;
      * @param string|null $value Header value
      * @return string Header value
      */
-    public function header($name, $value = null)
+    public static function header($name, $value = null)
     {
         if (!is_null($value)) Headers::set($name, $value);
         return Headers::get($name);
@@ -165,7 +165,7 @@ EOT;
     /**
      * Set HTTP status code
      */
-    public function status($code = null)
+    public static function status($code = null)
     {
         return Headers::status($code);
     }
@@ -179,7 +179,7 @@ EOT;
      * @param string $value If string, the value of cookie
      * @param array $options Settings for cookie
      */
-    public function setCookie($name, $value, $options = [])
+    public static function setCookie($name, $value, $options = [])
     {
         Cookie::set($name, $value, $options);
     }
@@ -191,7 +191,7 @@ EOT;
      * @param string $value The value of cookie
      * @param string $expire When the cookie expires. Default: 7 days
      */
-    public function simpleCookie($name, $value, $expire = "7 days")
+    public static function simpleCookie($name, $value, $expire = "7 days")
     {
         Cookie::simpleCookie($name, $value, $expire);
     }
@@ -201,7 +201,7 @@ EOT;
      *
      * @param string $name The name of the cookie
      */
-    public function deleteCookie($name)
+    public static function deleteCookie($name)
     {
         Cookie::unset($name);
     }
@@ -215,7 +215,7 @@ EOT;
      * @param string $url    The redirect destination
      * @param int    $status The redirect HTTP status code
      */
-    public function redirect($url, $status = 302)
+    public static function redirect($url, $status = 302)
     {
         Headers::status($status);
         Headers::set('Location', $url);

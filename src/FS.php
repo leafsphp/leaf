@@ -112,36 +112,6 @@ class FS
 	}
 
 	/**
-	 * Get an array of all files in a directory.
-	 *
-	 * @param  string  $directory
-	 * @param  bool  $hidden
-	 * @return \Symfony\Component\Finder\SplFileInfo[]
-	 */
-	public static function listFiles($directory, $hidden = false)
-	{
-		return iterator_to_array(
-			Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->depth(0)->sortByName(),
-			false
-		);
-	}
-
-	/**
-	 * Get all of the files from the given directory (recursive).
-	 *
-	 * @param  string  $directory
-	 * @param  bool  $hidden
-	 * @return \Symfony\Component\Finder\SplFileInfo[]
-	 */
-	public static function allFiles($directory, $hidden = false)
-	{
-		return iterator_to_array(
-			Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->sortByName(),
-			false
-		);
-	}
-
-	/**
 	 * Get all of the directories within a given directory.
 	 *
 	 * @param  string  $directory
@@ -175,6 +145,204 @@ class FS
 			return;
 		}
 		touch($filename);
+	}
+
+	/**
+	 * Write content to a file
+	 *
+	 * @param string $filename the name of the file to write to
+	 * @param mixed $content the name of the file to write to
+	 * @param bool $lock Lock file?
+	 *
+	 * @return void
+	 */
+	public static function writeFile($filename, $content, $lock = false)
+	{
+		if (!file_exists($filename)) {
+			self::createFile($filename);
+		}
+		file_put_contents($filename, $content, $lock ? LOCK_EX : 0);
+	}
+
+	/**
+	 * Read the content of a file into a string
+	 *
+	 * @param String $filename: the name of the file to read
+	 *
+	 * @return String|false file content
+	 */
+	public static function readFile(String $filename)
+	{
+		if (!file_exists($filename)) {
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
+		}
+		return file_get_contents($filename);
+	}
+
+	/**
+	 * Rename a file
+	 *
+	 * @param string $filename: the name of the file to rename
+	 * @param string $newfilename: the new name of the file
+	 *
+	 * @return void
+	 */
+	public static function renameFile($filename, $newfilename)
+	{
+		if (!file_exists($filename)) {
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
+		}
+
+		rename($filename, $newfilename);
+	}
+
+	/**
+	 * Delete a file
+	 *
+	 * @param string $dirname: the name of the file to delete
+	 *
+	 * @return void
+	 */
+	public static function deleteFile($filename)
+	{
+		if (!file_exists($filename)) {
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
+		}
+
+		unlink($filename);
+	}
+
+	/**
+	 * Copy and paste a file
+	 *
+	 * @param string $filename: the name of the file to copy
+	 * @param string $to: the directory to copy file to
+	 * @param bool $rename: rename the file if another file exists with the same name
+	 *
+	 * @return void
+	 */
+	public static function copyFile($filename, $to, $rename = true)
+	{
+		if (!file_exists($filename)) {
+			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
+			return false;
+		}
+
+		$newfilename = $filename;
+
+		if (file_exists($filename) && $rename == true) {
+			$newfilename = "(" . time() . ")" . $filename;
+		}
+
+		try {
+			copy($filename, $to . "/" . $newfilename);
+			return $newfilename;
+		} catch (\Throwable $err) {
+			self::$errorsArray[$filename] = "Unable to copy file";
+			return false;
+		}
+	}
+
+	/**
+	 * Recursively copy through a folder
+	 */
+	public static function deepCopy($source, $destination)
+	{
+		$dir = opendir($source);
+		@mkdir($destination);
+
+		while (false !== ($file = readdir($dir))) {
+			if (($file != '.') && ($file != '..')) {
+				if (is_dir("$source/$file")) {
+					static::deepCopy("$source/$file", "$destination/$file");
+				} else {
+					static::copyFile("$source/$file", "$destination/$file");
+				}
+			}
+		}
+
+		closedir($dir);
+	}
+
+	/**
+	 * Copy a file, or recursively copy a folder and its contents
+	 * 
+	 * @author      Aidan Lister <aidan@php.net>
+	 * @version     1.0.1
+	 * @link        http://aidanlister.com/2004/04/recursively-copying-directories-in-php/
+	 * @param       string   $source    Source path
+	 * @param       string   $dest      Destination path
+	 * @param       int      $permissions New folder creation permissions
+	 * @return      bool     Returns true on success, false on failure
+	 */
+	public static function superCopy($source, $dest, $permissions = 0755)
+	{
+		$sourceHash = static::hashDirectory($source);
+		// Check for symlinks
+		if (is_link($source)) {
+			return symlink(readlink($source), $dest);
+		}
+
+		// Simple copy for a file
+		if (is_file($source)) {
+			return copy($source, $dest);
+		}
+
+		// Make destination directory
+		if (!is_dir($dest)) {
+			mkdir($dest, $permissions);
+		}
+
+		// Loop through the folder
+		$dir = dir($source);
+		while (false !== $entry = $dir->read()) {
+			// Skip pointers
+			if ($entry == '.' || $entry == '..') {
+				continue;
+			}
+
+			// Deep copy directories
+			if ($sourceHash != static::hashDirectory($source . "/" . $entry)) {
+				static::superCopy("$source/$entry", "$dest/$entry", $permissions);
+			}
+		}
+
+		// Clean up
+		$dir->close();
+		return true;
+	}
+
+	/**
+	 * Get an array of all files in a directory.
+	 *
+	 * @param  string  $directory
+	 * @param  bool  $hidden
+	 * @return \Symfony\Component\Finder\SplFileInfo[]
+	 */
+	public static function listFiles($directory, $hidden = false)
+	{
+		return iterator_to_array(
+			Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->depth(0)->sortByName(),
+			false
+		);
+	}
+
+	/**
+	 * Get all of the files from the given directory (recursive).
+	 *
+	 * @param  string  $directory
+	 * @param  bool  $hidden
+	 * @return \Symfony\Component\Finder\SplFileInfo[]
+	 */
+	public static function allFiles($directory, $hidden = false)
+	{
+		return iterator_to_array(
+			Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->sortByName(),
+			false
+		);
 	}
 
 	/**
@@ -272,169 +440,6 @@ class FS
 		}
 
 		return 'file';
-	}
-
-	/**
-	 * Write content to a file
-	 *
-	 * @param string $filename the name of the file to write to
-	 * @param mixed $content the name of the file to write to
-	 * @param bool $lock Lock file?
-	 *
-	 * @return void
-	 */
-	public static function writeFile($filename, $content, $lock = false)
-	{
-		if (!file_exists($filename)) {
-			self::createFile($filename);
-		}
-		file_put_contents($filename, $content, $lock ? LOCK_EX : 0);
-	}
-
-	/**
-	 * Read the content of a file into a string
-	 *
-	 * @param String $filename: the name of the file to read
-	 *
-	 * @return String|false file content
-	 */
-	public static function readFile(String $filename)
-	{
-		if (!file_exists($filename)) {
-			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
-			return false;
-		}
-		return file_get_contents($filename);
-	}
-
-	/**
-	 * Rename a file
-	 *
-	 * @param string $filename: the name of the file to rename
-	 * @param string $newfilename: the new name of the file
-	 *
-	 * @return void
-	 */
-	public static function renameFile($filename, $newfilename)
-	{
-		if (!file_exists($filename)) {
-			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
-			return false;
-		}
-		rename($filename, $newfilename);
-	}
-
-	/**
-	 * Delete a file
-	 *
-	 * @param string $dirname: the name of the file to delete
-	 *
-	 * @return void
-	 */
-	public static function deleteFile($filename)
-	{
-		if (!file_exists($filename)) {
-			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
-			return false;
-		}
-		unlink($filename);
-	}
-
-	/**
-	 * Copy and paste a file
-	 *
-	 * @param string $filename: the name of the file to copy
-	 * @param string $to: the directory to copy file to
-	 * @param bool $rename: rename the file if another file exists with the same name
-	 *
-	 * @return void
-	 */
-	public static function copyFile($filename, $to, $rename = true)
-	{
-		if (!file_exists($filename)) {
-			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
-			return false;
-		}
-		$newfilename = $filename;
-		if (file_exists($filename) && $rename == true) {
-			$newfilename = "(" . time() . ")" . $filename;
-		}
-		try {
-			copy($filename, $to . "/" . $newfilename);
-			return $newfilename;
-		} catch (\Throwable $err) {
-			self::$errorsArray[$filename] = "Unable to copy file";
-			return false;
-		}
-	}
-
-	/**
-	 * Recursively copy through a folder
-	 */
-	public static function deepCopy($source, $destination)
-	{
-		$dir = opendir($source);
-		@mkdir($destination);
-
-		while (false !== ($file = readdir($dir))) {
-			if (($file != '.') && ($file != '..')) {
-				if (is_dir("$source/$file")) {
-					static::deepCopy("$source/$file", "$destination/$file");
-				} else {
-					static::copyFile("$source/$file", "$destination/$file");
-				}
-			}
-		}
-
-		closedir($dir);
-	}
-
-	/**
-	 * Copy a file, or recursively copy a folder and its contents
-	 * 
-	 * @author      Aidan Lister <aidan@php.net>
-	 * @version     1.0.1
-	 * @link        http://aidanlister.com/2004/04/recursively-copying-directories-in-php/
-	 * @param       string   $source    Source path
-	 * @param       string   $dest      Destination path
-	 * @param       int      $permissions New folder creation permissions
-	 * @return      bool     Returns true on success, false on failure
-	 */
-	public static function superCopy($source, $dest, $permissions = 0755)
-	{
-		$sourceHash = static::hashDirectory($source);
-		// Check for symlinks
-		if (is_link($source)) {
-			return symlink(readlink($source), $dest);
-		}
-
-		// Simple copy for a file
-		if (is_file($source)) {
-			return copy($source, $dest);
-		}
-
-		// Make destination directory
-		if (!is_dir($dest)) {
-			mkdir($dest, $permissions);
-		}
-
-		// Loop through the folder
-		$dir = dir($source);
-		while (false !== $entry = $dir->read()) {
-			// Skip pointers
-			if ($entry == '.' || $entry == '..') {
-				continue;
-			}
-
-			// Deep copy directories
-			if ($sourceHash != static::hashDirectory($source . "/" . $entry)) {
-				static::superCopy("$source/$entry", "$dest/$entry", $permissions);
-			}
-		}
-
-		// Clean up
-		$dir->close();
-		return true;
 	}
 
 	public static function hashDirectory($directory)

@@ -155,7 +155,7 @@ class Session
 	 * 
 	 * @param string $id: id to override the default
 	 * 
-	 * @return void
+	 * @return false|void
 	 */
 	public static function reset($id = null)
 	{
@@ -163,6 +163,7 @@ class Session
 			static::$errorsArray["session"] = "No active session found!";
 			return false;
 		}
+
 		session_reset();
 		static::set("id", $id ?? session_id());
 	}
@@ -172,7 +173,7 @@ class Session
 	 *
 	 * @param string [optional] $id: id to override the default
 	 *
-	 * @return string: session id
+	 * @return string
 	 */
 	public static function id($id = null)
 	{
@@ -185,7 +186,7 @@ class Session
 	 * 
 	 * @param bool $clearData: Clear all session data?
 	 * 
-	 * @return void
+	 * @return bool True on success, false on failure
 	 */
 	public static function regenerate($clearData = false)
 	{
@@ -194,6 +195,8 @@ class Session
 
 	/**
 	 * Encodes the current session data as a string
+	 * 
+	 * @return string
 	 */
 	public static function encode(): string
 	{
@@ -202,6 +205,8 @@ class Session
 
 	/**
 	 * Decodes session data from a string
+	 * 
+	 * @return bool
 	 */
 	public static function decode($data)
 	{

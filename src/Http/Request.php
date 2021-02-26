@@ -4,9 +4,11 @@ namespace Leaf\Http;
 
 /**
  * Leaf HTTP Request
+ * --------
  *
- * This class provides a human-friendly interface to the Leaf environment variables;
- * environment variables are passed by reference and will be modified directly.
+ * This class provides an object-oriented way to interact with the current
+ * HTTP request being handled by your application as well as retrieve the input,
+ * cookies, and files that were submitted with the request.
  *
  * @author Michael Darko
  * @since 1.0.0
@@ -31,38 +33,38 @@ class Request
      * Application Environment
      * @var \Leaf\Environment
      */
-    protected $env;
+    protected static $env;
 
     /**
      * HTTP Headers
      * @var \Leaf\Http\Headers
      */
-    public $headers;
+    public static $headers;
 
     /**
      * HTTP Cookies
      * @var \Leaf\Helpers\Set
      */
-    public $cookies;
+    public static $cookies;
 
     /**
      * The Request Body
      */
-    protected $request;
+    protected static $request;
 
     public function __construct()
     {
-        $this->env = new \Leaf\Environment();
+        static::$env = new \Leaf\Environment();
         $handler = fopen('php://input', 'r');
-        $this->request = stream_get_contents($handler);
-        $this->headers = new Headers();
+        static::$request = stream_get_contents($handler);
+        static::$headers = new Headers();
     }
 
     /**
      * Get HTTP method
      * @return string
      */
-    public function getMethod()
+    public static function getMethod()
     {
         return $_SERVER['REQUEST_METHOD'];
     }
@@ -73,9 +75,9 @@ class Request
      * @param string $type The type of request to check for
      * @return bool
      */
-    public function typeIs(string $type)
+    public static function typeIs(string $type)
     {
-        return $this->getMethod() === strtoupper($type);
+        return static::getMethod() === strtoupper($type);
     }
 
     /**
@@ -84,19 +86,19 @@ class Request
      * @param string $header  Header to check for
      * @return bool
      */
-    public function hasHeader(String $header)
+    public static function hasHeader(String $header)
     {
-        return !!$this->headers->get($header);
+        return !!static::$headers->get($header);
     }
 
     /**
      * Is this an AJAX request?
      * @return bool
      */
-    public function isAjax()
+    public static function isAjax()
     {
-        if ($this->params('isajax')) return true;
-        if ($this->headers->get('X_REQUESTED_WITH') && $this->headers->get('X_REQUESTED_WITH') === 'XMLHttpRequest') return true;
+        if (static::params('isajax')) return true;
+        if (static::$headers->get('X_REQUESTED_WITH') && static::$headers->get('X_REQUESTED_WITH') === 'XMLHttpRequest') return true;
 
         return false;
     }
@@ -105,9 +107,9 @@ class Request
      * Is this an XHR request? (alias of Leaf_Http_Request::isAjax)
      * @return bool
      */
-    public function isXhr()
+    public static function isXhr()
     {
-        return $this->isAjax();
+        return static::isAjax();
     }
 
     /**
@@ -122,9 +124,9 @@ class Request
      * 
      * @return array|mixed|null
      */
-    public function params($key = null, $default = null)
+    public static function params($key = null, $default = null)
     {
-        $union = $this->body();
+        $union = static::body();
         if ($key) return isset($union[$key]) ? $union[$key] : $default;
 
         return $union;
@@ -140,13 +142,13 @@ class Request
      * @param string|array $params The parameter(s) to return
      * @param bool $safeData Sanitize output
      */
-    public function get($params, bool $safeData = true)
+    public static function get($params, bool $safeData = true)
     {
-        if (is_string($params)) return $this->body($safeData)[$params] ?? null;
+        if (is_string($params)) return static::body($safeData)[$params] ?? null;
 
         $data = [];
         foreach ($params as $param) {
-            $data[$param] = $this->get($param, $safeData);
+            $data[$param] = static::get($param, $safeData);
         }
         return $data;
     }
@@ -156,9 +158,9 @@ class Request
      * 
      * @param bool $safeData Sanitize output
      */
-    public function body(bool $safeData = true)
+    public static function body(bool $safeData = true)
     {
-        $req = is_array(json_decode($this->request, true)) ? json_decode($this->request, true) : [];
+        $req = is_array(json_decode(static::$request, true)) ? json_decode(static::$request, true) : [];
         return $safeData ? \Leaf\Util::sanitize(array_merge($_GET, $_FILES, $_POST, $req)) : array_merge($_GET, $_FILES, $_POST, $req);
     }
 
@@ -167,7 +169,7 @@ class Request
      * 
      * @param string|array $filenames The file(s) you want to get
      */
-    public function files($filenames = null)
+    public static function files($filenames = null)
     {
         if ($filenames == null) return $_FILES;
         if (is_string($filenames)) return $_FILES[$filenames] ?? null;
@@ -188,7 +190,7 @@ class Request
      * @param  string            $key
      * @return array|string|null
      */
-    public function cookies($key = null)
+    public static function cookies($key = null)
     {
         return $key ? \Leaf\Http\Cookie::get($key) : \Leaf\Http\Cookie::all();
     }
@@ -197,11 +199,11 @@ class Request
      * Does the Request body contain parsed form data?
      * @return bool
      */
-    public function isFormData()
+    public static function isFormData()
     {
-        $method = $this->env['leaf.method_override.original_method'] ?? $this->getMethod();
+        $method = static::$env['leaf.method_override.original_method'] ?? static::getMethod();
 
-        return ($method === self::METHOD_POST && is_null($this->getContentType())) || in_array($this->getMediaType(), self::$formDataMediaTypes);
+        return ($method === self::METHOD_POST && is_null(static::getContentType())) || in_array(static::getMediaType(), self::$formDataMediaTypes);
     }
 
     /**
@@ -215,28 +217,28 @@ class Request
      * 
      * @return mixed
      */
-    public function headers($key = null, $safeData = true)
+    public static function headers($key = null, $safeData = true)
     {
-        if ($key) return $this->headers->get($key, $safeData);
-        return $this->headers->all($safeData);
+        if ($key) return static::$headers->get($key, $safeData);
+        return static::$headers->all($safeData);
     }
 
     /**
      * Get Content Type
      * @return string|null
      */
-    public function getContentType()
+    public static function getContentType()
     {
-        return $this->headers->get('CONTENT_TYPE');
+        return static::$headers->get('CONTENT_TYPE');
     }
 
     /**
      * Get Media Type (type/subtype within Content Type header)
      * @return string|null
      */
-    public function getMediaType()
+    public static function getMediaType()
     {
-        $contentType = $this->getContentType();
+        $contentType = static::getContentType();
         if ($contentType) {
             $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
 
@@ -250,9 +252,9 @@ class Request
      * Get Media Type Params
      * @return array
      */
-    public function getMediaTypeParams()
+    public static function getMediaTypeParams()
     {
-        $contentType = $this->getContentType();
+        $contentType = static::getContentType();
         $contentTypeParams = array();
         if ($contentType) {
             $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
@@ -270,9 +272,9 @@ class Request
      * Get Content Charset
      * @return string|null
      */
-    public function getContentCharset()
+    public static function getContentCharset()
     {
-        $mediaTypeParams = $this->getMediaTypeParams();
+        $mediaTypeParams = static::getMediaTypeParams();
         if (isset($mediaTypeParams['charset'])) {
             return $mediaTypeParams['charset'];
         }
@@ -284,97 +286,97 @@ class Request
      * Get Content-Length
      * @return int
      */
-    public function getContentLength()
+    public static function getContentLength()
     {
-        return $this->headers->get('CONTENT_LENGTH') ?? 0;
+        return static::$headers->get('CONTENT_LENGTH') ?? 0;
     }
 
     /**
      * Get Host
      * @return string
      */
-    public function getHost()
+    public static function getHost()
     {
-        if (isset($this->env['HTTP_HOST'])) {
-            if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $this->env['HTTP_HOST'], $matches)) {
+        if (isset(static::$env['HTTP_HOST'])) {
+            if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', static::$env['HTTP_HOST'], $matches)) {
                 return $matches[1];
             } else {
-                if (strpos($this->env['HTTP_HOST'], ':') !== false) {
-                    $hostParts = explode(':', $this->env['HTTP_HOST']);
+                if (strpos(static::$env['HTTP_HOST'], ':') !== false) {
+                    $hostParts = explode(':', static::$env['HTTP_HOST']);
 
                     return $hostParts[0];
                 }
             }
 
-            return $this->env['HTTP_HOST'];
+            return static::$env['HTTP_HOST'];
         }
 
-        return $this->env['SERVER_NAME'];
+        return static::$env['SERVER_NAME'];
     }
 
     /**
      * Get Host with Port
      * @return string
      */
-    public function getHostWithPort()
+    public static function getHostWithPort()
     {
-        return sprintf('%s:%s', $this->getHost(), $this->getPort());
+        return sprintf('%s:%s', static::getHost(), static::getPort());
     }
 
     /**
      * Get Port
      * @return int
      */
-    public function getPort()
+    public static function getPort()
     {
-        return (int) $this->env['SERVER_PORT'];
+        return (int) static::$env['SERVER_PORT'];
     }
 
     /**
      * Get Scheme (https or http)
      * @return string
      */
-    public function getScheme()
+    public static function getScheme()
     {
-        return $this->env['leaf.url_scheme'];
+        return static::$env['leaf.url_scheme'];
     }
 
     /**
      * Get Script Name (physical path)
      * @return string
      */
-    public function getScriptName()
+    public static function getScriptName()
     {
-        return $this->env['SCRIPT_NAME'];
+        return static::$env['SCRIPT_NAME'];
     }
 
     /**
      * Get Path (physical path + virtual path)
      * @return string
      */
-    public function getPath()
+    public static function getPath()
     {
-        return $this->getScriptName() . $this->getPathInfo();
+        return static::getScriptName() . static::getPathInfo();
     }
 
     /**
      * Get Path Info (virtual path)
      * @return string
      */
-    public function getPathInfo()
+    public static function getPathInfo()
     {
-        return $this->env['PATH_INFO'];
+        return static::$env['PATH_INFO'];
     }
 
     /**
      * Get URL (scheme + host [ + port if non-standard ])
      * @return string
      */
-    public function getUrl()
+    public static function getUrl()
     {
-        $url = $this->getScheme() . '://' . $this->getHost();
-        if (($this->getScheme() === 'https' && $this->getPort() !== 443) || ($this->getScheme() === 'http' && $this->getPort() !== 80)) {
-            $url .= ":{$this->getPort()}";
+        $url = static::getScheme() . '://' . static::getHost();
+        if ((static::getScheme() === 'https' && static::getPort() !== 443) || (static::getScheme() === 'http' && static::getPort() !== 80)) {
+            $url .= ":{static::getPort()}";
         }
 
         return $url;
@@ -384,42 +386,42 @@ class Request
      * Get IP
      * @return string
      */
-    public function getIp()
+    public static function getIp()
     {
         $keys = array('X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
         foreach ($keys as $key) {
-            if (isset($this->env[$key])) {
-                return $this->env[$key];
+            if (isset(static::$env[$key])) {
+                return static::$env[$key];
             }
         }
 
-        return $this->env['REMOTE_ADDR'];
+        return static::$env['REMOTE_ADDR'];
     }
 
     /**
      * Get Referrer
      * @return string|null
      */
-    public function getReferrer()
+    public static function getReferrer()
     {
-        return $this->headers->get('HTTP_REFERER');
+        return static::$headers->get('HTTP_REFERER');
     }
 
     /**
      * Get Referer (for those who can't spell)
      * @return string|null
      */
-    public function getReferer()
+    public static function getReferer()
     {
-        return $this->getReferrer();
+        return static::getReferrer();
     }
 
     /**
      * Get User Agent
      * @return string|null
      */
-    public function getUserAgent()
+    public static function getUserAgent()
     {
-        return $this->headers->get('HTTP_USER_AGENT');
+        return static::$headers->get('HTTP_USER_AGENT');
     }
 }

@@ -58,11 +58,6 @@ class Db
 	protected $form;
 
 	/**
-	 * Leaf Response Module
-	 */
-	protected $response;
-
-	/**
 	 * List of methods called
 	 */
 	protected $callStack = [];
@@ -70,7 +65,6 @@ class Db
 	public function __construct($host = null, $user = null, $password = null, $dbname = null)
 	{
 		$this->form = new Form;
-		$this->response = new Http\Response;
 
 		if ($host != null || $user != null || $password != null || $dbname != null) {
 			$this->connect($host, $user, $password, $dbname);
@@ -535,7 +529,7 @@ class Db
 	public function execute($paramTypes = null)
 	{
 		if ($this->connection === null) {
-			$this->response->throwErr("Couldn't establish database connection. Call the connect() method, or check your database");
+			trigger_error("Couldn't establish database connection. Call the connect() method, or check your database");
 		}
 
 		if (count($this->errorsArray) > 0) return null;
@@ -561,7 +555,7 @@ class Db
 		if (count($uniques) > 0 && ($this->queryData["type"] != "select" || $this->queryData["type"] != "delete")) {
 			foreach ($uniques as $unique) {
 				if (!isset($paramValues[$unique])) {
-					$this->response->throwErr(["error" => "$unique not found, Add $unique to your \$db->add items or check your spelling."]);
+					trigger_error("$unique not found, Add $unique to your \$db->add items or check your spelling.");
 				}
 
 				if (mysqli_fetch_object($this->connection->query("SELECT * FROM {$this->queryData["table"]} WHERE $unique = '$paramValues[$unique]'"))) {

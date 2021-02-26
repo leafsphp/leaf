@@ -1,6 +1,25 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.4.3 - 🎋 Giant Cane Grass - 26th February 2021
+
+### Added
+
+- Updated `Leaf\Db` and `Leaf\Auth` to throw dev errors to Leaf's error handler for better error reporting
+
+### Fixed
+
+- Organized methods in `Leaf\FS`
+
+### Changed
+
+- Made `Leaf\Http\Response` static
+- Made `Leaf\Http\Request` static
+
+### Removed
+
+- No removals
+
 ## v2.4.2 - 🥬 Desert Wishbone-bush - 3rd February 2021
 
 This version of Leaf continues the goal of making Leaf features more flexible and increasing usability.
