@@ -16,7 +16,7 @@ class Headers
 
     /**
      * Get or Set an HTTP code for response
-     * 
+     *
      * @param int|null $http_code The current response code.
      */
     public static function status($http_code = null)
@@ -35,7 +35,7 @@ class Headers
 
     /**
      * Get all headers passed into application
-     * 
+     *
      * @param bool $safeOutput Try to sanitize header data
      */
     public static function all($safeOutput = false): array
@@ -46,10 +46,10 @@ class Headers
 
     /**
      * Return a particular header passed into app
-     * 
+     *
      * @param string|array $param The header(s) to return
      * @param bool $safeOutput Try to sanitize header data
-     * 
+     *
      * @return string|array
      */
     public static function get($params, $safeOutput = false)
@@ -116,7 +116,7 @@ class Headers
 
     protected static function findHeaders()
     {
-        if (getallheaders()) return getallheaders();
+        if (function_exists("getallheaders") && \getallheaders()) return \getallheaders();
 
         $headers = [];
         foreach ($_SERVER as $name => $value) {

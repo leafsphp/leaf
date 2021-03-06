@@ -9,7 +9,7 @@ use Leaf\Helpers\Password;
  * Leaf Simple Auth
  * -------------------------
  * Authentication made easy.
- * 
+ *
  * @author Michael Darko
  * @since 1.5.0
  * @version 2.0.0
@@ -59,7 +59,6 @@ class Auth
 		"GUARD_REGISTER" => "/auth/register",
 		"GUARD_HOME" => "/home",
 		"SAVE_SESSION_JWT" => false,
-		"EXPERIMENTAL_WARNINGS" => true,
 	];
 
 	/**
@@ -84,7 +83,7 @@ class Auth
 
 	/**
 	 * Create a db connection
-	 * 
+	 *
 	 * @param string $host The db host name
 	 * @param string $host The db user
 	 * @param string $host The db password
@@ -113,9 +112,9 @@ class Auth
 
 	/**
 	 * Get or set the default token lifetime value
-	 * 
+	 *
 	 * @param int $lifeTime The new lifetime value for token
-	 * 
+	 *
 	 * @return int|string|void
 	 */
 	public static function tokenLifetime($lifeTime = null)
@@ -127,7 +126,7 @@ class Auth
 
 	/**
 	 * Set token secret key for auth
-	 * 
+	 *
 	 * @param string $secretKey
 	 */
 	public static function setSecretKey(string $secretKey)
@@ -146,14 +145,12 @@ class Auth
 	/**
 	 * Set auth config
 	 */
-	public static function config($config = null, $value = null)
+	public static function config($config, $value = null)
 	{
-		if (!$config) {
-			return static::$settings;
-		}
-
 		if (is_array($config)) {
-			static::$settings = array_merge(static::$settings, $config);
+			foreach ($config as $key => $configValue) {
+				static::config($key, $configValue);
+			}
 		} else {
 			if (!$value) return static::$settings[$config] ?? null;
 			static::$settings[$config] = $value;
@@ -165,14 +162,6 @@ class Auth
 	 */
 	protected static function experimental($method)
 	{
-		if (!static::$session && static::$settings["USE_SESSION"]) {
-			static::$session = new \Leaf\Http\Session(false);
-		}
-
-		if (!static::config("EXPERIMENTAL_WARNINGS")) {
-			return;
-		}
-
 		if (!static::config("USE_SESSION")) {
 			trigger_error("Auth::$method is experimental. Turn on USE_SESSION to use this feature.");
 		}
@@ -233,7 +222,7 @@ class Auth
 
 	/**
 	 * Define/Return session middleware
-	 * 
+	 *
 	 * **This method only works with session auth**
 	 */
 	public static function middleware(string $name, callable $handler = null)
@@ -252,10 +241,6 @@ class Auth
 	{
 		static::experimental("session");
 
-		if (!static::$session) {
-			return false;
-		}
-
 		return static::$session->get("AUTH_USER") ?? false;
 	}
 
@@ -267,7 +252,7 @@ class Auth
 		static::experimental("endSession");
 
 		static::$session->destroy();
-	
+
 		if ($location) {
 			$route = static::config($location) ?? $location;
 			(new Http\Response)->redirect($route);
@@ -277,7 +262,7 @@ class Auth
 	/**
 	 * A simple auth guard: 'guest' pages can't be viewed when logged in,
 	 * 'auth' pages can't be viewed without authentication
-	 * 
+	 *
 	 * @param array|string $type The type of guard/guard options
 	 */
 	public static function guard($type)
@@ -287,16 +272,6 @@ class Auth
 		if (is_array($type)) {
 			if (isset($type["hasAuth"])) {
 				$type = $type["hasAuth"] ? 'auth' : 'guest';
-			}
-		}
-
-		if (!static::config("USE_SESSION")) {
-			if ($type === 'guest' && static::user()) {
-				(new Http\Response)->throwErr(["auth" => "You can't view this page while you're logged in!"]);
-			}
-
-			if ($type === 'auth' && !static::user()) {
-				return;
 			}
 		}
 
@@ -321,11 +296,11 @@ class Auth
 
 	/**
 	 * Simple user login
-	 * 
+	 *
 	 * @param string table: Table to look for users
 	 * @param array $credentials User credentials
 	 * @param array $validate Validation for parameters
-	 * 
+	 *
 	 * @return array user: all user info + tokens + session data
 	 */
 	public static function login(string $table, array $credentials, array $validate = [])
@@ -402,12 +377,12 @@ class Auth
 
 	/**
 	 * Simple user registration
-	 * 
+	 *
 	 * @param string $table: Table to store user in
 	 * @param array $credentials Information for new user
 	 * @param array $uniques Parameters which should be unique
 	 * @param array $validate Validation for parameters
-	 * 
+	 *
 	 * @return array user: all user info + tokens + session data
 	 */
 	public static function register(string $table, array $credentials, array $uniques = [], array $validate = [])
@@ -495,13 +470,13 @@ class Auth
 
 	/**
 	 * Simple user update
-	 * 
+	 *
 	 * @param string $table: Table to store user in
 	 * @param array $credentials New information for user
 	 * @param array $where Information to find user by
 	 * @param array $uniques Parameters which should be unique
 	 * @param array $validate Validation for parameters
-	 * 
+	 *
 	 * @return array user: all user info + tokens + session data
 	 */
 	public static function update(string $table, array $credentials, array $where, array $uniques = [], array $validate = [])
@@ -525,7 +500,7 @@ class Auth
 		if (count($uniques) > 0) {
 			foreach ($uniques as $unique) {
 				if (!isset($credentials[$unique])) {
-					trigger_error("$unique not found in credentials: " . json_encode($credentials));
+					(new Http\Response)->throwErr(["error" => "$unique not found in credentials."]);
 				}
 
 				$data = static::$db->select($table)->where($unique, $credentials[$unique])->fetchAssoc();
@@ -605,7 +580,7 @@ class Auth
 
 	/**
 	 * Validate Json Web Token
-	 * 
+	 *
 	 * @param string $token The token validate
 	 * @param string $secretKey The secret key used to encode token
 	 */
@@ -621,7 +596,7 @@ class Auth
 
 	/**
 	 * Validate Bearer Token
-	 * 
+	 *
 	 * @param string $secretKey The secret key used to encode token
 	 */
 	public static function validateToken($secretKey = null)
@@ -649,7 +624,7 @@ class Auth
 
 	/**
 	 * Get the current user data from token
-	 * 
+	 *
 	 * @param string $table The table to look for user
 	 * @param array $hidden Fields to hide from user array
 	 */
@@ -677,7 +652,7 @@ class Auth
 	}
 
 	/**
-	 * Return the user id encoded in token 
+	 * Return the user id encoded in token
 	 */
 	public static function id()
 	{
@@ -695,7 +670,7 @@ class Auth
 	 */
 	public static function get($param)
 	{
-		return static::$form::get($param);
+		return static::$form->get($param);
 	}
 
 	/**

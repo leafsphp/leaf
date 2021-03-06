@@ -89,11 +89,11 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $this->properties = $settings;
         } else {
             $env = [];
-            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
-            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'] ?? null;
 
             $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
-            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
+            $requestUri = $_SERVER['REQUEST_URI'] ?? null; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
 
             // Physical path
@@ -116,10 +116,10 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['QUERY_STRING'] = $queryString;
 
             //Name of server host that is running the script
-            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
+            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? null;
 
             //Number of server port that is running the script
-            $env['SERVER_PORT'] = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
+            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'] ?? 80;
 
             //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
             $headers = \Leaf\Http\Headers::all();
