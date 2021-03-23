@@ -1,23 +1,19 @@
 <?php
 
-/**
- * Leaf PHP Framework - A PHP micro-framework
- *
- * @author Michael Darko <mickdd22@gmail.com>
- * @copyright 2019-2020 Michael Darko
- * @link http://www.leafphp.netlify.app/#/
- * @license MIT
- * @package Leaf
- */
-
 namespace Leaf;
 
 use Exception;
 
 /**
- * Leaf Core package
+ * Leaf PHP Framework
+ * ------
+ * Quickly build simple but powerful apps and APIs
+ *
+ * @author Michael Darko <mickdd22@gmail.com>
+ * @copyright 2019-2021 Michael Darko
+ * @link http://leafphp.netlify.app/#/leaf/
+ * @license MIT
  * @package Leaf
- * @author Michael Darko
  */
 class App
 {
@@ -51,10 +47,65 @@ class App
      */
     public function __construct(array $userSettings = [])
     {
+        if (count($userSettings) > 0) {
+            Config::set($userSettings);
+        }
+
         // Setup IoC container
         $this->container = new \Leaf\Helpers\Set();
-        $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
+        $this->container['settings'] = Config::get();
 
+        $this->leafRouter = new Router(
+            $this->config('mode'),
+            $this->config('debug') ?? true,
+            $this
+        );
+
+        $this->setupDefaultContainer();
+
+        // Make default if first instance
+        if (is_null(static::getInstance())) {
+            $this->setName('default');
+        }
+
+        View::attach(\Leaf\BareUI::class, 'template');
+
+        // Link container Views
+        if ($this->config("views.blade")) {
+            View::attach(\Leaf\Blade::class);
+            View::blade()->configure(
+                $this->config("views.path") ?? "App/Views/",
+                $this->config("views.cachePath") ?? "storage/framework/views/"
+            );
+        }
+
+        $this->loadViewEngines();
+    }
+
+    /**
+     * This method adds a method to the global leaf instance
+     * Register a method and use it globally on the Leaf Object
+     */
+    public function register($name, $value)
+    {
+        return $this->container->singleton($name, $value);
+    }
+
+    public function loadViewEngines()
+    {
+        $views = View::$engines;
+
+        if (count($views) > 0) {
+            foreach ($views as $key => $value) {
+                $this->container->singleton($key, function ($c) use ($value) {
+                    return $value;
+                });
+            }
+        }
+    }
+
+    private function setupDefaultContainer()
+    {
         // Default request
         $this->container->singleton('request', function ($c) {
             return new \Leaf\Http\Request();
@@ -90,11 +141,6 @@ class App
             return new \Leaf\FS();
         });
 
-        //  Blade Templating
-        $this->container->singleton('blade', function ($c) {
-            return new \Leaf\Blade();
-        });
-
         // Default log writer
         $this->container->singleton('logWriter', function ($c) {
             $logWriter = $c['settings']['log.writer'];
@@ -128,26 +174,6 @@ class App
 
             return $mode;
         };
-
-        // Make default if first instance
-        if (is_null(static::getInstance())) {
-            $this->setName('default');
-        }
-
-        $this->leafRouter = new Router(
-            $this->config('mode'),
-            $this->config('debug') ?? true,
-            $this
-        );
-    }
-
-    /**
-     * This method adds a method to the global leaf instance
-     * Register a method and use it globally on the Leaf Object
-     */
-    public function register($name, $value)
-    {
-        return $this->container->singleton($name, $value);
     }
 
     public function __get($name)
@@ -238,19 +264,25 @@ class App
     {
         $c = $this->container;
 
-        if (is_array($name)) {
-            if (true === $value) {
-                $c['settings'] = array_merge_recursive($c['settings'], $name);
-            } else {
-                $c['settings'] = array_merge($c['settings'], $name);
-            }
-        } elseif (func_num_args() === 1) {
+        if ($value === null) {
             return isset($c['settings'][$name]) ? $c['settings'][$name] : null;
+        }
+
+        $settings = [];
+
+        if (is_array($name)) {
+            if ($value === true) {
+                $settings = array_merge_recursive($c['settings'], $name);
+            } else {
+                $settings = array_merge($c['settings'], $name);
+            }
         } else {
             $settings = $c['settings'];
             $settings[$name] = $value;
-            $c['settings'] = $settings;
         }
+
+        Config::set($settings);
+        $c['settings'] = $settings;
     }
 
     /********************************************************************************
@@ -639,7 +671,7 @@ class App
     public function lastModified($time)
     {
         if (is_integer($time)) {
-            $this->response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
+            $this->response()::$headers->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
             if ($time === strtotime($this->request->headers->get('IF_MODIFIED_SINCE'))) {
                 $this->halt(304);
             }
@@ -705,7 +737,7 @@ class App
         if (is_string($time)) {
             $time = strtotime($time);
         }
-        $this->response->headers->set('Expires', gmdate('D, d M Y H:i:s T', $time));
+        $this->response()::$headers->set('Expires', gmdate('D, d M Y H:i:s T', $time));
     }
 
     /********************************************************************************
@@ -790,7 +822,7 @@ class App
      */
     public function contentType($type)
     {
-        $this->response->headers->set('Content-Type', $type);
+        $this->response()::$headers->set('Content-Type', $type);
     }
 
     /**
