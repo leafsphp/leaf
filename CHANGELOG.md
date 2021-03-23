@@ -1,7 +1,7 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.4.4 - 🎋 Common Reed - 22nd March 2021
+## v2.4.4 - 🎋 Common Reed - 23rd March 2021
 
 ### Added
 
@@ -10,6 +10,10 @@
 - Added Leaf\View
 - Added support for multiple template engines concurrently
 - Added BareUI templating engine
+
+### Fixed
+
+- Internal code improvements on App
 
 ## v2.4.3 - 🎋 Giant Cane Grass - 26th February 2021
 
