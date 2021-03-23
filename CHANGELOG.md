@@ -9,6 +9,7 @@
 - Added new leaf config options
 - Added Leaf\View
 - Added support for multiple template engines concurrently
+- Added BareUI templating engine
 
 ## v2.4.3 - 🎋 Giant Cane Grass - 26th February 2021
 
