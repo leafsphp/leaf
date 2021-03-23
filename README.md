@@ -31,7 +31,7 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 
 ```php
 <?php
-require __DIR__ . 'vendor/autoload.php';
+require __DIR__ . "vendor/autoload.php";
 
 $app = new Leaf\App;
 $auth = new Leaf\Auth;
@@ -39,24 +39,26 @@ $auth = new Leaf\Auth;
 $auth->connect("host", "user", "pass", "db name");
 
 // Base example
-$app->get('/', function() use($app) {
-   $app->response()->respond("My first Leaf app");
+$app->get("/", function() use($app) {
+  $app->response()->json([
+    "message" => "Welcome!"
+  ]);
 });
 
 // Full login example
-$app->post('/auth/login', function() use($app, $auth) {
-    $credentials = $app->request()->get(["username", "password"]);
+$app->post("/auth/login", function() use($app, $auth) {
+  $credentials = $app->request()->get(["username", "password"]);
 
-    $user = $auth->login("users", $credentials, [
-        "username" => ["username", "max:15"],
-        "password" => ["text", "NoSpaces", "min:8"],
-    ]);
+  $user = $auth->login("users", $credentials, [
+    "username" => ["username", "max:15"],
+    "password" => ["text", "NoSpaces", "min:8"],
+  ]);
 
-    if (!$user) {
-        $app->response()->throwErr($auth->errors());
-    }
+  if (!$user) {
+    $app->response()->throwErr($auth->errors());
+  }
 
-    $app->response()->json($user);
+  $app->response()->json($user);
 });
 
 $app->run();
