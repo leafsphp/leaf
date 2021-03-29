@@ -305,8 +305,12 @@ class App
      * 
      * @return \Leaf\Log
      */
-    public function logger()
+    public function logger(): Log
     {
+        if (!$this->log) {
+            trigger_error("You need to set log.enabled to true to use this feature!");
+        }
+
         return $this->log;
     }
 
@@ -532,9 +536,6 @@ class App
             $this->response->status(500);
             $this->response()::markup($this->callErrorHandler($argument));
 
-            echo "Something";
-            // $this->response->body('');
-            // $this->response->write($this->callErrorHandler($argument));
             $this->stop();
         }
     }
@@ -555,7 +556,7 @@ class App
         if (is_callable($this->error)) {
             call_user_func_array($this->error, [$argument]);
         } else {
-            call_user_func_array([$this, 'defaultError'], [$argument]);
+            echo \Leaf\Exception\General::defaultError($argument, $this);
         }
 
         return ob_get_clean();

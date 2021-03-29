@@ -165,9 +165,12 @@ class General extends \Exception
 	/**
 	 * Default Error handler
 	 */
-	public static function defaultError($e)
+	public static function defaultError($e, ?\Leaf\App $app = null)
 	{
-		// $this->getLog()->error($e);
-		echo self::errorMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+		if ($app && $app->config("log.enabled")) {
+			$app->logger()->error($e);
+		}
+
+		echo self::errorMarkup('Application Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
 	}
 }
