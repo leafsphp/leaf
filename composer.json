@@ -27,7 +27,6 @@
     },
     "minimum-stability": "stable",
     "require": {
-        "leafs/blade": "^1.2",
         "illuminate/database": "^8.0",
         "illuminate/container": "^8.0",
         "illuminate/events": "^8.0",
