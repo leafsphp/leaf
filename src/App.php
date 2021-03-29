@@ -18,7 +18,7 @@ use Exception;
 class App
 {
     /**
-     * @var \Leaf\Helpers\Set
+     * @var \Leaf\Helpers\Container
      */
     public $container;
 
@@ -52,7 +52,7 @@ class App
         }
 
         // Setup IoC container
-        $this->container = new \Leaf\Helpers\Set();
+        $this->container = new \Leaf\Helpers\Container();
         $this->container['settings'] = Config::get();
 
         $this->leafRouter = new Router(
@@ -69,15 +69,6 @@ class App
         }
 
         View::attach(\Leaf\BareUI::class, 'template');
-
-        // Link container Views
-        if ($this->config("views.blade")) {
-            View::attach(\Leaf\Blade::class);
-            View::blade()->configure(
-                $this->config("views.path") ?? "App/Views/",
-                $this->config("views.cachePath") ?? "storage/framework/views/"
-            );
-        }
 
         $this->loadViewEngines();
     }

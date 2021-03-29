@@ -2,7 +2,7 @@
 
 namespace Leaf\Helpers;
 
-class Set implements \ArrayAccess, \Countable, \IteratorAggregate
+class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * Key-value array of arbitrary data
