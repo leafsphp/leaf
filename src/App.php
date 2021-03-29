@@ -65,7 +65,7 @@ class App
 
         // Make default if first instance
         if (is_null(static::getInstance())) {
-            $this->setName('default');
+            $this->name('default');
         }
 
         View::attach(\Leaf\BareUI::class, 'template');
@@ -98,66 +98,70 @@ class App
     private function setupDefaultContainer()
     {
         // Default request
-        $this->container->singleton('request', function ($c) {
+        $this->container->singleton("request", function ($c) {
             return new \Leaf\Http\Request();
         });
 
         // Default response
-        $this->container->singleton('response', function ($c) {
+        $this->container->singleton("response", function ($c) {
             return new \Leaf\Http\Response();
         });
 
         // Default headers
-        $this->container->singleton('headers', function ($c) {
+        $this->container->singleton("headers", function ($c) {
             return new \Leaf\Http\Headers();
         });
 
         // Default session
-        $this->container->singleton('session', function ($c) {
+        $this->container->singleton("session", function ($c) {
             return new \Leaf\Http\Session();
         });
 
         //  Default DB
-        $this->container->singleton('db', function ($c) {
+        $this->container->singleton("db", function ($c) {
             return new \Leaf\Db();
         });
 
         //  Default Date
-        $this->container->singleton('date', function ($c) {
+        $this->container->singleton("date", function ($c) {
             return new \Leaf\Date();
         });
 
         //  Default FS
-        $this->container->singleton('fs', function ($c) {
+        $this->container->singleton("fs", function ($c) {
             return new \Leaf\FS();
         });
 
-        // Default log writer
-        $this->container->singleton('logWriter', function ($c) {
-            $logWriter = $c['settings']['log.writer'];
+        if ($this->config("log.enabled")) {
+            // Default log writer
+            $this->container->singleton("logWriter", function ($c) {
+                $logWriter = Config::get("log.writer");
 
-            return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($c['environment']['leaf.errors']);
-        });
+                $file = $this->config("log.dir") . $this->config("log.file");
 
-        // Default log
-        $this->container->singleton('log', function ($c) {
-            $log = new \Leaf\Log($c['logWriter']);
-            $log->setEnabled($c['settings']['log.enabled']);
-            $log->setLevel($c['settings']['log.level']);
-            $env = $c['environment'];
-            $env['leaf.log'] = $log;
+                return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config("log.open") ?? true);
+            });
 
-            return $log;
-        });
+            // Default log
+            $this->container->singleton("log", function ($c) {
+                $log = new \Leaf\Log($c["logWriter"]);
+                $log->enabled($this->config("log.enabled"));
+                $log->level($this->config("log.level"));
+                $env = $c["environment"];
+                $env["leaf.log"] = $log;
+
+                return $log;
+            });
+        }
 
         // Default mode
-        $this->container['mode'] = function ($c) {
-            $mode = $c['settings']['mode'];
+        $this->container["mode"] = function ($c) {
+            $mode = $c["settings"]["mode"];
 
-            if (isset($_ENV['LEAF_MODE'])) {
-                $mode = $_ENV['LEAF_MODE'];
+            if (isset($_ENV["LEAF_MODE"])) {
+                $mode = $_ENV["LEAF_MODE"];
             } else {
-                $envMode = getenv('LEAF_MODE');
+                $envMode = getenv("LEAF_MODE");
                 if ($envMode !== false) {
                     $mode = $envMode;
                 }
@@ -192,44 +196,23 @@ class App
      * @param  string    $name The name of the Leaf application
      * @return \Leaf\App|null
      */
-    public static function getInstance($name = 'default')
+    public static function getInstance($name = "default")
     {
         return isset(static::$apps[$name]) ? static::$apps[$name] : null;
     }
 
     /**
-     * Set Leaf application name
+     * Get/Set Leaf application name
      * @param  string $name The name of this Leaf application
      */
-    public function setName($name)
+    public function name(?string $name = null)
     {
+        if ($name === null) {
+            return $this->name;
+        }
+
         $this->name = $name;
         static::$apps[$name] = $this;
-    }
-
-    /**
-     * Get Leaf application name
-     * @return string|null
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Get default application settings
-     * @return array
-     */
-    public static function getDefaultSettings()
-    {
-        return [
-            'mode' => 'development',
-            'debug' => true,
-            'log.writer' => null,
-            'log.level' => \Leaf\Log::DEBUG,
-            'log.enabled' => true,
-            'http.version' => '1.1',
-        ];
     }
 
     /**
@@ -256,7 +239,7 @@ class App
         $c = $this->container;
 
         if ($value === null) {
-            return isset($c['settings'][$name]) ? $c['settings'][$name] : null;
+            return Config::get($name);
         }
 
         $settings = [];
@@ -272,8 +255,8 @@ class App
             $settings[$name] = $value;
         }
 
-        Config::set($settings);
         $c['settings'] = $settings;
+        Config::set($settings);
     }
 
     /********************************************************************************
@@ -319,9 +302,10 @@ class App
 
     /**
      * Get application log
+     * 
      * @return \Leaf\Log
      */
-    public function getLog()
+    public function logger()
     {
         return $this->log;
     }
@@ -541,11 +525,14 @@ class App
     public function error($argument = null)
     {
         if (is_callable($argument)) {
-            //Register error handler
+            // Register error handler
             $this->error = $argument;
         } else {
             //Invoke error handler
-            // $this->response->status(500);
+            $this->response->status(500);
+            $this->response()::markup($this->callErrorHandler($argument));
+
+            echo "Something";
             // $this->response->body('');
             // $this->response->write($this->callErrorHandler($argument));
             $this->stop();
@@ -564,10 +551,11 @@ class App
     protected function callErrorHandler($argument = null)
     {
         ob_start();
+
         if (is_callable($this->error)) {
-            call_user_func_array($this->error, array($argument));
+            call_user_func_array($this->error, [$argument]);
         } else {
-            call_user_func_array(array($this, 'defaultError'), array($argument));
+            call_user_func_array([$this, 'defaultError'], [$argument]);
         }
 
         return ob_get_clean();
@@ -690,7 +678,7 @@ class App
     public function etag($value, $type = 'strong')
     {
         //Ensure type is correct
-        if (!in_array($type, array('strong', 'weak'))) {
+        if (!in_array($type, ['strong', 'weak'])) {
             throw new \InvalidArgumentException('Invalid Leaf::etag type. Expected "strong" or "weak".');
         }
 

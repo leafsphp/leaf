@@ -15,6 +15,9 @@ class Config
         "log.writer" => null,
         "log.level" => \Leaf\Log::DEBUG,
         "log.enabled" => true,
+        "log.dir" => __DIR__ . "/../../../../storage/logs/",
+        "log.file" => "log.txt",
+        "log.open" => true,
         "http.version" => "1.1",
         // views
         "views.blade" => true,

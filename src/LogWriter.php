@@ -14,32 +14,43 @@ namespace Leaf;
  */
 class LogWriter
 {
-    /**
-     * @var resource
-     */
-    protected $resource;
+    protected $logFile;
 
     /**
      * Constructor
-     * @param  resource                  $resource
-     * @throws \InvalidArgumentException If invalid resource
+     * @param string $file File to log to
+     * @param bool $createFile Create file if it's not found
      */
-    public function __construct($resource)
+    public function __construct(string $file, bool $createFile = false)
     {
-        if (!is_resource($resource)) {
-            throw new \InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
+        if (!file_exists($file)) {
+            if ($createFile) {
+                FS::createFile($file);
+            } else {
+                trigger_error(basename($file) . " not found in " . dirname($file), E_USER_ERROR);
+            }
         }
-        $this->resource = $resource;
+
+        $this->logFile = $file;
     }
 
     /**
      * Write message
-     * @param  mixed     $message
-     * @param  int       $level
+     * 
+     * @param mixed $message
+     * @param int $level
      * @return int|bool
      */
     public function write($message, $level = null)
     {
-        return fwrite($this->resource, (string) $message . PHP_EOL);
+        if ($level !== null) {
+            $level = Log::getLevel($level) . " - ";
+        }
+
+        FS::prepend(
+            $this->logFile,
+            (string) "[" . Date::now() . "]\n" . $level . "$message\n"
+        );
+        return 1;
     }
 }

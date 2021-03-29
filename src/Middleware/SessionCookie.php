@@ -89,7 +89,9 @@ class SessionCookie extends \Leaf\Middleware
         if (session_id() === '') {
             session_start();
         }
-        $value = $this->app->getCookie($this->settings['name']);
+
+        $value = \Leaf\Http\Cookie::get($this->settings['name']);
+
         if ($value) {
             $value = json_decode($value, true);
             $_SESSION = is_array($value) ? $value : array();
@@ -106,17 +108,15 @@ class SessionCookie extends \Leaf\Middleware
         $value = json_encode($_SESSION);
 
         if (strlen($value) > 4096) {
-            $this->app->getLog()->error('WARNING! Leaf\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
+            $this->app->logger()->error('WARNING! Leaf\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
         } else {
-            $this->app->setCookie(
-                $this->settings['name'],
-                $value,
+            \Leaf\Http\Cookie::set($this->settings['name'], $value, [
                 $this->settings['expires'],
                 $this->settings['path'],
                 $this->settings['domain'],
                 $this->settings['secure'],
                 $this->settings['httponly']
-            );
+            ]);
         }
         // session_destroy();
     }
