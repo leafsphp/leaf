@@ -124,21 +124,17 @@ class Log
     }
 
     /**
-     * Set writer
-     * @param  mixed $writer
+     * Get/Set log writer
+     * 
+     * @param mixed $writer
      */
-    public function setWriter($writer) : void
+    public function setWriter($writer = null)
     {
-        $this->writer = $writer;
-    }
+        if ($writer === null) {
+            return $this->writer;
+        }
 
-    /**
-     * Get writer
-     * @return mixed
-     */
-    public function getWriter() : mixed
-    {
-        return $this->writer;
+        $this->writer = $writer;
     }
 
     /**

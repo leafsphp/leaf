@@ -201,8 +201,10 @@ class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Ensure a value or object will remain globally unique
+     * 
      * @param  string   $key   The value or object name
      * @param  \Closure $value The closure that defines the object
+     * 
      * @return mixed
      */
     public function singleton($key, $value)

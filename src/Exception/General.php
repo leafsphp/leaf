@@ -64,6 +64,12 @@ class General extends \Exception
 		try {
 			throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
 		} catch (\Throwable $th) {
+			$app = \Leaf\Config::get("app")["instance"];
+
+			if ($app && $app->config("log.enabled")) {
+				$app->logger()->error($th);
+			}
+
 			exit(static::renderBody($th));
 		}
 	}
@@ -165,8 +171,10 @@ class General extends \Exception
 	/**
 	 * Default Error handler
 	 */
-	public static function defaultError($e, ?\Leaf\App $app = null)
+	public static function defaultError($e)
 	{
+		$app = \Leaf\Config::get("app")["instance"];
+
 		if ($app && $app->config("log.enabled")) {
 			$app->logger()->error($e);
 		}
