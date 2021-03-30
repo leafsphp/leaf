@@ -10,6 +10,7 @@ namespace Leaf;
 class Config
 {
     protected static array $settings = [
+        "app" => null,
         "mode" => "development",
         "debug" => true,
         "log.writer" => null,
@@ -35,9 +36,9 @@ class Config
     {
         if (is_string($item)) {
             static::$settings[$item] = $value;
+        } else {
+            static::$settings = array_merge(static::$settings, $item);
         }
-
-        static::$settings = array_merge(static::$settings, $item);
     }
 
     /**

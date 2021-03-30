@@ -147,8 +147,6 @@ class App
                 $log = new \Leaf\Log($c["logWriter"]);
                 $log->enabled($this->config("log.enabled"));
                 $log->level($this->config("log.level"));
-                $env = $c["environment"];
-                $env["leaf.log"] = $log;
 
                 return $log;
             });
@@ -169,6 +167,11 @@ class App
 
             return $mode;
         };
+
+        Config::set("app", [
+            "instance" => $this,
+            "container" => $this->container,
+        ]);
     }
 
     public function __get($name)
