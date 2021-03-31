@@ -5,60 +5,37 @@ namespace Leaf;
 use Leaf\Http\Response;
 
 /**
- *	Leaf PHP base controller
- *	--------------------------
- *	Base controller for Leaf PHP Framework
+ * Leaf base controller
+ * -----------------
+ * Base controller for Leaf PHP Framework
+ * 
+ * @author Michael Darko <mickdd22@gmail.com>
+ * @since 1.4.0
+ * @version 2.0
  */
-class Controller extends Response
+class Controller
 {
-	public $blade;
 	public $form;
 	public $request;
+	public $response;
+	public $view;
 
 	public function __construct()
 	{
-		$this->blade = new \Leaf\Blade;
-		$this->blade->configure("app/views/", "storage/framework/views/");
 		$this->form = new Form;
-		$this->request = new \Leaf\Http\Request;
-	}
-
-	/**
-	 * Configure the Views and templating engine
-	 *
-	 * @param array $views: Path to locate templates
-	 * @param array $cache: Path to save templating cache
-	 *
-	 * @return void
-	 */
-	public function configure($views = "app/views/", $cache = "storage/framework/views/")
-	{
-		$this->blade->configure($views, $cache);
+		$this->request = new Http\Request;
+		$this->response = new Http\Response;
+		$this->view = new View;
 	}
 
 	/**
 	 * Validate the given request with the given rules.
 	 * 
 	 * @param  array  $rules
-	 * @param  array  $messages
-	 * 
-	 * @return void
 	 */
-	public function validate(array $rules, array $messages = [])
+	public function validate(array $rules)
 	{
-		$this->form->validate($rules, $messages);
-	}
-
-	/**
-	 * Render the template
-	 *
-	 * @param array $templateName: The name of the template to render
-	 *
-	 * @return void
-	 */
-	public function render(string $templateName, array $data = [], array $merge_data = [])
-	{
-		$this->blade->render($templateName, $data, $merge_data);
+		$this->form->validate($rules);
 	}
 
 	/**
