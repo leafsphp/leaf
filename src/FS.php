@@ -350,7 +350,6 @@ class FS
 	 * 
 	 * @param string $file The file to upload
 	 * @param string $path The path to save the file in
-	 * @param string $file_category The type of file
 	 * @param array $config Configuration options for file upload
 	 * 
 	 * @return string|bool
