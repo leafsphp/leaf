@@ -89,7 +89,7 @@ class Response
 
     public function __construct()
     {
-        static::$headers = new Headers;
+        static::$headers = Headers::class;
         Headers::contentHtml();
     }
 
@@ -230,5 +230,64 @@ EOT;
     public static function getMessageForCode($status)
     {
         return isset(self::$messages[$status]) ? self::$messages[$status] : null;
+    }
+
+    /********************************************************************************
+     * HTTP Caching
+     *******************************************************************************/
+
+    /**
+     * Set Last-Modified HTTP Response Header
+     *
+     * Set the HTTP 'Last-Modified' header and stop if a conditional
+     * GET request's `If-Modified-Since` header matches the last modified time
+     * of the resource. The `time` argument is a UNIX timestamp integer value.
+     * When the current request includes an 'If-Modified-Since' header that
+     * matches the specified last modified time, the application will stop
+     * and send a '304 Not Modified' response to the client.
+     *
+     * @param int $time The last modified UNIX timestamp
+     */
+    public static function lastModified(int $time)
+    {
+        Headers::lastModified($time);
+    }
+
+    /**
+     * Set ETag HTTP Response Header
+     *
+     * Set the etag header and stop if the conditional GET request matches.
+     * The `value` argument is a unique identifier for the current resource.
+     * The `type` argument indicates whether the etag should be used as a strong or
+     * weak cache validator.
+     *
+     * When the current request includes an 'If-None-Match' header with
+     * a matching etag, execution is immediately stopped. If the request
+     * method is GET or HEAD, a '304 Not Modified' response is sent.
+     *
+     * @param string $value The etag value
+     * @param string $type The type of etag to create; either "strong" or "weak"
+     */
+    public static function etag(string $value, string $type = "strong")
+    {
+        Headers::etag($value, $type);
+    }
+
+    /**
+     * Set Expires HTTP response header
+     *
+     * The `Expires` header tells the HTTP client the time at which
+     * the current resource should be considered stale. At that time the HTTP
+     * client will send a conditional GET request to the server; the server
+     * may return a 200 OK if the resource has changed, else a 304 Not Modified
+     * if the resource has not changed. The `Expires` header should be used in
+     * conjunction with the `etag()` or `lastModified()` methods above.
+     *
+     * @param string|int    $time   If string, a time to be parsed by `strtotime()`;
+     *                              If int, a UNIX timestamp;
+     */
+    public static function expires($time)
+    {
+        Headers::expires($time);
     }
 }
