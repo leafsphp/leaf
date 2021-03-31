@@ -3,9 +3,9 @@
 namespace Leaf\Http;
 
 /**
- *  Leaf Session
- *  ----------------
- *  App session management made simple with Leaf 
+ * Leaf Session
+ * ----------------
+ * App session management made simple with Leaf 
  * 
  * @author Michael Darko
  * @since 1.5.0
@@ -34,17 +34,18 @@ class Session
 			foreach ($param as $item) {
 				$fields[$item] = static::get($item, $sanitize);
 			}
+
 			return $fields;
-		} else {
-			if (isset($_SESSION[$param])) {
-				$data = $_SESSION[$param];
-				if ($sanitize) $data = \Leaf\Util::sanitize($data);
-				return $data;
-			} else {
-				static::$errorsArray[$param] = "$param not found in session, initialise it or check your spelling";
-				return false;
-			}
 		}
+
+		if (!isset($_SESSION[$param])) {
+			return null;
+		}
+
+		$data = $_SESSION[$param];
+
+		if ($sanitize) $data = \Leaf\Util::sanitize($data);
+		return $data;
 	}
 
 	/**
