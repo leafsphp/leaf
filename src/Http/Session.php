@@ -24,7 +24,7 @@ class Session
 	 *
 	 * @param string|array $param: The session variable to get
 	 *
-	 * @return string, string: session variable
+	 * @return mixed
 	 */
 	public static function get($param, bool $sanitize = true)
 	{
@@ -39,7 +39,6 @@ class Session
 		}
 
 		if (!isset($_SESSION[$param])) {
-			echo "Some";
 			return null;
 		}
 
@@ -226,5 +225,20 @@ class Session
 	public static function errors(): array
 	{
 		return static::$errorsArray;
+	}
+
+	// -------------- flash messages ---------------
+	/**
+	 * Set or get a flash message
+	 * 
+	 * @param string|null $message The flash message
+	 */
+	public static function flash($message = null)
+	{
+		if (!$message) {
+			return \Leaf\Flash::display();
+		}
+
+		\Leaf\Flash::set($message);
 	}
 };
