@@ -590,15 +590,6 @@ class App
      *******************************************************************************/
 
     /**
-     * Get a reference to the Environment object
-     * @return \Leaf\Environment
-     */
-    public function environment()
-    {
-        return $this->environment;
-    }
-
-    /**
      * Get the Request Headers
      * @return \Leaf\Http\Headers
      */
