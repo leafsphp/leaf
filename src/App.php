@@ -71,6 +71,8 @@ class App
         View::attach(\Leaf\BareUI::class, 'template');
 
         $this->loadViewEngines();
+
+        set_error_handler(['\Leaf\Exception\General', 'handleErrors']);
     }
 
     /**
@@ -160,6 +162,7 @@ class App
                 $mode = $_ENV["LEAF_MODE"];
             } else {
                 $envMode = getenv("LEAF_MODE");
+
                 if ($envMode !== false) {
                     $mode = $envMode;
                 }

@@ -229,7 +229,7 @@ class Router
      */
     public static function redirect($from, $to, $status = 302)
     {
-        $handler = function () use ($to, $status) {
+        $handler = function() use($to, $status) {
             return header('location: ' . $to, true, $status);
         };
 
@@ -414,13 +414,10 @@ class Router
      */
     public static function run($callback = null)
     {
-        set_error_handler(['\Leaf\Exception\General', 'handleErrors']);
-
-        static::add(new \Leaf\Middleware\Flash());
-        static::add(new \Leaf\Middleware\MethodOverride());
-
         // Invoke middleware and application stack
-        static::$middleware[0]->call();
+        if (count(static::$middleware) > 0) {
+            static::$middleware[0]->call();
+        }
 
         // Send headers
         if (headers_sent() === false) {
@@ -594,6 +591,7 @@ class Router
 
         $newMiddleware->setApplication(static::$app);
         $newMiddleware->setNextMiddleware(self::$middleware[0]);
+
         array_unshift(self::$middleware, $newMiddleware);
     }
 }
