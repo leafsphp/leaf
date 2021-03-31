@@ -871,11 +871,6 @@ class App
     public function call()
     {
         try {
-            if (isset($this->environment['leaf.flash'])) {
-                // pass flash data into a view
-                // ('flash', $this->environment['leaf.flash']);
-            }
-            // $this->applyHook('leaf.before');
             ob_start();
 
             $this->stop();
