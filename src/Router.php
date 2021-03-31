@@ -7,6 +7,9 @@ namespace Leaf;
  * ---------------
  * Default leaf routing engine.
  * Based on/adapted from `bramus/router`
+ * 
+ * @author Michael Darko
+ * @since 1.2.0
  */
 class Router
 {
@@ -414,7 +417,6 @@ class Router
      */
     public static function run($callback = null)
     {
-        // Invoke middleware and application stack
         if (count(static::$middleware) > 0) {
             static::$middleware[0]->call();
         }

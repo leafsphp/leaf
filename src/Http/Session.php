@@ -39,12 +39,16 @@ class Session
 		}
 
 		if (!isset($_SESSION[$param])) {
+			echo "Some";
 			return null;
 		}
 
 		$data = $_SESSION[$param];
 
-		if ($sanitize) $data = \Leaf\Util::sanitize($data);
+		if ($sanitize) {
+			$data = \Leaf\Util::sanitize($data);
+		}
+
 		return $data;
 	}
 
