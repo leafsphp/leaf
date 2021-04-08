@@ -11,6 +11,7 @@ class Config
 {
     protected static array $settings = [
         "app" => null,
+        "app.down" => false,
         "mode" => "development",
         "debug" => true,
         "log.writer" => null,
