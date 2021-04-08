@@ -30,12 +30,6 @@ class Request
     protected static $formDataMediaTypes = ['application/x-www-form-urlencoded'];
 
     /**
-     * Application Environment
-     * @var \Leaf\Environment
-     */
-    protected static $env;
-
-    /**
      * HTTP Headers
      * @var \Leaf\Http\Headers
      */
@@ -54,7 +48,6 @@ class Request
 
     public function __construct()
     {
-        static::$env = new \Leaf\Environment();
         $handler = fopen('php://input', 'r');
         static::$request = stream_get_contents($handler);
         static::$headers = new Headers();
@@ -201,7 +194,7 @@ class Request
      */
     public static function isFormData()
     {
-        $method = static::$env['leaf.method_override.original_method'] ?? static::getMethod();
+        $method = static::getMethod();
 
         return ($method === self::METHOD_POST && is_null(static::getContentType())) || in_array(static::getMediaType(), self::$formDataMediaTypes);
     }
@@ -297,21 +290,21 @@ class Request
      */
     public static function getHost()
     {
-        if (isset(static::$env['HTTP_HOST'])) {
-            if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', static::$env['HTTP_HOST'], $matches)) {
+        if (isset($_SERVER['HTTP_HOST'])) {
+            if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $_SERVER['HTTP_HOST'], $matches)) {
                 return $matches[1];
             } else {
-                if (strpos(static::$env['HTTP_HOST'], ':') !== false) {
-                    $hostParts = explode(':', static::$env['HTTP_HOST']);
+                if (strpos($_SERVER['HTTP_HOST'], ':') !== false) {
+                    $hostParts = explode(':', $_SERVER['HTTP_HOST']);
 
                     return $hostParts[0];
                 }
             }
 
-            return static::$env['HTTP_HOST'];
+            return $_SERVER['HTTP_HOST'];
         }
 
-        return static::$env['SERVER_NAME'];
+        return $_SERVER['SERVER_NAME'];
     }
 
     /**
@@ -329,7 +322,7 @@ class Request
      */
     public static function getPort()
     {
-        return (int) static::$env['SERVER_PORT'];
+        return (int) $_SERVER['SERVER_PORT'] ?? 80;
     }
 
     /**
@@ -338,7 +331,7 @@ class Request
      */
     public static function getScheme()
     {
-        return static::$env['leaf.url_scheme'];
+        return empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
     }
 
     /**
@@ -347,7 +340,7 @@ class Request
      */
     public static function getScriptName()
     {
-        return static::$env['SCRIPT_NAME'];
+        return $_SERVER['SCRIPT_NAME'];
     }
 
     /**
@@ -365,7 +358,7 @@ class Request
      */
     public static function getPathInfo()
     {
-        return static::$env['PATH_INFO'];
+        return $_SERVER['REQUEST_URI'] ?? null;
     }
 
     /**
@@ -388,14 +381,15 @@ class Request
      */
     public static function getIp()
     {
-        $keys = array('X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
+        $keys = ['X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR'];
+
         foreach ($keys as $key) {
-            if (isset(static::$env[$key])) {
-                return static::$env[$key];
+            if (isset($_SERVER[$key])) {
+                return $_SERVER[$key];
             }
         }
 
-        return static::$env['REMOTE_ADDR'];
+        return $_SERVER['REMOTE_ADDR'];
     }
 
     /**
