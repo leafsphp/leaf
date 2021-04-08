@@ -2,40 +2,28 @@
 
 namespace Leaf;
 
-use Exception;
-
 /**
  * Leaf PHP Framework
- * ------
- * Quickly build simple but powerful apps and APIs
+ * --------
+ * The easiest way to build simple but powerful apps and APIs quickly.
  *
  * @author Michael Darko <mickdd22@gmail.com>
  * @copyright 2019-2021 Michael Darko
- * @link http://leafphp.netlify.app/#/leaf/
+ * @link https://leafphp.netlify.app/#/leaf/
  * @license MIT
  * @package Leaf
  */
 class App
 {
     /**
-     * @var \Leaf\Helpers\Container
+     * Leaf container instance 
      */
-    public $container;
+    public \Leaf\Helpers\Container $container;
 
     /**
-     * @var array[\Leaf]
+     * The leaf router instance
      */
-    protected static $apps = [];
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var \Leaf\Router
-     */
-    protected $leafRouter;
+    protected \Leaf\Router $leafRouter;
 
     /********************************************************************************
      * Instantiation and Configuration
@@ -55,18 +43,9 @@ class App
         $this->container = new \Leaf\Helpers\Container();
         $this->container['settings'] = Config::get();
 
-        $this->leafRouter = new Router(
-            $this->config('mode'),
-            $this->config('debug') ?? true,
-            $this
-        );
+        $this->leafRouter = new Router();
 
         $this->setupDefaultContainer();
-
-        // Make default if first instance
-        if (is_null(static::getInstance())) {
-            $this->name('default');
-        }
 
         View::attach(\Leaf\BareUI::class, 'template');
 
@@ -198,30 +177,6 @@ class App
     }
 
     /**
-     * Get application instance by name
-     * @param  string    $name The name of the Leaf application
-     * @return \Leaf\App|null
-     */
-    public static function getInstance($name = "default")
-    {
-        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
-    }
-
-    /**
-     * Get/Set Leaf application name
-     * @param  string $name The name of this Leaf application
-     */
-    public function name(?string $name = null)
-    {
-        if ($name === null) {
-            return $this->name;
-        }
-
-        $this->name = $name;
-        static::$apps[$name] = $this;
-    }
-
-    /**
      * Configure Leaf Settings
      *
      * This method defines application settings and acts as a setter and a getter.
@@ -237,8 +192,8 @@ class App
      * to be created or updated, and the second argument is the setting value.
      *
      * @param  string|array $name  If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
-     * @param  mixed        $value If name is a string, the value of the setting identified by $name
-     * @return mixed        The value of a setting if only one argument is a string
+     * @param  mixed $value If name is a string, the value of the setting identified by $name
+     * @return mixed The value of a setting if only one argument is a string
      */
     public function config($name, $value = null)
     {
@@ -266,43 +221,6 @@ class App
     }
 
     /********************************************************************************
-     * Application Modes
-     *******************************************************************************/
-
-    /**
-     * Get application mode
-     *
-     * This method determines the application mode. It first inspects the $_ENV
-     * superglobal for key `LEAF_MODE`. If that is not found, it queries
-     * the `getenv` function. Else, it uses the application `mode` setting.
-     *
-     * @return string
-     */
-    public function getMode()
-    {
-        return $this->mode;
-    }
-
-    /**
-     * Configure Leaf for a given mode
-     *
-     * This method will immediately invoke the callable if
-     * the specified mode matches the current application mode.
-     * Otherwise, the callable is ignored. This should be called
-     * only _after_ you initialize your Leaf app.
-     *
-     * @param  string $mode
-     * @param  mixed  $callable
-     * @return void
-     */
-    public function configureMode($mode, $callable)
-    {
-        if ($mode === $this->getMode() && is_callable($callable)) {
-            call_user_func($callable);
-        }
-    }
-
-    /********************************************************************************
      * Logging
      *******************************************************************************/
 
@@ -327,115 +245,104 @@ class App
     /**
      * Store a route and a handling function to be executed when accessed using one of the specified methods.
      *
-     * @param string          $methods Allowed methods, | delimited
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $methods Allowed methods, | delimited
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function match($methods, $pattern, $fn)
+    public function match($methods, $pattern, $handler)
     {
-        return $this->leafRouter->match($methods, $pattern, $fn);
+        return $this->leafRouter->match($methods, $pattern, $handler);
     }
 
     /**
      * Shorthand for a route accessed using any method.
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function all($pattern, $fn)
+    public function all($pattern, $handler)
     {
-        return $this->leafRouter->all($pattern, $fn);
+        return $this->leafRouter->all($pattern, $handler);
     }
 
     /**
      * Shorthand for a route accessed using GET.
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function get($pattern, $fn)
+    public function get($pattern, $handler)
     {
-        return $this->leafRouter->get($pattern, $fn);
+        return $this->leafRouter->get($pattern, $handler);
     }
 
     /**
      * Shorthand for a route accessed using POST.
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function post($pattern, $fn)
+    public function post($pattern, $handler)
     {
-        return $this->leafRouter->post($pattern, $fn);
+        return $this->leafRouter->post($pattern, $handler);
     }
 
     /**
      * Shorthand for a route accessed using PATCH.
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function patch($pattern, $fn)
+    public function patch($pattern, $handler)
     {
-        return $this->leafRouter->patch($pattern, $fn);
+        return $this->leafRouter->patch($pattern, $handler);
     }
 
     /**
      * Shorthand for a route accessed using DELETE.
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function delete($pattern, $fn)
+    public function delete($pattern, $handler)
     {
-        return $this->leafRouter->delete($pattern, $fn);
+        return $this->leafRouter->delete($pattern, $handler);
     }
 
     /**
      * Shorthand for a route accessed using PUT.
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function put($pattern, $fn)
+    public function put($pattern, $handler)
     {
-        return $this->leafRouter->put($pattern, $fn);
+        return $this->leafRouter->put($pattern, $handler);
     }
 
     /**
      * Shorthand for a route accessed using OPTIONS.
      *
-     * @param string          $pattern A route pattern such as /about/system
-     * @param object|callable $fn      The handling function to be executed
+     * @param string $pattern A route pattern such as /about/system
+     * @param object|callable $handler The handling function to be executed
      */
-    public function options($pattern, $fn)
+    public function options($pattern, $handler)
     {
-        return $this->leafRouter->options($pattern, $fn);
+        return $this->leafRouter->options($pattern, $handler);
     }
 
     /**
      * Add a route that sends an HTTP redirect
      *
-     * @param string             $from
-     * @param string|URI      $to
-     * @param int                 $status
+     * @param string $from
+     * @param string|URI $to
+     * @param int $status
      *
      * @return redirect
      */
     public function redirect($from, $to, $status = 302)
     {
         return $this->leafRouter->redirect($from, $to, $status);
-    }
-
-    /**
-     * Display a template for a route
-     *
-     * @param string $pattern A route pattern such as /about/system
-     * @param string $fn      The handling function to be executed
-     */
-    public function view($pattern, $template, $data = [])
-    {
-        return $this->leafRouter->view($pattern, $template, $data);
     }
 
     /**
@@ -463,22 +370,22 @@ class App
      * Mounts a collection of callbacks onto a base route.
      *
      * @param string $baseRoute The route sub pattern to mount the callbacks on
-     * @param callable $fn The callback method
+     * @param callable $handler The callback method
      */
-    public function mount($baseRoute, $fn)
+    public function mount($baseRoute, $handler)
     {
-        $this->leafRouter->mount($baseRoute, $fn);
+        $this->leafRouter->mount($baseRoute, $handler);
     }
 
     /**
      * Alias for mount()
      * 
      * @param string $baseRoute The route sub pattern to mount the callbacks on
-     * @param callable $fn The callback method
+     * @param callable $handler The callback method
      */
-    public function group($baseRoute, $fn)
+    public function group($baseRoute, $handler)
     {
-        $this->leafRouter->group($baseRoute, $fn);
+        $this->leafRouter->group($baseRoute, $handler);
     }
 
     /**
@@ -492,11 +399,41 @@ class App
     }
 
     /**
+     * Add a namespace to a route group
+     * 
+     * @param string $namespace The namespace to chain to group
+     */
+    public function namespace(string $namespace): Router
+    {
+        return $this->leafRouter->namespace($namespace);
+    }
+
+    /**
+     * Add a prefix to a route group
+     * 
+     * @param string $prefix The prefix to add to group
+     */
+    public function prefix(string $prefix): Router
+    {
+        return $this->leafRouter->prefix($prefix);
+    }
+
+    /**
+     * Name a route
+     * 
+     * @param string $name The name to give to route
+     */
+    public function name(string $name): Router
+    {
+        return $this->leafRouter->name($name);
+    }
+
+    /**
      * Get the given Namespace before.
      *
      * @return string The given Namespace if exists
      */
-    public function getNamespace()
+    public function getNamespace(): string
     {
         return $this->leafRouter->getNamespace();
     }
@@ -504,9 +441,17 @@ class App
     /**
      * Get all routes registered in app
      */
-    public function routes()
+    public function routes(): array
     {
         return $this->leafRouter->routes();
+    }
+
+    /**
+     * Get all routes registered in app
+     */
+    public function router(): Router
+    {
+        return $this->leafRouter;
     }
 
     /**
@@ -530,7 +475,7 @@ class App
      * as its one and only argument. The error handler's output is captured
      * into an output buffer and sent as the body of a 500 HTTP Response.
      *
-     * @param  mixed $argument Callable|\Exception
+     * @param mixed $argument Callable|\Exception
      */
     public function error($argument = null)
     {
@@ -571,21 +516,21 @@ class App
     /**
      * Set the 404 handling function.
      *
-     * @param object|callable $fn The function to be executed
+     * @param object|callable $handler The function to be executed
      */
-    public function set404($fn = null)
+    public function set404($handler = null)
     {
-        return $this->leafRouter->set404($fn);
+        return $this->leafRouter->set404($handler);
     }
 
     /**
      * Set a custom maintainace mode callback.
      *
-     * @param callable $fn The function to be executed
+     * @param callable $handler The function to be executed
      */
-    public function setDown($fn = null)
+    public function setDown($handler = null)
     {
-        return $this->leafRouter->setDown($fn);
+        return $this->leafRouter->setDown($handler);
     }
 
     /********************************************************************************
@@ -627,8 +572,6 @@ class App
     {
         return $this->db;
     }
-
-    
 
     /********************************************************************************
      * Helper Methods
@@ -728,96 +671,7 @@ class App
     }
 
     /********************************************************************************
-     * Hooks
-     *******************************************************************************/
-
-    /**
-     * Assign hook
-     * @param  string   $name       The hook name
-     * @param  mixed    $callable   A callable object
-     * @param  int      $priority   The hook priority; 0 = high, 10 = low
-     */
-    public function hook($name, $callable, $priority = 10)
-    {
-        if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = [[]];
-        }
-        if (is_callable($callable)) {
-            $this->hooks[$name][(int) $priority][] = $callable;
-        }
-    }
-
-    /**
-     * Invoke hook
-     * @param  string $name The hook name
-     * @param  mixed  ...   (Optional) Argument(s) for hooked functions, can specify multiple arguments
-     */
-    public function applyHook($name)
-    {
-        if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = [[]];
-        }
-        if (!empty($this->hooks[$name])) {
-            // Sort by priority, low to high, if there's more than one priority
-            if (count($this->hooks[$name]) > 1) {
-                ksort($this->hooks[$name]);
-            }
-
-            $args = func_get_args();
-            array_shift($args);
-
-            foreach ($this->hooks[$name] as $priority) {
-                if (!empty($priority)) {
-                    foreach ($priority as $callable) {
-                        call_user_func_array($callable, $args);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Get hook listeners
-     *
-     * Return an array of registered hooks. If `$name` is a valid
-     * hook name, only the listeners attached to that hook are returned.
-     * Else, all listeners are returned as an associative array whose
-     * keys are hook names and whose values are arrays of listeners.
-     *
-     * @param  string     $name     A hook name (Optional)
-     * @return array|null
-     */
-    public function getHooks($name = null)
-    {
-        if (!is_null($name)) {
-            return isset($this->hooks[(string) $name]) ? $this->hooks[(string) $name] : null;
-        } else {
-            return $this->hooks;
-        }
-    }
-
-    /**
-     * Clear hook listeners
-     *
-     * Clear all listeners for all hooks. If `$name` is
-     * a valid hook name, only the listeners attached
-     * to that hook will be cleared.
-     *
-     * @param  string   $name   A hook name (Optional)
-     */
-    public function clearHooks($name = null)
-    {
-        if (!is_null($name) && isset($this->hooks[(string) $name])) {
-            $this->hooks[(string) $name] = [[]];
-        } else {
-            foreach ($this->hooks as $key => $value) {
-                $this->hooks[$key] = [[]];
-            }
-        }
-    }
-
-    /********************************************************************************
-     * Middleware
+     * Middleware and hooks
      *******************************************************************************/
 
     /**
@@ -834,6 +688,17 @@ class App
     }
 
     /**
+     * Add/Call a router hook
+     * 
+     * @param string $name The hook to set/call
+     * @param callable|null $handler The hook handler
+     */
+    public function hook($name, $handler)
+    {
+        $this->leafRouter->hook($name, $handler);
+    }
+
+    /**
      * Evade CORS errors
      * 
      * Just a little bypass for common cors errors
@@ -841,8 +706,9 @@ class App
     public function evadeCors(bool $evadeOptions, string $allow_origin = "*", string $allow_headers = "*")
     {
         $this->response()->cors($allow_origin, $allow_headers);
+
         if ($evadeOptions) {
-            if (Router::getRequestMethod() === "OPTIONS") {
+            if ($this->leafRouter->getRequestMethod() === "OPTIONS") {
                 $this->response()->throwErr("ok", 200);
             }
         }
