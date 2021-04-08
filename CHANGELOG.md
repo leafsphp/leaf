@@ -1,6 +1,50 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.5.0-beta - 💠 Gladiolus (BETA) - SOON
+
+### Added
+
+- Added `app.down` config
+- Added Leaf app instance on `Config`
+- Added grouped namespaces to router
+- Added named routes to router
+- Added router group prefixes
+- Added router `push` for switching between pages
+- Added more customizations on `Leaf\Database`
+- Added simple flash messaging with `Leaf\Flash`
+- Added `flash` method to session
+- Added HTTP caching on `Leaf\Http\Headers`
+
+### Fixed
+
+- Fixed router hooks
+- Added proper types on `App` and `Router`
+- Added proper controller and missing method warnings
+- Fixed incorrect method labeling
+- Fixed HTTP caching issues
+- Fixed app logger and app log writer
+
+### Changed
+
+- Default 404 page now automatically loaded
+- Router middleware `App` instance now automatically loaded
+- Added null response for unset session variables
+- Leaf error handler now loads on `App` init
+- Default error 500 handler now automatically loaded
+- Updated leaf container
+
+### Removed
+
+- Removed unnecessary code from `App`
+- Removed app name
+- Removed `view` method on app and router
+- Removed previous hook support on app
+- Removed unused router config
+- Removed Leaf environment class
+- Removed unused default middleware
+- `Leaf\Blade` no longer comes with Leaf by default.
+
 ## v2.4.4 - 🎋 Common Reed - 23rd March 2021
 
 ### Added
