@@ -688,6 +688,18 @@ class App
     }
 
     /**
+     * Add a route specific middleware
+     * 
+     * @param string $methods Allowed methods, separated by |
+     * @param string|array $path The path/route to apply middleware on
+     * @param callable $handler The middleware handler
+     */
+    public function before(string $methods, $path, callable $handler)
+    {
+        $this->leafRouter->before($methods, $path, $handler);
+    }
+
+    /**
      * Add/Call a router hook
      * 
      * @param string $name The hook to set/call

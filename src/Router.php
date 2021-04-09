@@ -54,6 +54,11 @@ class Router
     protected array $middleware;
 
     /**
+     * Route specific middleware
+     */
+    protected array $routeSpecificMiddleware;
+
+    /**
      * All added routes and their handlers
      */
     protected array $routes = [];
@@ -443,6 +448,34 @@ class Router
     }
 
     /**
+     * Add a route specific middleware
+     * 
+     * @param string $methods Allowed methods, separated by |
+     * @param string|array $path The path/route to apply middleware on
+     * @param callable $handler The middleware handler
+     */
+    public function before(string $methods, $path, callable $handler)
+    {
+        if (is_array($path)) {
+            if (!isset($this->namedRoutes[$path[0]])) {
+                trigger_error("Route named " . $path[0] . " not found");
+            }
+
+            $path = $this->namedRoutes[$path[0]];
+        }
+
+        $path = $this->groupRoute . '/' . trim($path, '/');
+        $path = $this->groupRoute ? rtrim($path, '/') : $path;
+
+        foreach (explode('|', $methods) as $method) {
+            $this->routeSpecificMiddleware[$method][] = [
+                "pattern" => $path,
+                "handler" => $handler,
+            ];
+        }
+    }
+
+    /**
      * Add middleware
      *
      * This method prepends new middleware to the application middleware stack.
@@ -524,6 +557,10 @@ class Router
         $this->hook("router.before.route");
 
         $this->requestedMethod = $this->getRequestMethod();
+
+        if (isset($this->routeSpecificMiddleware[$this->requestedMethod])) {
+            $this->handle($this->routeSpecificMiddleware[$this->requestedMethod]);
+        }
 
         $this->hook("router.before.dispatch");
 
