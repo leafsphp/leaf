@@ -740,32 +740,4 @@ class App
     {
         return $this->leafRouter->run($callback);
     }
-
-    /**
-     * Call
-     *
-     * This method finds and iterates all route objects that match the current request URI.
-     */
-    public function call()
-    {
-        try {
-            ob_start();
-
-            $this->stop();
-        } catch (\Leaf\Exception\Stop $e) {
-            // 
-        } catch (\Exception $e) {
-            if ($this->config('debug')) {
-                ob_end_clean();
-                throw $e;
-            } else {
-                try {
-                    // 
-                    $this->error($e);
-                } catch (\Leaf\Exception\Stop $e) {
-                    // Do nothing
-                }
-            }
-        }
-    }
 }

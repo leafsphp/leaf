@@ -51,12 +51,12 @@ class Router
     /**
      * Leaf app middleware
      */
-    protected static array $middleware;
+    protected static array $middleware = [];
 
     /**
      * Route specific middleware
      */
-    protected static array $routeSpecificMiddleware;
+    protected static array $routeSpecificMiddleware = [];
 
     /**
      * All added routes and their handlers
@@ -491,9 +491,12 @@ class Router
         }
 
         $newMiddleware->setApplication(Config::get("app")["instance"]);
-        $newMiddleware->setNextMiddleware(self::$middleware[0]);
 
-        array_unshift(self::$middleware, $newMiddleware);
+        if (!empty(static::$middleware)) {
+            $newMiddleware->setNextMiddleware(static::$middleware[0]);
+        }
+
+        array_unshift(static::$middleware, $newMiddleware);
     }
 
     // ----------------- misc functions and helpers ------------------
@@ -542,7 +545,7 @@ class Router
             return static::invoke(static::$downHandler);
         }
 
-        $middleware = [Config::get("app")["instance"]];
+        $middleware = static::$middleware;
 
         if (is_callable($callback)) {
             static::hook("router.after", $callback);

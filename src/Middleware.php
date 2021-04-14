@@ -67,11 +67,25 @@ abstract class Middleware
      * This method retrieves the next downstream middleware
      * previously injected into this middleware.
      *
-     * @return \Leaf\App|\Leaf\Middleware
+     * @return \Leaf\Middleware
      */
     final public function getNextMiddleware()
     {
         return $this->next;
+    }
+
+    /**
+     * Call the next middleware
+     */
+    final public function callNext()
+    {
+        $nextMiddleware = $this->next;
+
+        if (!$nextMiddleware) {
+            return;
+        }
+
+        $nextMiddleware->call();
     }
 
     /**
