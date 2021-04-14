@@ -191,7 +191,7 @@ v2.4.1 continues the usability reforms from the previous versions. It also conta
 
 ## v2.4.0 - Christmas Tree🎄 - 18th December 2020 ***DELETED***
 
-**Please update from v2.4.0 to v2.4.1 to fix any issues you encountered with the system. Any inconveniences are deeply regretted🙏. This release has officially been deleted.**
+**Please update from v2.4.0 to v2.4.1 to fix any issues you encountered with this version. Any inconveniences are deeply regretted🙏. This release has officially been deleted.**
 
 Christmas tree follows up on the previous beta release, fixes up all bugs found during the beta testing phase and packs in newer extensions that make Leaf even more usable.
 
@@ -254,9 +254,84 @@ Unlike previous versions, this version of Leaf is focusing on improving the use 
 - Removed deprecated methods from `Response`
 - Removed deprecated methods from `Date`
 
-**This list is still being updated.**
+## v2.3.0 - Lucky Charm🍀 - Aug 15, 2020
 
-## v2.1.0 - 19th June, 2020
+### Added
+
+- Added Leaf\Auth::useToken
+- Added Leaf\FS::upload_file
+- Added manual init to Leaf\Session
+- Added option for status code messages
+- Added callable utils
+- Added session encoding/decoding
+- Leaf\Http\Request now catches files passed into request
+- Added Leaf\Http\Request::typeIs
+- Leaf\Http\Request::get can now return multiple request data at once
+- Added Leaf\Http\Request::files
+- New Leaf\Http\Headers package
+- More untracked additions
+
+### Fixed
+
+- fixed Leaf\Http\Headers
+- Fixed response http status codes bug
+- Fixed header integration with response
+- Fixed header reliance on Set
+- Fixed throwErr code error
+- Fixed Leaf\Session package
+- Fixed response redirect
+- Fixed Leaf\Http\Request::body bugs
+- Sessions return false instead of throwing errors (Fix for web apps)
+- FS returns false instead of throwing errors
+- Fixed up Leaf\Http\Request::params
+- Fixed up Leaf\Http\Request::hasHeader
+- Fixed up header related methods on Leaf\Http\Request
+- Fixed bugs on Leaf\Environment
+- More untracked fixes
+
+### Changed
+
+- Switched Leaf\Session to native PHP sessions
+- Switched session package in Leaf\App
+- Changed controller file uploads to Leaf\FS
+- Leaf\Date methods can now be called static-ly
+- Switched Leaf\Date methods to camel case, but- with backward compatability for snake_case
+- Made all Leaf\FS methods static
+
+### Removed
+
+- Removed old session code
+- Removed setEncryptedCookie and getEncryptedCookie- on Leaf\App
+- Slashed unnecessary code from Leaf\Http\Request
+- Slashed unnecessary code from Leaf\Http\Session
+- Slashed unnecessary code from Leaf\Http\Cookie
+- Slashed unnecessary code from Leaf\Http\Response
+- Removed all method type tests from Leaf\Http\Request
+
+## v2.2.0 - Angel's Trumpet - Jul 7, 2020
+
+### Added
+
+- Added `Leaf\Auth::currentUser`
+- Added new cookies package relying on PHP's setcookie
+
+### Fixed
+
+- fixed hidden fields on Leaf\Auth::login
+- Fixed multiple-request type data on get and body at Leaf\Http\Request
+
+### Changed
+
+- Switched cookies package in Leaf\Http\Response
+- Switched cookies package in Leaf\App
+
+### Removed
+
+- Removed old cookies package and all it's methods
+- Removed setEncryptedCookie and getEncryptedCookie on Leaf\App
+- Slashed unnecessary code from Leaf\Http\Request
+
+## v2.1.0 - Elderberry - 19th June, 2020
 
 ### Added
 

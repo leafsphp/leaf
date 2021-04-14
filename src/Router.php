@@ -16,22 +16,22 @@ class Router
     /**
      * Callable to be invoked on application error
      */
-    protected $errorHandler;
+    protected static $errorHandler;
 
     /**
      * Callable to be invoked if no matching routes are found
      */
-    protected $notFoundHandler;
+    protected static $notFoundHandler;
 
     /**
      * Callable to be invoked if app is down
      */
-    protected $downHandler;
+    protected static $downHandler;
 
     /**
      * Router configuration
      */
-    protected array $config = [
+    protected static array $config = [
         "mode" => "development",
         "debug" => true,
     ];
@@ -39,7 +39,7 @@ class Router
     /**
      * "Middleware" to run at specific times
      */
-    protected array $hooks = [
+    protected static array $hooks = [
         "router.before" => false,
         "router.before.route" => false,
         "router.before.dispatch" => false,
@@ -51,74 +51,74 @@ class Router
     /**
      * Leaf app middleware
      */
-    protected array $middleware;
+    protected static array $middleware;
 
     /**
      * Route specific middleware
      */
-    protected array $routeSpecificMiddleware;
+    protected static array $routeSpecificMiddleware;
 
     /**
      * All added routes and their handlers
      */
-    protected array $routes = [];
+    protected static array $routes = [];
 
     /**
      * Sorted list of routes and their handlers
      */
-    protected array $appRoutes = [];
+    protected static array $appRoutes = [];
 
     /**
      * All named routes
      */
-    protected array $namedRoutes = [];
+    protected static array $namedRoutes = [];
 
     /**
      * Current route name
      */
-    protected ?string $routeName = null;
+    protected static ?string $routeName = null;
 
     /**
      * Current group base path
      */
-    protected string $groupRoute = "";
+    protected static string $groupRoute = "";
 
     /**
      * Current group prefix
      */
-    protected string $groupPrefix = "";
+    protected static string $groupPrefix = "";
 
     /**
      * Current group controller namespace
      */
-    protected string $groupNamespace = "";
+    protected static string $groupNamespace = "";
 
     /**
      * Default controller namespace
      */
-    protected string $namespace = "";
+    protected static string $namespace = "";
 
     /**
      * The Request Method that needs to be handled
      */
-    protected string $requestedMethod = '';
+    protected static string $requestedMethod = '';
 
     /**
      * The Server Base Path for Router Execution
      */
-    protected string $serverBasePath = "";
+    protected static string $serverBasePath = "";
 
     /**
      * Instance of leaf
      */
-    protected App $app;
+    protected static App $app;
 
     /**
      * Configure leaf router
      */
-    public function configure(array $config)
+    public static function configure(array $config)
     {
-        $this->config = array_merge($this->config, $config);
+        static::$config = array_merge(static::$config, $config);
     }
 
     /**
@@ -126,21 +126,21 @@ class Router
      * 
      * @param App|null The leaf app instance to set
      */
-    public function app(?App $app = null)
+    public static function app(?App $app = null)
     {
         if (!$app) {
-            return $this->app;
+            return static::$app;
         }
 
-        $this->app = $app;
+        static::$app = $app;
     }
 
     /**
      * Get all routes registered in your leaf app
      */
-    public function routes(): array
+    public static function routes(): array
     {
-        return $this->appRoutes;
+        return static::$appRoutes;
     }
 
     /**
@@ -148,10 +148,10 @@ class Router
      * 
      * @param string $name The name to give to route
      */
-    public function name(string $name): self
+    public static function name(string $name)
     {
-        $this->routeName = $name;
-        return $this;
+        static::$routeName = $name;
+        return new self;
     }
 
     /**
@@ -159,9 +159,9 @@ class Router
      * 
      * @param string $namespace The global namespace to set
      */
-    public function setNamespace(string $namespace)
+    public static function setNamespace(string $namespace)
     {
-        $this->namespace = $namespace;
+        static::$namespace = $namespace;
     }
 
     /**
@@ -169,9 +169,9 @@ class Router
      *
      * @return string The given namespace if exists
      */
-    public function getNamespace()
+    public static function getNamespace()
     {
-        return $this->namespace;
+        return static::$namespace;
     }
 
     /**
@@ -179,10 +179,10 @@ class Router
      * 
      * @param string $namespace The namespace to chain to group
      */
-    public function namespace(string $namespace): self
+    public static function namespace(string $namespace)
     {
-        $this->groupNamespace = $namespace;
-        return $this;
+        static::$groupNamespace = $namespace;
+        return new self;
     }
     
     /**
@@ -190,10 +190,10 @@ class Router
      * 
      * @param string $prefix The prefix to add to group
      */
-    public function prefix(string $prefix): self
+    public static function prefix(string $prefix)
     {
-        $this->groupPrefix = $prefix;
-        return $this;
+        static::$groupPrefix = $prefix;
+        return new self;
     }
 
     /**
@@ -202,21 +202,21 @@ class Router
      * @param string $path The route sub pattern/path to mount the callbacks on
      * @param callable $handler The callback method
      */
-    public function mount(string $path, callable $handler)
+    public static function mount(string $path, callable $handler)
     {
-        $namespace = $this->namespace;
-        $groupRoute = $this->groupRoute;
-        $groupPrefix = $this->groupPrefix;
+        $namespace = static::$namespace;
+        $groupRoute = static::$groupRoute;
+        $groupPrefix = static::$groupPrefix;
 
-        $this->namespace = $this->groupNamespace;
-        $this->groupRoute = $groupPrefix . $path;
+        static::$namespace = static::$groupNamespace;
+        static::$groupRoute = $groupPrefix . $path;
 
         call_user_func($handler);
 
-        $this->groupNamespace = "";
-        $this->groupPrefix = "";
-        $this->namespace = $namespace;
-        $this->groupRoute = $groupRoute;
+        static::$groupNamespace = "";
+        static::$groupPrefix = "";
+        static::$namespace = $namespace;
+        static::$groupRoute = $groupRoute;
     }
 
     /**
@@ -225,9 +225,9 @@ class Router
      * @param string $path The route sub pattern/path to mount the callbacks on
      * @param callable $handler The callback method
      */
-    public function group($path, $handler)
+    public static function group($path, $handler)
     {
-        $this->mount($path, $handler);
+        static::mount($path, $handler);
     }
 
     // ------------------- main routing stuff -----------------------
@@ -239,35 +239,35 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function match(string $methods, string $pattern, $handler)
+    public static function match(string $methods, string $pattern, $handler)
     {
-        $pattern = $this->groupRoute . "/" . trim($pattern, "/");
-        $pattern = $this->groupRoute ? rtrim($pattern, "/"): $pattern;
+        $pattern = static::$groupRoute . "/" . trim($pattern, "/");
+        $pattern = static::$groupRoute ? rtrim($pattern, "/"): $pattern;
 
         if (is_string($handler)) {
-            $handler = str_replace("\\\\", "\\", "{$this->namespace}\\$handler");
+            $handler = str_replace("\\\\", "\\", static::$namespace . "\\$handler");
         }
 
         foreach (explode("|", $methods) as $method) {
-            $this->routes[$method][] = [
+            static::$routes[$method][] = [
                 "pattern" => $pattern,
                 "handler" => $handler,
-                "name" => $this->routeName ?? ""
+                "name" => static::$routeName ?? ""
             ];
         }
 
-        $this->appRoutes[] = [
+        static::$appRoutes[] = [
             "methods" => explode("|", $methods),
             "pattern" => $pattern,
             "handler" => $handler,
-            "name" => $this->routeName ?? ""
+            "name" => static::$routeName ?? ""
         ];
 
-        if ($this->routeName) {
-            $this->namedRoutes[$this->routeName] = $pattern;
+        if (static::$routeName) {
+            static::$namedRoutes[static::$routeName] = $pattern;
         }
 
-        $this->routeName = null;
+        static::$routeName = null;
     }
 
     /**
@@ -276,9 +276,9 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function all(string $pattern, $handler)
+    public static function all(string $pattern, $handler)
     {
-        return $this->match('GET|POST|PUT|DELETE|OPTIONS|PATCH|HEAD', $pattern, $handler);
+        return static::match('GET|POST|PUT|DELETE|OPTIONS|PATCH|HEAD', $pattern, $handler);
     }
 
     /**
@@ -287,9 +287,9 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function get(string $pattern, $handler)
+    public static function get(string $pattern, $handler)
     {
-        return $this->match('GET', $pattern, $handler);
+        return static::match('GET', $pattern, $handler);
     }
 
     /**
@@ -298,9 +298,9 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function post(string $pattern, $handler)
+    public static function post(string $pattern, $handler)
     {
-        return $this->match('POST', $pattern, $handler);
+        return static::match('POST', $pattern, $handler);
     }
 
     /**
@@ -309,9 +309,9 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function put(string $pattern, $handler)
+    public static function put(string $pattern, $handler)
     {
-        return $this->match('PUT', $pattern, $handler);
+        return static::match('PUT', $pattern, $handler);
     }
 
     /**
@@ -320,9 +320,9 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function patch(string $pattern, $handler)
+    public static function patch(string $pattern, $handler)
     {
-        return $this->match('PATCH', $pattern, $handler);
+        return static::match('PATCH', $pattern, $handler);
     }
 
     /**
@@ -331,9 +331,9 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function options(string $pattern, $handler)
+    public static function options(string $pattern, $handler)
     {
-        return $this->match('OPTIONS', $pattern, $handler);
+        return static::match('OPTIONS', $pattern, $handler);
     }
 
     /**
@@ -342,9 +342,9 @@ class Router
      * @param string $pattern The route pattern/path to match
      * @param string|object|callable The handler for route when matched
      */
-    public function delete(string $pattern, $handler)
+    public static function delete(string $pattern, $handler)
     {
-        return $this->match('DELETE', $pattern, $handler);
+        return static::match('DELETE', $pattern, $handler);
     }
 
     /**
@@ -354,9 +354,9 @@ class Router
      * @param string $to The url to redirect to
      * @param int $status The http status code for redirect
      */
-    public function redirect(string $from, string $to, int $status = 302)
+    public static function redirect(string $from, string $to, int $status = 302)
     {
-        $this->get($from, function () use ($to, $status) {
+        static::get($from, function () use ($to, $status) {
             return header("location: $to", true, $status);
         });
     }
@@ -377,15 +377,15 @@ class Router
      * @param string $pattern The base route to use eg: /post
      * @param string $controller to handle route eg: PostController
      */
-    public function resource(string $pattern, string $controller)
+    public static function resource(string $pattern, string $controller)
     {
-        $this->match("GET|HEAD", $pattern, "$controller@index");
-        $this->post("$pattern", "$controller@store");
-        $this->match("GET|HEAD", "$pattern/create", "$controller@create");
-        $this->match("POST|DELETE", "$pattern/{id}/delete", "$controller@destroy");
-        $this->match("POST|PUT|PATCH", "$pattern/{id}/edit", "$controller@update");
-        $this->match("GET|HEAD", "$pattern/{id}/edit", "$controller@edit");
-        $this->match("GET|HEAD", "$pattern/{id}", "$controller@show");
+        static::match("GET|HEAD", $pattern, "$controller@index");
+        static::post("$pattern", "$controller@store");
+        static::match("GET|HEAD", "$pattern/create", "$controller@create");
+        static::match("POST|DELETE", "$pattern/{id}/delete", "$controller@destroy");
+        static::match("POST|PUT|PATCH", "$pattern/{id}/edit", "$controller@update");
+        static::match("GET|HEAD", "$pattern/{id}/edit", "$controller@edit");
+        static::match("GET|HEAD", "$pattern/{id}", "$controller@show");
     }
 
     // -------------------- error handling --------------------
@@ -395,12 +395,12 @@ class Router
      *
      * @param object|callable $handler The function to be executed
      */
-    public function set404($handler = null)
+    public static function set404($handler = null)
     {
         if (is_callable($handler)) {
-            $this->notFoundHandler = $handler;
+            static::$notFoundHandler = $handler;
         } else {
-            $this->notFoundHandler = function () {
+            static::$notFoundHandler = function () {
                 \Leaf\Exception\General::default404();
             };
         }
@@ -411,9 +411,9 @@ class Router
      *
      * @param callable $handler The function to be executed
      */
-    public function setDown(?callable $handler = null)
+    public static function setDown(?callable $handler = null)
     {
-        $this->downHandler = $handler;
+        static::$downHandler = $handler;
     }
 
     /**
@@ -421,9 +421,9 @@ class Router
      *
      * @param callable $handler The function to be executed
      */
-    public function setError(callable $handler)
+    public static function setError(callable $handler)
     {
-        $this->errorHandler = $handler;
+        static::$errorHandler = $handler;
     }
 
     // ------------------- middleware and hooks ------------------
@@ -434,17 +434,17 @@ class Router
      * @param string $name The hook to set/call
      * @param callable|null $handler The hook handler
      */
-    public function hook(string $name, ?callable $handler = null)
+    public static function hook(string $name, ?callable $handler = null)
     {
-        if (!isset($this->hooks[$name])) {
+        if (!isset(static::$hooks[$name])) {
             trigger_error("$name is not a valid hook! Refer to the docs for all supported hooks");
         }
 
         if (!$handler) {
-            return is_callable($this->hooks[$name]) ? $this->hooks[$name](): null;
+            return is_callable(static::$hooks[$name]) ? static::$hooks[$name](): null;
         }
 
-        $this->hooks[$name] = $handler;
+        static::$hooks[$name] = $handler;
     }
 
     /**
@@ -454,21 +454,21 @@ class Router
      * @param string|array $path The path/route to apply middleware on
      * @param callable $handler The middleware handler
      */
-    public function before(string $methods, $path, callable $handler)
+    public static function before(string $methods, $path, callable $handler)
     {
         if (is_array($path)) {
-            if (!isset($this->namedRoutes[$path[0]])) {
+            if (!isset(static::$namedRoutes[$path[0]])) {
                 trigger_error("Route named " . $path[0] . " not found");
             }
 
-            $path = $this->namedRoutes[$path[0]];
+            $path = static::$namedRoutes[$path[0]];
         }
 
-        $path = $this->groupRoute . '/' . trim($path, '/');
-        $path = $this->groupRoute ? rtrim($path, '/') : $path;
+        $path = static::$groupRoute . '/' . trim($path, '/');
+        $path = static::$groupRoute ? rtrim($path, '/') : $path;
 
         foreach (explode('|', $methods) as $method) {
-            $this->routeSpecificMiddleware[$method][] = [
+            static::$routeSpecificMiddleware[$method][] = [
                 "pattern" => $path,
                 "handler" => $handler,
             ];
@@ -483,9 +483,9 @@ class Router
      *
      * @param \Leaf\Middleware
      */
-    public function add(\Leaf\Middleware $newMiddleware)
+    public static function add(\Leaf\Middleware $newMiddleware)
     {
-        if (in_array($newMiddleware, $this->middleware)) {
+        if (in_array($newMiddleware, static::$middleware)) {
             $middleware_class = get_class($newMiddleware);
             throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
         }
@@ -504,14 +504,14 @@ class Router
      * @param string|array $route The route to redirect to
      * @param array|null $data Data to pass to the next route
      */
-    public function push($route, ?array $data = null)
+    public static function push($route, ?array $data = null)
     {
         if (is_array($route)) {
-            if (!isset($this->namedRoutes[$route[0]])) {
+            if (!isset(static::$namedRoutes[$route[0]])) {
                 trigger_error("Route named " . $route[0] . " not found");
             }
 
-            $route = $this->namedRoutes[$route[0]];
+            $route = static::$namedRoutes[$route[0]];
         }
 
         if ($data) {
@@ -530,59 +530,59 @@ class Router
     /**
      * Dispatch your application routes
      */
-    public function run(?callable $callback = null)
+    public static function run(?callable $callback = null)
     {
         if (Config::get("app.down")) {
-            if (!$this->downHandler) {
-                $this->downHandler = function () {
+            if (!static::$downHandler) {
+                static::$downHandler = function () {
                     \Leaf\Exception\General::defaultDown();
                 };
             }
 
-            return $this->invoke($this->downHandler);
+            return static::invoke(static::$downHandler);
         }
 
         $middleware = [Config::get("app")["instance"]];
 
         if (is_callable($callback)) {
-            $this->hook("router.after", $callback);
+            static::hook("router.after", $callback);
         }
 
-        $this->hook("router.before");
+        static::hook("router.before");
 
         if (count($middleware) > 0) {
             $middleware[0]->call();
         }
 
-        $this->hook("router.before.route");
+        static::hook("router.before.route");
 
-        $this->requestedMethod = $this->getRequestMethod();
+        static::$requestedMethod = static::getRequestMethod();
 
-        if (isset($this->routeSpecificMiddleware[$this->requestedMethod])) {
-            $this->handle($this->routeSpecificMiddleware[$this->requestedMethod]);
+        if (isset(static::$routeSpecificMiddleware[static::$requestedMethod])) {
+            static::handle(static::$routeSpecificMiddleware[static::$requestedMethod]);
         }
 
-        $this->hook("router.before.dispatch");
+        static::hook("router.before.dispatch");
 
         $numHandled = 0;
 
-        if (isset($this->routes[$this->requestedMethod])) {
-            $numHandled = $this->handle(
-                $this->routes[$this->requestedMethod],
+        if (isset(static::$routes[static::$requestedMethod])) {
+            $numHandled = static::handle(
+                static::$routes[static::$requestedMethod],
                 true
             );
         }
 
-        $this->hook("router.after.dispatch");
+        static::hook("router.after.dispatch");
 
         if ($numHandled === 0) {
-            if (!$this->notFoundHandler) {
-                $this->notFoundHandler = function () {
+            if (!static::$notFoundHandler) {
+                static::$notFoundHandler = function () {
                     \Leaf\Exception\General::default404();
                 };
             }
 
-            $this->invoke($this->notFoundHandler);
+            static::invoke(static::$notFoundHandler);
         }
 
         // if it originally was a HEAD request, clean up after ourselves by emptying the output buffer
@@ -590,11 +590,11 @@ class Router
             ob_end_clean();
         }
 
-        $this->hook("router.after.route");
+        static::hook("router.after.route");
 
         restore_error_handler();
 
-        return $this->hook("router.after") ?? ($numHandled !== 0);
+        return static::hook("router.after") ?? ($numHandled !== 0);
     }
 
     // ------------------ server-ish stuff -------------------------
@@ -604,7 +604,7 @@ class Router
      *
      * @return string The Request method to handle
      */
-    public function getRequestMethod()
+    public static function getRequestMethod()
     {
         $method = $_SERVER['REQUEST_METHOD'];
 
@@ -630,13 +630,13 @@ class Router
      *
      * @return string
      */
-    public function getBasePath()
+    public static function getBasePath()
     {
-        if ($this->serverBasePath === null) {
-            $this->serverBasePath = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1)) . '/';
+        if (static::$serverBasePath === null) {
+            static::$serverBasePath = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1)) . '/';
         }
 
-        return $this->serverBasePath;
+        return static::$serverBasePath;
     }
 
     /**
@@ -645,9 +645,9 @@ class Router
      *
      * @param string
      */
-    public function setBasePath($serverBasePath)
+    public static function setBasePath($serverBasePath)
     {
-        $this->serverBasePath = $serverBasePath;
+        static::$serverBasePath = $serverBasePath;
     }
 
     /**
@@ -655,10 +655,10 @@ class Router
      *
      * @return string
      */
-    public function getCurrentUri()
+    public static function getCurrentUri()
     {
         // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
-        $uri = substr(rawurldecode($_SERVER['REQUEST_URI']), strlen($this->getBasePath()));
+        $uri = substr(rawurldecode($_SERVER['REQUEST_URI']), strlen(static::getBasePath()));
 
         if (strstr($uri, '?')) {
             $uri = substr($uri, 0, strpos($uri, '?'));
@@ -677,10 +677,10 @@ class Router
      *
      * @return int The number of routes handled
      */
-    private function handle($routes, $quitAfterRun = false)
+    private static function handle($routes, $quitAfterRun = false)
     {
         $numHandled = 0;
-        $uri = $this->getCurrentUri();
+        $uri = static::getCurrentUri();
 
         foreach ($routes as $route) {
             // Replace all curly braces matches {} into word patterns (like Laravel)
@@ -703,7 +703,7 @@ class Router
                 }, $matches, array_keys($matches));
 
                 // Call the handling function with the URL parameters if the desired input is callable
-                $this->invoke($route['handler'], $params);
+                static::invoke($route['handler'], $params);
                 ++$numHandled;
 
                 if ($quitAfterRun) {
@@ -715,7 +715,7 @@ class Router
         return $numHandled;
     }
 
-    private function invoke($handler, $params = [])
+    private static function invoke($handler, $params = [])
     {
         if (is_callable($handler)) {
             call_user_func_array(

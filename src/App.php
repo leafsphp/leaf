@@ -403,7 +403,7 @@ class App
      * 
      * @param string $namespace The namespace to chain to group
      */
-    public function namespace(string $namespace): Router
+    public function namespace(string $namespace)
     {
         return $this->leafRouter->namespace($namespace);
     }
@@ -413,7 +413,7 @@ class App
      * 
      * @param string $prefix The prefix to add to group
      */
-    public function prefix(string $prefix): Router
+    public function prefix(string $prefix)
     {
         return $this->leafRouter->prefix($prefix);
     }
@@ -423,7 +423,7 @@ class App
      * 
      * @param string $name The name to give to route
      */
-    public function name(string $name): Router
+    public function name(string $name)
     {
         return $this->leafRouter->name($name);
     }
