@@ -24,6 +24,7 @@
 - Fixed incorrect method labeling
 - Fixed HTTP caching issues
 - Fixed app logger and app log writer
+- Fixed app break after non-existent middlware call
 
 ### Changed
 
@@ -44,6 +45,7 @@
 - Removed Leaf environment class
 - Removed unused default middleware
 - `Leaf\Blade` no longer comes with Leaf by default.
+- Removed `status` and `contentType` on Leaf\App
 
 ## v2.4.4 - 🎋 Common Reed - 23rd March 2021
 

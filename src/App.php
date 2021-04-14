@@ -403,7 +403,7 @@ class App
      * 
      * @param string $namespace The namespace to chain to group
      */
-    public function namespace(string $namespace)
+    public function namespace(string $namespace): Router
     {
         return $this->leafRouter->namespace($namespace);
     }
@@ -413,7 +413,7 @@ class App
      * 
      * @param string $prefix The prefix to add to group
      */
-    public function prefix(string $prefix)
+    public function prefix(string $prefix): Router
     {
         return $this->leafRouter->prefix($prefix);
     }
@@ -423,7 +423,7 @@ class App
      * 
      * @param string $name The name to give to route
      */
-    public function name(string $name)
+    public function name(string $name): Router
     {
         return $this->leafRouter->name($name);
     }
@@ -650,24 +650,6 @@ class App
     {
         $this->cleanBuffer();
         throw new \Leaf\Exception\Pass();
-    }
-
-    /**
-     * Set the HTTP response Content-Type
-     * @param  string   $type   The Content-Type for the Response (ie. text/html)
-     */
-    public function contentType($type)
-    {
-        $this->response()::$headers->set('Content-Type', $type);
-    }
-
-    /**
-     * Set the HTTP response status code
-     * @param int $code The HTTP response status code
-     */
-    public function status($code)
-    {
-        \Leaf\Http\Headers::status($code);
     }
 
     /********************************************************************************
