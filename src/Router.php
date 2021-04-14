@@ -109,30 +109,11 @@ class Router
     protected static string $serverBasePath = "";
 
     /**
-     * Instance of leaf
-     */
-    protected static App $app;
-
-    /**
      * Configure leaf router
      */
     public static function configure(array $config)
     {
         static::$config = array_merge(static::$config, $config);
-    }
-
-    /**
-     * Add/Get Leaf App instance
-     * 
-     * @param App|null The leaf app instance to set
-     */
-    public static function app(?App $app = null)
-    {
-        if (!$app) {
-            return static::$app;
-        }
-
-        static::$app = $app;
     }
 
     /**
