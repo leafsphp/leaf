@@ -14,11 +14,6 @@ namespace Leaf;
 class Router
 {
     /**
-     * Callable to be invoked on application error
-     */
-    protected static $errorHandler;
-
-    /**
      * Callable to be invoked if no matching routes are found
      */
     protected static $notFoundHandler;
@@ -397,16 +392,6 @@ class Router
         static::$downHandler = $handler;
     }
 
-    /**
-     * Set a custom error screen.
-     *
-     * @param callable $handler The function to be executed
-     */
-    public static function setError(callable $handler)
-    {
-        static::$errorHandler = $handler;
-    }
-
     // ------------------- middleware and hooks ------------------
 
     /**
@@ -520,6 +505,8 @@ class Router
      */
     public static function run(?callable $callback = null)
     {
+        set_error_handler("selling");
+
         if (Config::get("app.down")) {
             if (!static::$downHandler) {
                 static::$downHandler = function () {

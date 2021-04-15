@@ -25,6 +25,12 @@ class App
      */
     protected \Leaf\Router $leafRouter;
 
+    /**
+     * Callable to be invoked on application error
+     */
+    protected $errorHandler;
+
+
     /********************************************************************************
      * Instantiation and Configuration
      *******************************************************************************/
@@ -47,11 +53,36 @@ class App
 
         $this->setupDefaultContainer();
 
+        if (!$this->config("mode") === "development") {
+            $this->setErrorHandler(['\Leaf\Exception\General', 'handleErrors'], false);
+        } else {
+            $this->setErrorHandler(['\Leaf\Exception\General', 'defaultError']);
+        }
+
         View::attach(\Leaf\BareUI::class, 'template');
 
         $this->loadViewEngines();
+    }
 
-        set_error_handler(['\Leaf\Exception\General', 'handleErrors']);
+    /**
+     * Set a custom error screen.
+     *
+     * @param callable|array $handler The function to be executed
+     */
+    public function setErrorHandler($handler, bool $wrapper = true)
+    {
+        $errorHandler = $handler;
+
+        if ($wrapper) {
+            $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use($handler) {
+                $exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
+                Http\Response::status(500);
+                call_user_func_array($handler, [$exception]);
+                exit();
+            };
+        }
+
+        set_error_handler($errorHandler);
     }
 
     /**
@@ -452,65 +483,6 @@ class App
     public function router(): Router
     {
         return $this->leafRouter;
-    }
-
-    /**
-     * Error Handler
-     *
-     * This method defines or invokes the application-wide Error handler.
-     * There are two contexts in which this method may be invoked:
-     *
-     * 1. When declaring the handler:
-     *
-     * If the $argument parameter is callable, this
-     * method will register the callable to be invoked when an uncaught
-     * Exception is detected, or when otherwise explicitly invoked.
-     * The handler WILL NOT be invoked in this context.
-     *
-     * 2. When invoking the handler:
-     *
-     * If the $argument parameter is not callable, Leaf assumes you want
-     * to invoke an already-registered handler. If the handler has been
-     * registered and is callable, it is invoked and passed the caught Exception
-     * as its one and only argument. The error handler's output is captured
-     * into an output buffer and sent as the body of a 500 HTTP Response.
-     *
-     * @param mixed $argument Callable|\Exception
-     */
-    public function error($argument = null)
-    {
-        if (is_callable($argument)) {
-            // Register error handler
-            $this->error = $argument;
-        } else {
-            //Invoke error handler
-            $this->response->status(500);
-            $this->response()::markup($this->callErrorHandler($argument));
-
-            $this->stop();
-        }
-    }
-
-    /**
-     * Call error handler
-     *
-     * This will invoke the custom or default error handler
-     * and RETURN its output.
-     *
-     * @param  \Exception|null $argument
-     * @return string
-     */
-    protected function callErrorHandler($argument = null)
-    {
-        ob_start();
-
-        if (is_callable($this->error)) {
-            call_user_func_array($this->error, [$argument]);
-        } else {
-            echo \Leaf\Exception\General::defaultError($argument, $this);
-        }
-
-        return ob_get_clean();
     }
 
     /**
