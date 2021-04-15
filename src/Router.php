@@ -505,6 +505,8 @@ class Router
      */
     public static function run(?callable $callback = null)
     {
+        set_error_handler("selling");
+
         if (Config::get("app.down")) {
             if (!static::$downHandler) {
                 static::$downHandler = function () {
