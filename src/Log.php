@@ -128,7 +128,7 @@ class Log
      * 
      * @param mixed $writer
      */
-    public function setWriter($writer = null)
+    public function writer($writer = null)
     {
         if ($writer === null) {
             return $this->writer;
