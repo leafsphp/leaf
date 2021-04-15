@@ -75,6 +75,32 @@ class General extends \Exception
 	}
 
 	/**
+	 * Returns ErrorException objects from errors
+	 *
+	 * This method catches PHP errors and converts them into \ErrorException objects;
+	 * these \ErrorException objects are then thrown and caught by Leaf's
+	 * built-in or custom error handlers.
+	 *
+	 * @param  int $errno   The numeric type of the Error
+	 * @param  string $errstr  The error message
+	 * @param  string $errfile The absolute path to the affected file
+	 * @param  int $errline The line number of the error in the affected file
+	 * @return void|\ErrorException
+	 */
+	public static function toException($errno, $errstr = '', $errfile = '', $errline = '')
+	{
+		if (!($errno & error_reporting())) {
+			return;
+		}
+
+		try {
+			throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
+		} catch (\Throwable $th) {
+			return $th;
+		}
+	}
+
+	/**
 	 * Render response body
 	 * 
 	 * @param array $env
@@ -171,12 +197,14 @@ class General extends \Exception
 	/**
 	 * Default Error handler
 	 */
-	public static function defaultError($e)
+	public static function defaultError($e = null)
 	{
-		$app = \Leaf\Config::get("app")["instance"];
+		if ($e) {
+			$app = \Leaf\Config::get("app")["instance"];
 
-		if ($app && $app->config("log.enabled")) {
-			$app->logger()->error($e);
+			if ($app && $app->config("log.enabled")) {
+				$app->logger()->error($e);
+			}
 		}
 
 		echo self::errorMarkup('Application Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');

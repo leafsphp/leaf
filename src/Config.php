@@ -22,7 +22,6 @@ class Config
         "log.open" => true,
         "http.version" => "1.1",
         // views
-        "views.blade" => true,
         "views.path" => null,
         "views.cachePath" => null,
     ];
