@@ -395,22 +395,28 @@ class Router
     // ------------------- middleware and hooks ------------------
 
     /**
-     * Add/Call a router hook
+     * Add a router hook
      * 
-     * @param string $name The hook to set/call
+     * @param string $name The hook to set
      * @param callable|null $handler The hook handler
      */
-    public static function hook(string $name, ?callable $handler = null)
+    public static function hook(string $name, callable $handler)
     {
         if (!isset(static::$hooks[$name])) {
             trigger_error("$name is not a valid hook! Refer to the docs for all supported hooks");
         }
 
-        if (!$handler) {
-            return is_callable(static::$hooks[$name]) ? static::$hooks[$name](): null;
-        }
-
         static::$hooks[$name] = $handler;
+    }
+
+    /**
+     * Call a router hook
+     * 
+     * @param string $name The hook to call
+     */
+    private static function callHook(string $name)
+    {
+        return is_callable(static::$hooks[$name]) ? static::$hooks[$name]() : null;
     }
 
     /**
@@ -521,13 +527,13 @@ class Router
             static::hook("router.after", $callback);
         }
 
-        static::hook("router.before");
+        static::callHook("router.before");
 
         if (count($middleware) > 0) {
             $middleware[0]->call();
         }
 
-        static::hook("router.before.route");
+        static::callHook("router.before.route");
 
         static::$requestedMethod = static::getRequestMethod();
 
@@ -535,7 +541,7 @@ class Router
             static::handle(static::$routeSpecificMiddleware[static::$requestedMethod]);
         }
 
-        static::hook("router.before.dispatch");
+        static::callHook("router.before.dispatch");
 
         $numHandled = 0;
 
@@ -546,7 +552,7 @@ class Router
             );
         }
 
-        static::hook("router.after.dispatch");
+        static::callHook("router.after.dispatch");
 
         if ($numHandled === 0) {
             if (!static::$notFoundHandler) {
@@ -563,11 +569,11 @@ class Router
             ob_end_clean();
         }
 
-        static::hook("router.after.route");
+        static::callHook("router.after.route");
 
         restore_error_handler();
 
-        return static::hook("router.after") ?? ($numHandled !== 0);
+        return static::callHook("router.after") ?? ($numHandled !== 0);
     }
 
     // ------------------ server-ish stuff -------------------------
