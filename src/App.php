@@ -16,7 +16,7 @@ namespace Leaf;
 class App
 {
     /**
-     * Leaf container instance 
+     * Leaf container instance
      */
     public \Leaf\Helpers\Container $container;
 
@@ -53,9 +53,15 @@ class App
 
         $this->setupDefaultContainer();
 
-        if (!$this->config("mode") === "development") {
+        if ($this->config("debug")) {
+            error_reporting(E_ALL);
+            ini_set('display_errors', 1);
+
             $this->setErrorHandler(['\Leaf\Exception\General', 'handleErrors'], false);
         } else {
+            error_reporting(0);
+            ini_set('display_errors', 0);
+
             $this->setErrorHandler(['\Leaf\Exception\General', 'defaultError']);
         }
 
@@ -257,7 +263,7 @@ class App
 
     /**
      * Get application log
-     * 
+     *
      * @return \Leaf\Log
      */
     public function logger(): Log
@@ -378,7 +384,7 @@ class App
 
     /**
      * Create a resource route for using controllers.
-     * 
+     *
      * This creates a routes that implement CRUD functionality in a controller
      * `/posts` creates:
      * - `/posts` - GET | HEAD - Controller@index
@@ -388,7 +394,7 @@ class App
      * - `/posts/{id}/edit` - GET | HEAD - Controller@edit
      * - `/posts/{id}/edit` - POST | PUT | PATCH - Controller@update
      * - `/posts/{id}/delete` - POST | DELETE - Controller@destroy
-     * 
+     *
      * @param string $pattern The base route to use eg: /post
      * @param string $controller to handle route eg: PostController
      */
@@ -410,7 +416,7 @@ class App
 
     /**
      * Alias for mount()
-     * 
+     *
      * @param string $baseRoute The route sub pattern to mount the callbacks on
      * @param callable $handler The callback method
      */
@@ -431,7 +437,7 @@ class App
 
     /**
      * Add a namespace to a route group
-     * 
+     *
      * @param string $namespace The namespace to chain to group
      */
     public function namespace(string $namespace): Router
@@ -441,7 +447,7 @@ class App
 
     /**
      * Add a prefix to a route group
-     * 
+     *
      * @param string $prefix The prefix to add to group
      */
     public function prefix(string $prefix): Router
@@ -451,7 +457,7 @@ class App
 
     /**
      * Name a route
-     * 
+     *
      * @param string $name The name to give to route
      */
     public function name(string $name): Router
@@ -643,7 +649,7 @@ class App
 
     /**
      * Add a route specific middleware
-     * 
+     *
      * @param string $methods Allowed methods, separated by |
      * @param string|array $path The path/route to apply middleware on
      * @param callable $handler The middleware handler
@@ -655,7 +661,7 @@ class App
 
     /**
      * Add/Call a router hook
-     * 
+     *
      * @param string $name The hook to set/call
      * @param callable|null $handler The hook handler
      */
@@ -666,7 +672,7 @@ class App
 
     /**
      * Evade CORS errors
-     * 
+     *
      * Just a little bypass for common cors errors
      */
     public function evadeCors(bool $evadeOptions, string $allow_origin = "*", string $allow_headers = "*")
