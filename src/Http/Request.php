@@ -139,14 +139,7 @@ class Request
      */
     public static function try($params, bool $safeData = true)
     {
-        if (is_string($params)) return static::body($safeData)[$params] ?? null;
-
-        $data = [];
-
-        foreach ($params as $param) {
-            $data[$param] = static::get($param, $safeData);
-        }
-
+        $data = static::get($params, $safeData);
         $dataKeys = array_keys($data);
 
         foreach ($dataKeys as $key) {
