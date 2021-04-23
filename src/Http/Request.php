@@ -64,7 +64,7 @@ class Request
 
     /**
      * Check for request method type
-     * 
+     *
      * @param string $type The type of request to check for
      * @return bool
      */
@@ -75,7 +75,7 @@ class Request
 
     /**
      * Find if request has a particular header
-     * 
+     *
      * @param string $header  Header to check for
      * @return bool
      */
@@ -114,22 +114,60 @@ class Request
      *
      * @param string $key
      * @param mixed $default
-     * 
+     *
      * @return array|mixed|null
      */
     public static function params($key = null, $default = null)
     {
         $union = static::body();
+
         if ($key) return isset($union[$key]) ? $union[$key] : $default;
 
         return $union;
     }
 
     /**
+     * Attempt to retrieve data from the request.
+     *
+     * Data which is not found in the request parameters will
+     * be completely removed instead of returning null. Use `get`
+     * if you want to return null or `params` if you want to set
+     * a default value.
+     *
+     * @param string|array $params The parameter(s) to return
+     * @param bool $safeData Sanitize output
+     */
+    public static function try($params, bool $safeData = true)
+    {
+        if (is_string($params)) return static::body($safeData)[$params] ?? null;
+
+        $data = [];
+
+        foreach ($params as $param) {
+            $data[$param] = static::get($param, $safeData);
+        }
+
+        $dataKeys = array_keys($data);
+
+        foreach ($dataKeys as $key) {
+            if (!$data[$key]) {
+                unset($data[$key]);
+                continue;
+            }
+
+            if (!strlen($data[$key])) {
+                unset($data[$key]);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Returns request data
      *
-     * This methods returns data passed into the request (request or form data). 
-     * This method returns get, post, put patch, delete or raw faw form data or NULL 
+     * This methods returns data passed into the request (request or form data).
+     * This method returns get, post, put patch, delete or raw faw form data or NULL
      * if the data isn't found.
      *
      * @param string|array $params The parameter(s) to return
@@ -140,15 +178,17 @@ class Request
         if (is_string($params)) return static::body($safeData)[$params] ?? null;
 
         $data = [];
+
         foreach ($params as $param) {
             $data[$param] = static::get($param, $safeData);
         }
+
         return $data;
     }
 
     /**
      * Get all the request data as an associative array
-     * 
+     *
      * @param bool $safeData Sanitize output
      */
     public static function body(bool $safeData = true)
@@ -159,7 +199,7 @@ class Request
 
     /**
      * Get all files passed into the request.
-     * 
+     *
      * @param string|array $filenames The file(s) you want to get
      */
     public static function files($filenames = null)
@@ -207,7 +247,7 @@ class Request
      *
      * @param string|array $key The header(s) to return
      * @param bool  $safeData Attempt to sanitize headers
-     * 
+     *
      * @return mixed
      */
     public static function headers($key = null, $safeData = true)
