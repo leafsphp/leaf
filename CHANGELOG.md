@@ -1,7 +1,26 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.5.0-beta - 💠 Gladiolus (BETA) - SOON
+## v2.5.0 - 💠 Gladiolus - 27th April, 2021
+
+### Added
+
+- Leaf debug now controls error reporting (you don't want nasty errors showing in production)
+- Added `Request::try`
+
+### Fixed
+
+- Fixed inverted condition for showing default development/production error pages.
+
+### Changed
+
+- Switched debugging controls from `mode` to `debug`
+
+### Removed
+
+- Nothing was removed
+
+## v2.5.0-beta - 💠 Gladiolus (BETA) - 16th April, 2021
 
 ### Added
 
