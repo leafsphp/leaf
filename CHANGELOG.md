@@ -10,6 +10,7 @@
 - Added `app.down` config
 - Added Leaf app instance on `Config`
 - Added grouped namespaces to router
+- Added single route namespaces
 - Added named routes to router
 - Added router `push` for switching between pages
 - Added more customizations on `Leaf\Database`
