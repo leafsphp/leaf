@@ -621,7 +621,7 @@ class Router
      */
     public static function getBasePath()
     {
-        if (static::$serverBasePath === null) {
+        if (static::$serverBasePath === "") {
             static::$serverBasePath = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1)) . '/';
         }
 
