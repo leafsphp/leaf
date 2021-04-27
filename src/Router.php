@@ -69,24 +69,9 @@ class Router
     protected static array $namedRoutes = [];
 
     /**
-     * Current route name
-     */
-    protected static ?string $routeName = null;
-
-    /**
      * Current group base path
      */
     protected static string $groupRoute = "";
-
-    /**
-     * Current group prefix
-     */
-    protected static string $groupPrefix = "";
-
-    /**
-     * Current group controller namespace
-     */
-    protected static string $groupNamespace = "";
 
     /**
      * Default controller namespace
@@ -120,17 +105,6 @@ class Router
     }
 
     /**
-     * Name a route
-     * 
-     * @param string $name The name to give to route
-     */
-    public static function name(string $name)
-    {
-        static::$routeName = $name;
-        return new self;
-    }
-
-    /**
      * Set a global namespace for your handlers
      * 
      * @param string $namespace The global namespace to set
@@ -151,46 +125,58 @@ class Router
     }
 
     /**
-     * Add a namespace to a route group
-     * 
-     * @param string $namespace The namespace to chain to group
+     * Map handler and options
      */
-    public static function namespace(string $namespace)
+    private static function mapHandler($handler, $options)
     {
-        static::$groupNamespace = $namespace;
-        return new self;
-    }
-    
-    /**
-     * Add a prefix to a route group
-     * 
-     * @param string $prefix The prefix to add to group
-     */
-    public static function prefix(string $prefix)
-    {
-        static::$groupPrefix = $prefix;
-        return new self;
+        if (is_array($handler)) {
+            $handlerData = $handler;
+
+            foreach ($handler as $key => $value) {
+                if (is_callable($value) && is_numeric($key)) {
+                    $handler = $handler[$key];
+                    unset($handlerData[$key]);
+                    break;
+                }
+            }
+
+            foreach ($handlerData as $key => $value) {
+                if (isset($handlerData[$key])) {
+                    $options[$key] = $handlerData[$key];
+                }
+            }
+        }
+
+        return [$handler, $options];
     }
 
     /**
      * Mounts a collection of callbacks onto a base route.
      *
      * @param string $path The route sub pattern/path to mount the callbacks on
-     * @param callable $handler The callback method
+     * @param callable|array $handler The callback method
      */
-    public static function mount(string $path, callable $handler)
+    public static function mount(string $path, $handler)
     {
+        $groupOptions = [
+            "namespace" => null,
+            "prefix" => null,
+        ];
+
+        list($handler, $groupOptions) = static::mapHandler($handler, $groupOptions);
+
         $namespace = static::$namespace;
         $groupRoute = static::$groupRoute;
-        $groupPrefix = static::$groupPrefix;
+        $groupPrefix = $groupOptions["prefix"] ?? "";
 
-        static::$namespace = static::$groupNamespace;
+        if ($groupOptions["namespace"]) {
+            static::$namespace = $groupOptions["namespace"];
+        }
+
         static::$groupRoute = $groupPrefix . $path;
 
         call_user_func($handler);
 
-        static::$groupNamespace = "";
-        static::$groupPrefix = "";
         static::$namespace = $namespace;
         static::$groupRoute = $groupRoute;
     }
@@ -199,7 +185,7 @@ class Router
      * Alias for mount
      * 
      * @param string $path The route sub pattern/path to mount the callbacks on
-     * @param callable $handler The callback method
+     * @param callable|array $handler The callback method
      */
     public static function group($path, $handler)
     {
@@ -213,22 +199,29 @@ class Router
      * 
      * @param string $methods Allowed HTTP methods (separated by `|`)
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function match(string $methods, string $pattern, $handler)
     {
         $pattern = static::$groupRoute . "/" . trim($pattern, "/");
         $pattern = static::$groupRoute ? rtrim($pattern, "/"): $pattern;
 
+        $routeOptions = [
+            "name" => null,
+            "middleware" => null,
+        ];
+
         if (is_string($handler)) {
             $handler = str_replace("\\\\", "\\", static::$namespace . "\\$handler");
         }
+
+        list($handler, $routeOptions) = static::mapHandler($handler, $routeOptions);
 
         foreach (explode("|", $methods) as $method) {
             static::$routes[$method][] = [
                 "pattern" => $pattern,
                 "handler" => $handler,
-                "name" => static::$routeName ?? ""
+                "name" => $routeOptions["name"] ?? ""
             ];
         }
 
@@ -236,21 +229,23 @@ class Router
             "methods" => explode("|", $methods),
             "pattern" => $pattern,
             "handler" => $handler,
-            "name" => static::$routeName ?? ""
+            "name" => $routeOptions["name"] ?? ""
         ];
 
-        if (static::$routeName) {
-            static::$namedRoutes[static::$routeName] = $pattern;
+        if ($routeOptions["name"]) {
+            static::$namedRoutes[$routeOptions["name"]] = $pattern;
         }
 
-        static::$routeName = null;
+        if ($routeOptions["middleware"]) {
+            static::before($methods, $pattern, $routeOptions["middleware"]);
+        }
     }
 
     /**
      * Add a route with all available HTTP methods
      * 
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function all(string $pattern, $handler)
     {
@@ -261,7 +256,7 @@ class Router
      * Add a route with GET method
      * 
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function get(string $pattern, $handler)
     {
@@ -272,7 +267,7 @@ class Router
      * Add a route with POST method
      * 
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function post(string $pattern, $handler)
     {
@@ -283,7 +278,7 @@ class Router
      * Add a route with PUT method
      * 
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function put(string $pattern, $handler)
     {
@@ -294,7 +289,7 @@ class Router
      * Add a route with PATCH method
      * 
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function patch(string $pattern, $handler)
     {
@@ -305,7 +300,7 @@ class Router
      * Add a route with OPTIONS method
      * 
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function options(string $pattern, $handler)
     {
@@ -316,7 +311,7 @@ class Router
      * Add a route with DELETE method
      * 
      * @param string $pattern The route pattern/path to match
-     * @param string|object|callable The handler for route when matched
+     * @param string|array|callable The handler for route when matched
      */
     public static function delete(string $pattern, $handler)
     {
