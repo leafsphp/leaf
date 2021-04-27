@@ -7,18 +7,48 @@
 
 - Leaf debug now controls error reporting (you don't want nasty errors showing in production)
 - Added `Request::try`
+- Added `app.down` config
+- Added Leaf app instance on `Config`
+- Added grouped namespaces to router
+- Added named routes to router
+- Added router `push` for switching between pages
+- Added more customizations on `Leaf\Database`
+- Added simple flash messaging with `Leaf\Flash`
+- Added `flash` method to session
+- Added HTTP caching on `Leaf\Http\Headers`
 
 ### Fixed
 
 - Fixed inverted condition for showing default development/production error pages.
+- Fixed router hooks
+- Added proper types on `App` and `Router`
+- Added proper controller and missing method warnings
+- Fixed incorrect method labeling
+- Fixed HTTP caching issues
+- Fixed app logger and app log writer
+- Fixed app break after non-existent middlware call
 
 ### Changed
 
 - Switched debugging controls from `mode` to `debug`
+- Default 404 page now automatically loaded
+- Router middleware `App` instance now automatically loaded
+- Added null response for unset session variables
+- Leaf error handler now loads on `App` init
+- Default error 500 handler now automatically loaded
+- Updated leaf container
 
 ### Removed
 
-- Nothing was removed
+- Removed unnecessary code from `App`
+- Removed app name
+- Removed `view` method on app and router
+- Removed previous hook support on app
+- Removed unused router config
+- Removed Leaf environment class
+- Removed unused default middleware
+- `Leaf\Blade` no longer comes with Leaf by default.
+- Removed `status` and `contentType` on Leaf\App
 
 ## v2.5.0-beta - 💠 Gladiolus (BETA) - 16th April, 2021
 
