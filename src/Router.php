@@ -132,11 +132,19 @@ class Router
         if (is_array($handler)) {
             $handlerData = $handler;
 
-            foreach ($handler as $key => $value) {
-                if (is_callable($value) && is_numeric($key)) {
-                    $handler = $handler[$key];
-                    unset($handlerData[$key]);
-                    break;
+            if (isset($handler["handler"])) {
+                $handler = $handler["handler"];
+                unset($handlerData["handler"]);
+            } else {
+                foreach ($handler as $key => $value) {
+                    if (
+                        (is_numeric($key) && is_callable($value))
+                        || is_numeric($key) && is_string($value) && strpos($value, "@")
+                    ) {
+                        $handler = $handler[$key];
+                        unset($handlerData[$key]);
+                        break;
+                    }
                 }
             }
 
