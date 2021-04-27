@@ -134,10 +134,11 @@ class Request
      * if you want to return null or `params` if you want to set
      * a default value.
      *
-     * @param string|array $params The parameter(s) to return
-     * @param bool $safeData Sanitize output
+     * @param array $params The parameters to return
+     * @param bool $safeData Sanitize output?
+     * @param bool $noEmptyString Remove empty strings from return data?
      */
-    public static function try($params, bool $safeData = true)
+    public static function try(array $params, bool $safeData = true, bool $noEmptyString = false)
     {
         $data = static::get($params, $safeData);
         $dataKeys = array_keys($data);
@@ -148,7 +149,7 @@ class Request
                 continue;
             }
 
-            if (!strlen($data[$key])) {
+            if ($noEmptyString && !strlen($data[$key])) {
                 unset($data[$key]);
             }
         }
