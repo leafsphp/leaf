@@ -49,8 +49,6 @@ class App
         $this->container = new \Leaf\Helpers\Container();
         $this->container['settings'] = Config::get();
 
-        $this->leafRouter = new Router();
-
         $this->setupDefaultContainer();
 
         if ($this->config("debug")) {
@@ -288,7 +286,7 @@ class App
      */
     public function match($methods, $pattern, $handler)
     {
-        return $this->leafRouter->match($methods, $pattern, $handler);
+        return Router::match($methods, $pattern, $handler);
     }
 
     /**
@@ -299,7 +297,7 @@ class App
      */
     public function all($pattern, $handler)
     {
-        return $this->leafRouter->all($pattern, $handler);
+        return Router::all($pattern, $handler);
     }
 
     /**
@@ -310,7 +308,7 @@ class App
      */
     public function get($pattern, $handler)
     {
-        return $this->leafRouter->get($pattern, $handler);
+        return Router::get($pattern, $handler);
     }
 
     /**
@@ -321,7 +319,7 @@ class App
      */
     public function post($pattern, $handler)
     {
-        return $this->leafRouter->post($pattern, $handler);
+        return Router::post($pattern, $handler);
     }
 
     /**
@@ -332,7 +330,7 @@ class App
      */
     public function patch($pattern, $handler)
     {
-        return $this->leafRouter->patch($pattern, $handler);
+        return Router::patch($pattern, $handler);
     }
 
     /**
@@ -343,7 +341,7 @@ class App
      */
     public function delete($pattern, $handler)
     {
-        return $this->leafRouter->delete($pattern, $handler);
+        return Router::delete($pattern, $handler);
     }
 
     /**
@@ -354,7 +352,7 @@ class App
      */
     public function put($pattern, $handler)
     {
-        return $this->leafRouter->put($pattern, $handler);
+        return Router::put($pattern, $handler);
     }
 
     /**
@@ -365,7 +363,7 @@ class App
      */
     public function options($pattern, $handler)
     {
-        return $this->leafRouter->options($pattern, $handler);
+        return Router::options($pattern, $handler);
     }
 
     /**
@@ -379,7 +377,7 @@ class App
      */
     public function redirect($from, $to, $status = 302)
     {
-        return $this->leafRouter->redirect($from, $to, $status);
+        return Router::redirect($from, $to, $status);
     }
 
     /**
@@ -400,7 +398,7 @@ class App
      */
     public function resource(string $pattern, string $controller)
     {
-        return $this->leafRouter->resource($pattern, $controller);
+        return Router::resource($pattern, $controller);
     }
 
     /**
@@ -411,7 +409,7 @@ class App
      */
     public function mount($baseRoute, $handler)
     {
-        $this->leafRouter->mount($baseRoute, $handler);
+        Router::mount($baseRoute, $handler);
     }
 
     /**
@@ -422,7 +420,7 @@ class App
      */
     public function group($baseRoute, $handler)
     {
-        $this->leafRouter->group($baseRoute, $handler);
+        Router::group($baseRoute, $handler);
     }
 
     /**
@@ -432,37 +430,7 @@ class App
      */
     public function setNamespace($namespace)
     {
-        $this->leafRouter->setNamespace($namespace);
-    }
-
-    /**
-     * Add a namespace to a route group
-     *
-     * @param string $namespace The namespace to chain to group
-     */
-    public function namespace(string $namespace): Router
-    {
-        return $this->leafRouter->namespace($namespace);
-    }
-
-    /**
-     * Add a prefix to a route group
-     *
-     * @param string $prefix The prefix to add to group
-     */
-    public function prefix(string $prefix): Router
-    {
-        return $this->leafRouter->prefix($prefix);
-    }
-
-    /**
-     * Name a route
-     *
-     * @param string $name The name to give to route
-     */
-    public function name(string $name): Router
-    {
-        return $this->leafRouter->name($name);
+        Router::setNamespace($namespace);
     }
 
     /**
@@ -472,7 +440,7 @@ class App
      */
     public function getNamespace(): string
     {
-        return $this->leafRouter->getNamespace();
+        return Router::getNamespace();
     }
 
     /**
@@ -480,7 +448,7 @@ class App
      */
     public function routes(): array
     {
-        return $this->leafRouter->routes();
+        return Router::routes();
     }
 
     /**
@@ -498,7 +466,7 @@ class App
      */
     public function set404($handler = null)
     {
-        return $this->leafRouter->set404($handler);
+        return Router::set404($handler);
     }
 
     /**
@@ -508,7 +476,7 @@ class App
      */
     public function setDown($handler = null)
     {
-        return $this->leafRouter->setDown($handler);
+        return Router::setDown($handler);
     }
 
     /********************************************************************************
@@ -644,7 +612,7 @@ class App
      */
     public function add(\Leaf\Middleware $middleware)
     {
-        $this->leafRouter->add($middleware);
+        Router::add($middleware);
     }
 
     /**
@@ -656,7 +624,7 @@ class App
      */
     public function before(string $methods, $path, callable $handler)
     {
-        $this->leafRouter->before($methods, $path, $handler);
+        Router::before($methods, $path, $handler);
     }
 
     /**
@@ -667,7 +635,7 @@ class App
      */
     public function hook($name, $handler)
     {
-        $this->leafRouter->hook($name, $handler);
+        Router::hook($name, $handler);
     }
 
     /**
@@ -680,7 +648,7 @@ class App
         $this->response()->cors($allow_origin, $allow_headers);
 
         if ($evadeOptions) {
-            if ($this->leafRouter->getRequestMethod() === "OPTIONS") {
+            if (Router::getRequestMethod() === "OPTIONS") {
                 $this->response()->throwErr("ok", 200);
             }
         }
@@ -698,6 +666,6 @@ class App
      */
     public function run($callback = null)
     {
-        return $this->leafRouter->run($callback);
+        return Router::run($callback);
     }
 }
