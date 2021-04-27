@@ -215,10 +215,19 @@ class Router
         $routeOptions = [
             "name" => null,
             "middleware" => null,
+            "namespace" => null,
         ];
 
         if (is_string($handler)) {
+            $namespace = static::$namespace;
+
+            if ($routeOptions["namespace"]) {
+                static::$namespace = $routeOptions["namespace"];
+            }
+
             $handler = str_replace("\\\\", "\\", static::$namespace . "\\$handler");
+
+            static::$namespace = $namespace;
         }
 
         list($handler, $routeOptions) = static::mapHandler($handler, $routeOptions);
