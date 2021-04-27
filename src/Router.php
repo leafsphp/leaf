@@ -160,20 +160,18 @@ class Router
     {
         $groupOptions = [
             "namespace" => null,
-            "prefix" => null,
         ];
 
         list($handler, $groupOptions) = static::mapHandler($handler, $groupOptions);
 
         $namespace = static::$namespace;
         $groupRoute = static::$groupRoute;
-        $groupPrefix = $groupOptions["prefix"] ?? "";
 
         if ($groupOptions["namespace"]) {
             static::$namespace = $groupOptions["namespace"];
         }
 
-        static::$groupRoute = $groupPrefix . $path;
+        static::$groupRoute = $path;
 
         call_user_func($handler);
 
