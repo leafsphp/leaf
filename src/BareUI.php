@@ -27,9 +27,9 @@ class BareUI
     {
         if (is_string($item)) {
             static::$config[$item] = $value;
+        } else {
+            static::$config = array_merge(static::$config, $item);
         }
-
-        static::$config = array_merge(static::$config, $item);
     }
 
     /**
