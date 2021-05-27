@@ -3,7 +3,7 @@
 namespace Leaf\Helpers;
 
 /**
- * Leaf Password Helper [BETA]
+ * Leaf Password Helper
  * ---------------------------------------------
  * Work easier and faster with passwords
  * 
