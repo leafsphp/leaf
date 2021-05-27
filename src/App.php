@@ -17,19 +17,20 @@ class App
 {
     /**
      * Leaf container instance
+     * @var \Leaf\Helpers\Container
      */
-    public \Leaf\Helpers\Container $container;
+    public $container;
 
     /**
      * The leaf router instance
+     * @var \Leaf\Router
      */
-    protected \Leaf\Router $leafRouter;
+    protected $leafRouter;
 
     /**
      * Callable to be invoked on application error
      */
     protected $errorHandler;
-
 
     /********************************************************************************
      * Instantiation and Configuration
@@ -45,23 +46,21 @@ class App
             Config::set($userSettings);
         }
 
-        // Setup IoC container
         $this->container = new \Leaf\Helpers\Container();
         $this->container['settings'] = Config::get();
 
         $this->setupDefaultContainer();
 
         if ($this->config("debug")) {
-            error_reporting(E_ALL);
-            ini_set('display_errors', 1);
-
-            $this->setErrorHandler(['\Leaf\Exception\General', 'handleErrors'], false);
+            $debugConfig = [E_ALL, 1, ['\Leaf\Exception\General', 'handleErrors'], false];
         } else {
-            error_reporting(0);
-            ini_set('display_errors', 0);
-
-            $this->setErrorHandler(['\Leaf\Exception\General', 'defaultError']);
+            $debugConfig = [0, 0, ['\Leaf\Exception\General', 'defaultError'], true];
         }
+
+        error_reporting($debugConfig[0]);
+        ini_set('display_errors', $debugConfig[1]);
+
+        $this->setErrorHandler($debugConfig[2], $debugConfig[3]);
 
         View::attach(\Leaf\BareUI::class, 'template');
 
