@@ -2,6 +2,13 @@
 
 namespace Leaf\Helpers;
 
+/**
+ * Leaf service container
+ * ----
+ * A simple container solution for your leaf apps
+ * 
+ * @since v2.0
+ */
 class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
