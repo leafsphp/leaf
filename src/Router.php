@@ -26,7 +26,7 @@ class Router
     /**
      * Router configuration
      */
-    protected static array $config = [
+    protected static $config = [
         "mode" => "development",
         "debug" => true,
     ];
@@ -34,7 +34,7 @@ class Router
     /**
      * "Middleware" to run at specific times
      */
-    protected static array $hooks = [
+    protected static $hooks = [
         "router.before" => false,
         "router.before.route" => false,
         "router.before.dispatch" => false,
@@ -46,47 +46,47 @@ class Router
     /**
      * Leaf app middleware
      */
-    protected static array $middleware = [];
+    protected static $middleware = [];
 
     /**
      * Route specific middleware
      */
-    protected static array $routeSpecificMiddleware = [];
+    protected static $routeSpecificMiddleware = [];
 
     /**
      * All added routes and their handlers
      */
-    protected static array $routes = [];
+    protected static $routes = [];
 
     /**
      * Sorted list of routes and their handlers
      */
-    protected static array $appRoutes = [];
+    protected static $appRoutes = [];
 
     /**
      * All named routes
      */
-    protected static array $namedRoutes = [];
+    protected static $namedRoutes = [];
 
     /**
      * Current group base path
      */
-    protected static string $groupRoute = "";
+    protected static $groupRoute = "";
 
     /**
      * Default controller namespace
      */
-    protected static string $namespace = "";
+    protected static $namespace = "";
 
     /**
      * The Request Method that needs to be handled
      */
-    protected static string $requestedMethod = '';
+    protected static $requestedMethod = '';
 
     /**
      * The Server Base Path for Router Execution
      */
-    protected static string $serverBasePath = "";
+    protected static $serverBasePath = "";
 
     /**
      * Configure leaf router

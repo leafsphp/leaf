@@ -9,7 +9,7 @@ namespace Leaf;
  */
 class Config
 {
-    protected static array $settings = [
+    protected static $settings = [
         "app" => null,
         "app.down" => false,
         "mode" => "development",
