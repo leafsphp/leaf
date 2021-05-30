@@ -1,6 +1,23 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.5.0 - 💠 Lilac - 30th May, 2021
+
+### Fixed
+
+- Fixed PHP 7.3 unsupported types
+- Fixed server base path on router
+- Fixed bare UI config method
+- Fixed faker namespace
+
+### Changed
+
+- Removed BETA flag from Leaf password helper
+
+### Removed
+
+- Removed Leaf blade component
+
 ## v2.5.0 - 💠 Gladiolus - 27th April, 2021
 
 ### Added
