@@ -1,7 +1,7 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
-## v2.5.0 - 💠 Lilac - 30th May, 2021
+## v2.5.1 - 💠 Lilac - 30th May, 2021
 
 ### Fixed
 
