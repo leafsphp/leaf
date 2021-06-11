@@ -20,8 +20,8 @@ class Database
             "username" =>  getenv('DB_USERNAME'),
             "password" =>  getenv('DB_PASSWORD'),
             // "timezone" =>  getenv('DB_TIMEZONE'),
-            "charset" =>  getenv('DB_CHARSET') ?? "utf8",
-            "collation" =>  getenv('DB_COLLATION') ?? "utf8_general_ci",
+            "charset" =>  empty(getenv('DB_CHARSET')) ? "utf8" : getenv('DB_CHARSET'),
+            "collation" =>  empty(getenv('DB_COLLATION')) ? "utf8_general_ci" : getenv('DB_COLLATION'),
             "prefix" =>  getenv('DB_PREFIX') ?? ""
         ]);
 
