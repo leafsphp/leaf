@@ -16,6 +16,7 @@ class Database
         $this->capsule->addConnection([
             "driver" =>  getenv('DB_CONNECTION'),
             "host" =>  getenv('DB_HOST'),
+            "port" => empty(getenv('DB_PORT')) ? 3306 : getenv('DB_PORT'),
             "database" =>  getenv('DB_DATABASE'),
             "username" =>  getenv('DB_USERNAME'),
             "password" =>  getenv('DB_PASSWORD'),
