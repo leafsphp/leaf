@@ -16,13 +16,14 @@ class Database
         $this->capsule->addConnection([
             "driver" =>  getenv('DB_CONNECTION'),
             "host" =>  getenv('DB_HOST'),
+            "port" => empty(getenv('DB_PORT')) ? 3306 : getenv('DB_PORT'),
             "database" =>  getenv('DB_DATABASE'),
             "username" =>  getenv('DB_USERNAME'),
             "password" =>  getenv('DB_PASSWORD'),
             // "timezone" =>  getenv('DB_TIMEZONE'),
             "charset" =>  getenv('DB_CHARSET') ?? "utf8",
             "collation" =>  getenv('DB_COLLATION') ?? "utf8_general_ci",
-            "prefix" =>  getenv('DB_PREFIX') ?? ""
+            "prefix" =>  getenv('DB_PREFIX') ?? "",
         ]);
 
         $this->capsule->setEventDispatcher(new Dispatcher(new Container));
