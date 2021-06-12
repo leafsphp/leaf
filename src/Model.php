@@ -2,7 +2,7 @@
 
 namespace Leaf;
 
-new \Leaf\Database();
+Database::connect();
 
 class Model extends \Illuminate\Database\Eloquent\Model
 {

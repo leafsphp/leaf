@@ -8,26 +8,28 @@ use \Illuminate\Container\Container;
 
 class Database
 {
-    public $capsule;
+    public static $capsule;
 
-    public function __construct()
+    protected static $config = [];
+
+    public static function config($config = [])
     {
-        $this->capsule = new Manager;
-        $this->capsule->addConnection([
-            "driver" =>  getenv('DB_CONNECTION'),
-            "host" =>  getenv('DB_HOST'),
-            "port" => empty(getenv('DB_PORT')) ? 3306 : getenv('DB_PORT'),
-            "database" =>  getenv('DB_DATABASE'),
-            "username" =>  getenv('DB_USERNAME'),
-            "password" =>  getenv('DB_PASSWORD'),
-            // "timezone" =>  getenv('DB_TIMEZONE'),
-            "charset" =>  empty(getenv('DB_CHARSET')) ? "utf8" : getenv('DB_CHARSET'),
-            "collation" =>  empty(getenv('DB_COLLATION')) ? "utf8_general_ci" : getenv('DB_COLLATION'),
-            "prefix" =>  getenv('DB_PREFIX') ?? ""
-        ]);
+        static::$config = array_merge(static::$config, $config);
+    }
 
-        $this->capsule->setEventDispatcher(new Dispatcher(new Container));
-        $this->capsule->setAsGlobal();
-        $this->capsule->bootEloquent();
+    public static function connect()
+    {
+        $connection = isset(static::$config["default"]) ?
+            static::$config["default"] :
+            "mysql";
+
+        static::$capsule = new Manager;
+        static::$capsule->addConnection(
+            static::$config["connections"][$connection]
+        );
+
+        static::$capsule->setEventDispatcher(new Dispatcher(new Container));
+        static::$capsule->setAsGlobal();
+        static::$capsule->bootEloquent();
     }
 }
