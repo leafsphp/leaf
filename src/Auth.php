@@ -45,6 +45,8 @@ class Auth
 	 * Auth Settings
 	 */
 	protected static $settings = [
+		"ID_KEY" => "id",
+		"USE_UUID" => false,
 		"USE_TIMESTAMPS" => true,
 		"PASSWORD_ENCODE" => null,
 		"PASSWORD_VERIFY" => null,
@@ -313,6 +315,7 @@ class Auth
 		}
 
 		$user = static::$db->select($table)->where($credentials)->validate($validate)->fetchAssoc();
+
 		if (!$user) {
 			static::$errorsArray["auth"] = static::$settings["LOGIN_PARAMS_ERROR"];
 			return null;
@@ -335,14 +338,18 @@ class Auth
 			return null;
 		}
 
-		$token = Authentication::generateSimpleToken($user["id"], static::$secretKey, static::$lifeTime);
+		$token = Authentication::generateSimpleToken(
+			$user[static::$settings["ID_KEY"]],
+			static::$secretKey,
+			static::$lifeTime
+		);
 
-		if (isset($user["id"])) {
-			$userId = $user["id"];
+		if (isset($user[static::$settings["ID_KEY"]])) {
+			$userId = $user[static::$settings["ID_KEY"]];
 		}
 
 		if (static::$settings["HIDE_ID"]) {
-			unset($user["id"]);
+			unset($user[static::$settings["ID_KEY"]]);
 		}
 
 		if (static::$settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
@@ -356,7 +363,7 @@ class Auth
 
 		if (static::config("USE_SESSION")) {
 			if (isset($userId)) {
-				$user["id"] = $userId;
+				$user[static::$settings["ID_KEY"]] = $userId;
 			}
 
 			static::saveToSession("AUTH_USER", $user);
@@ -405,6 +412,10 @@ class Auth
 			$credentials["updated_at"] = $now;
 		}
 
+		if (static::$settings["USE_UUID"] !== false) {
+			$credentials[static::$settings["ID_KEY"]] = static::$settings["USE_UUID"];
+		}
+
 		try {
 			$query = static::$db->insert($table)->params($credentials)->unique($uniques)->validate($validate)->execute();
 		} catch (\Throwable $th) {
@@ -424,14 +435,14 @@ class Auth
 			return null;
 		}
 
-		$token = Authentication::generateSimpleToken($user["id"], static::$secretKey, static::$lifeTime);
+		$token = Authentication::generateSimpleToken($user[static::$settings["ID_KEY"]], static::$secretKey, static::$lifeTime);
 
-		if (isset($user["id"])) {
-			$userId = $user["id"];
+		if (isset($user[static::$settings["ID_KEY"]])) {
+			$userId = $user[static::$settings["ID_KEY"]];
 		}
 
 		if (static::$settings["HIDE_ID"]) {
-			unset($user["id"]);
+			unset($user[static::$settings["ID_KEY"]]);
 		}
 
 		if (static::$settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
@@ -446,7 +457,7 @@ class Auth
 		if (static::config("USE_SESSION")) {
 			if (static::config("SESSION_ON_REGISTER")) {
 				if (isset($userId)) {
-					$user["id"] = $userId;
+					$user[static::$settings["ID_KEY"]] = $userId;
 				}
 
 				static::saveToSession("AUTH_USER", $user);
@@ -538,14 +549,14 @@ class Auth
 			return null;
 		}
 
-		$token = Authentication::generateSimpleToken($user["id"], static::$secretKey, static::$lifeTime);
+		$token = Authentication::generateSimpleToken($user[static::$settings["ID_KEY"]], static::$secretKey, static::$lifeTime);
 
-		if (isset($user["id"])) {
-			$userId = $user["id"];
+		if (isset($user[static::$settings["ID_KEY"]])) {
+			$userId = $user[static::$settings["ID_KEY"]];
 		}
 
-		if (static::$settings["HIDE_ID"] && isset($user["id"])) {
-			unset($user["id"]);
+		if (static::$settings["HIDE_ID"] && isset($user[static::$settings["ID_KEY"]])) {
+			unset($user[static::$settings["ID_KEY"]]);
 		}
 
 		if (static::$settings["HIDE_PASSWORD"] && (isset($user[$passKey]) || !$user[$passKey])) {
@@ -559,7 +570,7 @@ class Auth
 
 		if (static::config("USE_SESSION")) {
 			if (isset($userId)) {
-				$user["id"] = $userId;
+				$user[static::$settings["ID_KEY"]] = $userId;
 			}
 
 			static::saveToSession("AUTH_USER", $user);
@@ -638,7 +649,7 @@ class Auth
 			return null;
 		}
 
-		$user = static::$db->select($table)->where("id", static::id())->fetchAssoc();
+		$user = static::$db->select($table)->where(static::$settings["ID_KEY"], static::id())->fetchAssoc();
 
 		if (count($hidden) > 0) {
 			foreach ($hidden as $item) {
@@ -657,7 +668,7 @@ class Auth
 	public static function id()
 	{
 		if (static::config("USE_SESSION")) {
-			return static::$session->get("AUTH_USER")["id"] ?? null;
+			return static::$session->get("AUTH_USER")[static::$settings["ID_KEY"]] ?? null;
 		}
 
 		$payload = static::validateToken(static::getSecretKey());

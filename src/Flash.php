@@ -83,7 +83,12 @@ class Flash
             $key = static::$config["default"];
         }
 
-        $item = Http\Session::get(static::$config["key"], false)[$key];
+        $item = null;
+        $items = Http\Session::get(static::$config["key"], false);
+
+        if (isset($items[$key])) {
+            $item = $items[$key];
+        }
 
         if ($key) {
             static::unset($key);

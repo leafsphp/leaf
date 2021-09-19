@@ -465,17 +465,11 @@ class Router
      *
      * @param \Leaf\Middleware
      */
-    public static function add(\Leaf\Middleware $newMiddleware)
+    public static function add($newMiddleware)
     {
         if (in_array($newMiddleware, static::$middleware)) {
             $middleware_class = get_class($newMiddleware);
             throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
-        }
-
-        if (Config::get("app")["instance"]) {
-            $newMiddleware->setApplication(
-                Config::get("app")["instance"]
-            );
         }
 
         if (!empty(static::$middleware)) {

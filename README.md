@@ -1,9 +1,9 @@
 <!-- markdownlint-disable no-inline-html -->
 <p align="center">
-    <br><br>
-    <img src="https://leaf-docs.netlify.app/images/logo.png" height="100"/>
-    <h1 align="center">Leaf PHP Framework</h1>
-    <br><br>
+  <br><br>
+  <img src="https://leaf-docs.netlify.app/images/logo.png" height="100"/>
+  <h1 align="center">Leaf PHP Framework</h1>
+  <br><br>
 </p>
 
 # Leaf PHP
@@ -90,6 +90,12 @@ Checkout the LeafAPI package [here](https://github.com/leafsphp/leafAPI)
 Skeleton is the latest package included in the Leaf family. Skeleton is a customizable and simple to use boilerplate powered by Leaf. Skeleton gives you the power of other setups like Leaf MVC without the restrictions of those full blown frameworks. [Use and contribute](https://github.com/leafsphp/skeleton) to Skeleton
 
 Of course, with this core package, you can build your app in any way that you wish to as Leaf contains all the required functionality to do so
+
+## Our contributors
+
+And to all our contributors, we love you all ❤️
+
+<a href="https://github.com/leafsphp/fetch/graphs/contributors" target="_blank"><img src="https://opencollective.com/leafphp/contributors.svg?width=890" /></a>
 
 ## View Leaf's docs [here](https://leafphp.netlify.app/#/)
 

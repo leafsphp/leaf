@@ -1,6 +1,23 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v2.6.0 - ⚰️ The Goodbye Flower - 20th September, 2021
+
+## Added
+
+- Added UUID support to Leaf Auth
+- Added support for custom id keys in Leaf Auth
+
+### Fixed
+
+- Fixed Request::getUrl
+- Fixed issue [#53](https://github.com/leafsphp/leaf/issues/53)
+- Fixed Database
+
+### Removed
+
+- Removed Leaf blade component
+
 ## v2.5.1 - 💠 Lilac - 30th May, 2021
 
 ### Fixed
