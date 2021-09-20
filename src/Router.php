@@ -472,12 +472,6 @@ class Router
             throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
         }
 
-        if (Config::get("app")["instance"]) {
-            $newMiddleware->setApplication(
-                Config::get("app")["instance"]
-            );
-        }
-
         if (!empty(static::$middleware)) {
             $newMiddleware->setNextMiddleware(static::$middleware[0]);
         }
