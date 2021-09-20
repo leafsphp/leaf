@@ -22,32 +22,6 @@ abstract class Middleware
     protected $next;
 
     /**
-     * Set application
-     *
-     * This method injects the primary Leaf application instance into
-     * this middleware.
-     *
-     * @param  \Leaf\App $application
-     */
-    final public function setApplication($application)
-    {
-        $this->app = $application;
-    }
-
-    /**
-     * Get application
-     *
-     * This method retrieves the application previously injected
-     * into this middleware.
-     *
-     * @return \Leaf\App
-     */
-    final public function getApplication()
-    {
-        return $this->app;
-    }
-
-    /**
      * Set next middleware
      *
      * This method injects the next downstream middleware into
@@ -77,7 +51,7 @@ abstract class Middleware
     /**
      * Call the next middleware
      */
-    final public function callNext()
+    final public function next()
     {
         $nextMiddleware = $this->next;
 
