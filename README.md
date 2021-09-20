@@ -1,12 +1,12 @@
 <!-- markdownlint-disable no-inline-html -->
 <p align="center">
-    <br><br>
-    <img src="https://leaf-docs.netlify.app/images/logo.png" height="100"/>
-    <h1 align="center">Leaf PHP Framework</h1>
-    <br><br>
+  <br><br>
+  <img src="https://leafphp.netlify.app/assets/img/leaf3-logo.png" height="100"/>
+  <h1 align="center">Leaf PHP Framework</h1>
+  <br><br>
 </p>
 
-# Leaf PHP
+# Leaf 3
 
 [![Latest Stable Version](https://poser.pugx.org/leafs/leaf/v/stable)](https://packagist.org/packages/leafs/leaf)
 [![Total Downloads](https://poser.pugx.org/leafs/leaf/downloads)](https://packagist.org/packages/leafs/leaf)
