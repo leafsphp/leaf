@@ -22,12 +22,6 @@ class App
     public $container;
 
     /**
-     * The leaf router instance
-     * @var \Leaf\Router
-     */
-    protected $leafRouter;
-
-    /**
      * Callable to be invoked on application error
      */
     protected $errorHandler;
@@ -62,7 +56,9 @@ class App
 
         $this->setErrorHandler($debugConfig[2], $debugConfig[3]);
 
-        View::attach(\Leaf\BareUI::class, 'template');
+        if (class_exists("\Leaf\BareUI")) {
+            View::attach(\Leaf\BareUI::class, 'template');
+        }
 
         $this->loadViewEngines();
     }
@@ -125,26 +121,6 @@ class App
         // Default headers
         $this->container->singleton("headers", function ($c) {
             return new \Leaf\Http\Headers();
-        });
-
-        // Default session
-        $this->container->singleton("session", function ($c) {
-            return new \Leaf\Http\Session();
-        });
-
-        //  Default DB
-        $this->container->singleton("db", function ($c) {
-            return new \Leaf\Db();
-        });
-
-        //  Default Date
-        $this->container->singleton("date", function ($c) {
-            return new \Leaf\Date();
-        });
-
-        //  Default FS
-        $this->container->singleton("fs", function ($c) {
-            return new \Leaf\FS();
         });
 
         if ($this->config("log.enabled")) {
@@ -263,7 +239,7 @@ class App
      *
      * @return \Leaf\Log
      */
-    public function logger(): Log
+    public function logger()
     {
         if (!$this->log) {
             trigger_error("You need to set log.enabled to true to use this feature!");
@@ -448,14 +424,6 @@ class App
     public function routes(): array
     {
         return Router::routes();
-    }
-
-    /**
-     * Get all routes registered in app
-     */
-    public function router(): Router
-    {
-        return $this->leafRouter;
     }
 
     /**
