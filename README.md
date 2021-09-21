@@ -91,9 +91,15 @@ php -S localhost:8000
 | [fetch]                | [![Latest Stable Version](https://poser.pugx.org/leafs/fetch/v/stable)](https://packagist.org/packages/leafs/fetch) [![Total Downloads](https://poser.pugx.org/leafs/fetch/downloads)](https://packagist.org/packages/leafs/fetch)                             | HTTP requests made simple                                         |
 | [redis]                | [![Latest Stable Version](https://poser.pugx.org/leafs/redis/v/stable)](https://packagist.org/packages/leafs/redis) [![Total Downloads](https://poser.pugx.org/leafs/redis/downloads)](https://packagist.org/packages/leafs/redis)                             | Redis module                                                      |
 
-## Our contributors
+## Stay In Touch
 
-And to all our contributors, we love you all ❤️
+- [Twitter](https://twitter.com/leafphp)
+
+## Contribution
+
+Please make sure to read the [Contributing Guide](https://leafphp.netlify.app/#/contributing) before making a pull request.
+
+And to all our existing contributors, we love you all ❤️
 
 <a href="https://github.com/leafsphp/fetch/graphs/contributors" target="_blank"><img src="https://opencollective.com/leafphp/contributors.svg?width=890" /></a>
 
