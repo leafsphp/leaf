@@ -27,11 +27,6 @@
     },
     "minimum-stability": "stable",
     "require": {
-        "illuminate/database": "^8.0",
-        "illuminate/container": "^8.0",
-        "illuminate/events": "^8.0",
-        "phpmailer/phpmailer": "^6.2",
-        "illuminate/view": "^8.0",
         "leafs/http": "^1.0"
     }
 }
