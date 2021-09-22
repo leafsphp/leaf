@@ -127,7 +127,7 @@ class General extends \Exception
 		$body .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
 
 		if ($code) {
-			$body .= "'<div><strong>Code:</strong> $code</div>";
+			$body .= "<div><strong>Code:</strong> $code</div>";
 		}
 
 		if ($message) {
