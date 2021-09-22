@@ -1,6 +1,27 @@
 <!-- markdownlint-disable no-duplicate-header -->
 # Changelog
 
+## v3.0 (Alpha) - 👸🏼 Queen Of The Night
+
+### Added
+
+### Fixed
+
+- Fixed PHP 7.3 unsupported types
+
+### Changed
+
+- Moved Leaf\Http namespace to Http module
+- Moved base controller, model, database and to mvc-core module
+- Disabled logging by default
+- Moved bareui, fs, auth, form, cookies, session, db and date into modules
+
+### Removed
+
+- Removed unused dependencies
+- Removed experimental features
+- Removed unused initializers
+
 ## v2.5.1 - 💠 Lilac - 30th May, 2021
 
 ### Fixed
