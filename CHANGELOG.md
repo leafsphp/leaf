@@ -5,12 +5,15 @@
 
 ### Added
 
+- Added support for shorthand functions
+
 ### Fixed
 
 - Fixed PHP 7.3 unsupported types
 
 ### Changed
 
+- You no longer need to initialize Leaf.
 - Moved Leaf\Http namespace to Http module
 - Moved base controller, model, database and to mvc-core module
 - Disabled logging by default
