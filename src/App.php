@@ -128,34 +128,6 @@ class App
 			return new \Leaf\Http\Headers();
 		});
 
-		if ($this->config("log.enabled")) {
-			if (!class_exists("Leaf\Log")) {
-				Config::set("app", [
-					"instance" => null,
-				]);
-	
-				trigger_error("Logger module not installed. Run `composer require leafs/log` to enable logging");
-			} else {
-				// Default log writer
-				$this->container->singleton("logWriter", function ($c) {
-					$logWriter = Config::get("log.writer");
-
-					$file = $this->config("log.dir") . $this->config("log.file");
-
-					return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config("log.open") ?? true);
-				});
-
-				// Default log
-				$this->container->singleton("log", function ($c) {
-					$log = new \Leaf\Log($c["logWriter"]);
-					$log->enabled($this->config("log.enabled"));
-					$log->level($this->config("log.level"));
-
-					return $log;
-				});
-			}
-		}
-
 		// Default mode
 		$this->container["mode"] = function ($c) {
 			$mode = $c["settings"]["mode"];
@@ -488,15 +460,6 @@ class App
 	public function response()
 	{
 		return $this->response;
-	}
-
-	/**
-	 * Get the Db object
-	 * @return \Leaf\Db
-	 */
-	public function db()
-	{
-		return $this->db;
 	}
 
 	/********************************************************************************
