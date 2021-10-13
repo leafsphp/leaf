@@ -205,7 +205,7 @@ class Router
 	 * 
 	 * @param string $methods Allowed HTTP methods (separated by `|`)
 	 * @param string $pattern The route pattern/path to match
-	 * @param string|array|callable The handler for route when matched
+	 * @param string|array|callable $handler The handler for route when matched
 	 */
 	public static function match(string $methods, string $pattern, $handler)
 	{
@@ -264,7 +264,7 @@ class Router
 	 */
 	public static function all(string $pattern, $handler)
 	{
-		return static::match('GET|POST|PUT|DELETE|OPTIONS|PATCH|HEAD', $pattern, $handler);
+		static::match('GET|POST|PUT|DELETE|OPTIONS|PATCH|HEAD', $pattern, $handler);
 	}
 
 	/**
@@ -275,7 +275,7 @@ class Router
 	 */
 	public static function get(string $pattern, $handler)
 	{
-		return static::match('GET', $pattern, $handler);
+		static::match('GET', $pattern, $handler);
 	}
 
 	/**
@@ -286,7 +286,7 @@ class Router
 	 */
 	public static function post(string $pattern, $handler)
 	{
-		return static::match('POST', $pattern, $handler);
+		static::match('POST', $pattern, $handler);
 	}
 
 	/**
@@ -297,7 +297,7 @@ class Router
 	 */
 	public static function put(string $pattern, $handler)
 	{
-		return static::match('PUT', $pattern, $handler);
+		static::match('PUT', $pattern, $handler);
 	}
 
 	/**
@@ -308,7 +308,7 @@ class Router
 	 */
 	public static function patch(string $pattern, $handler)
 	{
-		return static::match('PATCH', $pattern, $handler);
+		static::match('PATCH', $pattern, $handler);
 	}
 
 	/**
@@ -319,7 +319,7 @@ class Router
 	 */
 	public static function options(string $pattern, $handler)
 	{
-		return static::match('OPTIONS', $pattern, $handler);
+		static::match('OPTIONS', $pattern, $handler);
 	}
 
 	/**
@@ -330,7 +330,7 @@ class Router
 	 */
 	public static function delete(string $pattern, $handler)
 	{
-		return static::match('DELETE', $pattern, $handler);
+		static::match('DELETE', $pattern, $handler);
 	}
 
 	/**
