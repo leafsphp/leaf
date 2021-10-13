@@ -222,12 +222,12 @@ class App
 	/**
 	 * Get application log
 	 *
-	 * @return \Leaf\Log
+	 * @return \Leaf\Log|null|void
 	 */
 	public function logger()
 	{
 		if (!$this->log) {
-			trigger_error("You need to set log.enabled to true to use this feature!");
+			trigger_error("You need to enable logging to use this feature! Set log.enabled to true and install the logger module");
 		}
 
 		return $this->log;
@@ -246,7 +246,7 @@ class App
 	 */
 	public function match($methods, $pattern, $handler)
 	{
-		return Router::match($methods, $pattern, $handler);
+		Router::match($methods, $pattern, $handler);
 	}
 
 	/**
@@ -257,7 +257,7 @@ class App
 	 */
 	public function all($pattern, $handler)
 	{
-		return Router::all($pattern, $handler);
+		Router::all($pattern, $handler);
 	}
 
 	/**
@@ -268,7 +268,7 @@ class App
 	 */
 	public function get($pattern, $handler)
 	{
-		return Router::get($pattern, $handler);
+		Router::get($pattern, $handler);
 	}
 
 	/**
@@ -279,7 +279,7 @@ class App
 	 */
 	public function post($pattern, $handler)
 	{
-		return Router::post($pattern, $handler);
+		Router::post($pattern, $handler);
 	}
 
 	/**
@@ -290,7 +290,7 @@ class App
 	 */
 	public function patch($pattern, $handler)
 	{
-		return Router::patch($pattern, $handler);
+		Router::patch($pattern, $handler);
 	}
 
 	/**
@@ -301,7 +301,7 @@ class App
 	 */
 	public function delete($pattern, $handler)
 	{
-		return Router::delete($pattern, $handler);
+		Router::delete($pattern, $handler);
 	}
 
 	/**
@@ -312,7 +312,7 @@ class App
 	 */
 	public function put($pattern, $handler)
 	{
-		return Router::put($pattern, $handler);
+		Router::put($pattern, $handler);
 	}
 
 	/**
@@ -323,7 +323,7 @@ class App
 	 */
 	public function options($pattern, $handler)
 	{
-		return Router::options($pattern, $handler);
+		Router::options($pattern, $handler);
 	}
 
 	/**
@@ -333,11 +333,11 @@ class App
 	 * @param string|URI $to
 	 * @param int $status
 	 *
-	 * @return redirect
+	 * @return void
 	 */
 	public function redirect($from, $to, $status = 302)
 	{
-		return Router::redirect($from, $to, $status);
+		Router::redirect($from, $to, $status);
 	}
 
 	/**
@@ -358,7 +358,7 @@ class App
 	 */
 	public function resource(string $pattern, string $controller)
 	{
-		return Router::resource($pattern, $controller);
+		Router::resource($pattern, $controller);
 	}
 
 	/**
@@ -418,7 +418,7 @@ class App
 	 */
 	public function set404($handler = null)
 	{
-		return Router::set404($handler);
+		Router::set404($handler);
 	}
 
 	/**
@@ -428,7 +428,7 @@ class App
 	 */
 	public function setDown($handler = null)
 	{
-		return Router::setDown($handler);
+		Router::setDown($handler);
 	}
 
 	/********************************************************************************
