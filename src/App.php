@@ -95,7 +95,7 @@ class App
 	 */
 	public function register($name, $value)
 	{
-		return $this->container->singleton($name, $value);
+		$this->container->singleton($name, $value);
 	}
 
 	public function loadViewEngines()
@@ -104,7 +104,7 @@ class App
 
 		if (count($views) > 0) {
 			foreach ($views as $key => $value) {
-				$this->container->singleton($key, function ($c) use ($value) {
+				$this->container->singleton($key, function () use ($value) {
 					return $value;
 				});
 			}
@@ -114,17 +114,17 @@ class App
 	private function setupDefaultContainer()
 	{
 		// Default request
-		$this->container->singleton("request", function ($c) {
+		$this->container->singleton("request", function () {
 			return new \Leaf\Http\Request();
 		});
 
 		// Default response
-		$this->container->singleton("response", function ($c) {
+		$this->container->singleton("response", function () {
 			return new \Leaf\Http\Response();
 		});
 
 		// Default headers
-		$this->container->singleton("headers", function ($c) {
+		$this->container->singleton("headers", function () {
 			return new \Leaf\Http\Headers();
 		});
 
@@ -194,7 +194,7 @@ class App
 	{
 		$c = $this->container;
 
-		if ($value === null) {
+		if ($value === null && is_string($name)) {
 			return Config::get($name);
 		}
 
