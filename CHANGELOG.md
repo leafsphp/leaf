@@ -6,6 +6,7 @@
 ### Added
 
 - Added support for shorthand functions
+- Added more support for configuring with env variables.
 
 ### Fixed
 
@@ -14,16 +15,35 @@
 ### Changed
 
 - You no longer need to initialize Leaf.
-- Moved Leaf\Http namespace to Http module
+- Moved `Leaf\Http` namespace to Http module
 - Moved base controller, model, database and to mvc-core module
 - Disabled logging by default
 - Moved bareui, fs, auth, form, cookies, session, db and date into modules
+- Moved `Leaf\Router` into installable module.
+- Changed leaf router `add` to `use`
 
 ### Removed
 
 - Removed unused dependencies
 - Removed experimental features
 - Removed unused initializers
+
+## v2.6.0 - ⚰️ The Goodbye Flower - 20th September, 2021
+
+### Added
+
+- Added UUID support to Leaf Auth
+- Added support for custom id keys in Leaf Auth
+
+### Fixed
+
+- Fixed Request::getUrl
+- Fixed issue [#53](https://github.com/leafsphp/leaf/issues/53)
+- Fixed Database
+
+### Removed
+
+- Removed Leaf blade component
 
 ## v2.5.1 - 💠 Lilac - 30th May, 2021
 

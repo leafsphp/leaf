@@ -30,6 +30,7 @@
 	},
 	"minimum-stability": "stable",
 	"require": {
-		"leafs/http": "^1.0"
+		"leafs/http": "^1.0",
+		"leafs/router": "^0.1.0"
 	}
 }
