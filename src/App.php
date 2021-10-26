@@ -9,11 +9,11 @@ namespace Leaf;
  *
  * @author Michael Darko <mickdd22@gmail.com>
  * @copyright 2019-2021 Michael Darko
- * @link https://leafphp.netlify.app/#/leaf/
+ * @link https://leafphp.dev
  * @license MIT
  * @package Leaf
  */
-class App
+class App extends Router
 {
 	/**
 	 * Leaf container instance
@@ -32,7 +32,7 @@ class App
 
 	/**
 	 * Constructor
-	 * @param  array $userSettings Associative array of application settings
+	 * @param array $userSettings Associative array of application settings
 	 */
 	public function __construct(array $userSettings = [])
 	{
@@ -128,9 +128,39 @@ class App
 			return new \Leaf\Http\Headers();
 		});
 
+		if ($this->config("log.enabled")) {
+			if (class_exists("Leaf\Log")) {
+				// Default log writer
+				$this->container->singleton("logWriter", function ($c) {
+					$logWriter = Config::get("log.writer");
+
+					$file = $this->config("log.dir") . $this->config("log.file");
+
+					return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config("log.open") ?? true);
+				});
+
+				// Default log
+				$this->container->singleton("log", function ($c) {
+					$log = new \Leaf\Log($c["logWriter"]);
+					$log->enabled($this->config("log.enabled"));
+					$log->level($this->config("log.level"));
+
+					return $log;
+				});
+			}
+		}
+
 		// Default mode
 		$this->container["mode"] = function ($c) {
 			$mode = $c["settings"]["mode"];
+
+			if (_env("APP_ENV")) {
+				$mode = _env("APP_ENV");
+			}
+
+			if (_env("LEAF_MODE")) {
+				$mode = _env("LEAF_MODE");
+			}
 
 			if (isset($_ENV["LEAF_MODE"])) {
 				$mode = $_ENV["LEAF_MODE"];
@@ -234,204 +264,6 @@ class App
 	}
 
 	/********************************************************************************
-	 * Routing
-	 *******************************************************************************/
-
-	/**
-	 * Store a route and a handling function to be executed when accessed using one of the specified methods.
-	 *
-	 * @param string $methods Allowed methods, | delimited
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function match($methods, $pattern, $handler)
-	{
-		Router::match($methods, $pattern, $handler);
-	}
-
-	/**
-	 * Shorthand for a route accessed using any method.
-	 *
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function all($pattern, $handler)
-	{
-		Router::all($pattern, $handler);
-	}
-
-	/**
-	 * Shorthand for a route accessed using GET.
-	 *
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function get($pattern, $handler)
-	{
-		Router::get($pattern, $handler);
-	}
-
-	/**
-	 * Shorthand for a route accessed using POST.
-	 *
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function post($pattern, $handler)
-	{
-		Router::post($pattern, $handler);
-	}
-
-	/**
-	 * Shorthand for a route accessed using PATCH.
-	 *
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function patch($pattern, $handler)
-	{
-		Router::patch($pattern, $handler);
-	}
-
-	/**
-	 * Shorthand for a route accessed using DELETE.
-	 *
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function delete($pattern, $handler)
-	{
-		Router::delete($pattern, $handler);
-	}
-
-	/**
-	 * Shorthand for a route accessed using PUT.
-	 *
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function put($pattern, $handler)
-	{
-		Router::put($pattern, $handler);
-	}
-
-	/**
-	 * Shorthand for a route accessed using OPTIONS.
-	 *
-	 * @param string $pattern A route pattern such as /about/system
-	 * @param object|callable $handler The handling function to be executed
-	 */
-	public function options($pattern, $handler)
-	{
-		Router::options($pattern, $handler);
-	}
-
-	/**
-	 * Add a route that sends an HTTP redirect
-	 *
-	 * @param string $from
-	 * @param string|URI $to
-	 * @param int $status
-	 *
-	 * @return void
-	 */
-	public function redirect($from, $to, $status = 302)
-	{
-		Router::redirect($from, $to, $status);
-	}
-
-	/**
-	 * Create a resource route for using controllers.
-	 *
-	 * This creates a routes that implement CRUD functionality in a controller
-	 * `/posts` creates:
-	 * - `/posts` - GET | HEAD - Controller@index
-	 * - `/posts` - POST - Controller@store
-	 * - `/posts/{id}` - GET | HEAD - Controller@show
-	 * - `/posts/create` - GET | HEAD - Controller@create
-	 * - `/posts/{id}/edit` - GET | HEAD - Controller@edit
-	 * - `/posts/{id}/edit` - POST | PUT | PATCH - Controller@update
-	 * - `/posts/{id}/delete` - POST | DELETE - Controller@destroy
-	 *
-	 * @param string $pattern The base route to use eg: /post
-	 * @param string $controller to handle route eg: PostController
-	 */
-	public function resource(string $pattern, string $controller)
-	{
-		Router::resource($pattern, $controller);
-	}
-
-	/**
-	 * Mounts a collection of callbacks onto a base route.
-	 *
-	 * @param string $baseRoute The route sub pattern to mount the callbacks on
-	 * @param callable $handler The callback method
-	 */
-	public function mount($baseRoute, $handler)
-	{
-		Router::mount($baseRoute, $handler);
-	}
-
-	/**
-	 * Alias for mount()
-	 *
-	 * @param string $baseRoute The route sub pattern to mount the callbacks on
-	 * @param callable $handler The callback method
-	 */
-	public function group($baseRoute, $handler)
-	{
-		Router::group($baseRoute, $handler);
-	}
-
-	/**
-	 * Set a Default Lookup Namespace for Callable methods.
-	 *
-	 * @param string $namespace A given namespace
-	 */
-	public function setNamespace($namespace)
-	{
-		Router::setNamespace($namespace);
-	}
-
-	/**
-	 * Get the given Namespace before.
-	 *
-	 * @return string The given Namespace if exists
-	 */
-	public function getNamespace(): string
-	{
-		return Router::getNamespace();
-	}
-
-	/**
-	 * Get all routes registered in app
-	 */
-	public function routes(): array
-	{
-		return Router::routes();
-	}
-
-	/**
-	 * Set the 404 handling function.
-	 *
-	 * @param object|callable $handler The function to be executed
-	 */
-	public function set404($handler = null)
-	{
-		Router::set404($handler);
-	}
-
-	/**
-	 * Set a custom maintainace mode callback.
-	 *
-	 * @param callable $handler The function to be executed
-	 */
-	public function setDown($handler = null)
-	{
-		Router::setDown($handler);
-	}
-
-	/********************************************************************************
 	 * Application Accessors
 	 *******************************************************************************/
 
@@ -461,6 +293,24 @@ class App
 	{
 		return $this->response;
 	}
+
+
+    /**
+     * Create mode-specific code
+     * 
+     * @param string $mode The mode to run code in
+     * @param callable $callback The code to run in selected mode.
+     */
+    public static function script($mode, $callback)
+    {
+        static::hook('router.before', function () use($mode, $callback) {
+			$appMode = Config::get("app")["container"]["mode"] ?? "development";
+
+            if ($mode === $appMode) {
+                return $callback();
+            }
+        });
+    }
 
 	/********************************************************************************
 	 * Helper Methods
@@ -541,46 +391,6 @@ class App
 		throw new \Leaf\Exception\Pass();
 	}
 
-	/********************************************************************************
-	 * Middleware and hooks
-	 *******************************************************************************/
-
-	/**
-	 * Add middleware
-	 *
-	 * This method prepends new middleware to the application middleware stack.
-	 * The argument must be an instance that subclasses Leaf_Middleware.
-	 *
-	 * @param \Leaf\Middleware
-	 */
-	public function add(\Leaf\Middleware $middleware)
-	{
-		Router::add($middleware);
-	}
-
-	/**
-	 * Add a route specific middleware
-	 *
-	 * @param string $methods Allowed methods, separated by |
-	 * @param string|array $path The path/route to apply middleware on
-	 * @param callable $handler The middleware handler
-	 */
-	public function before(string $methods, $path, callable $handler)
-	{
-		Router::before($methods, $path, $handler);
-	}
-
-	/**
-	 * Add/Call a router hook
-	 *
-	 * @param string $name The hook to set/call
-	 * @param callable|null $handler The hook handler
-	 */
-	public function hook($name, $handler)
-	{
-		Router::hook($name, $handler);
-	}
-
 	/**
 	 * Evade CORS errors
 	 *
@@ -595,20 +405,5 @@ class App
 		} else {
 			trigger_error("Cors module not found! Run `composer require leafs/cors` to install the CORS module. This is required to configure CORS.");
 		}
-	}
-
-	/********************************************************************************
-	 * Runner
-	 *******************************************************************************/
-	/**
-	 * Execute the router: Loop all defined before middlewares and routes, and execute the handling function if a match was found.
-	 *
-	 * @param object|callable $callback Function to be executed after a matching route was handled (= after router middleware)
-	 *
-	 * @return bool
-	 */
-	public function run($callback = null)
-	{
-		return Router::run($callback);
 	}
 }
