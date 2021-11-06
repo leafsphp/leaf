@@ -42,6 +42,19 @@ class App extends Router
 			Config::set($userSettings);
 		}
 
+		if (class_exists("\Leaf\Anchor\CSRF")) {
+			if (!Anchor\CSRF::token()) {
+				Anchor\CSRF::init();
+			}
+
+			if (!Anchor\CSRF::verify()) {
+				$csrfError = Anchor\CSRF::errors()["token"];
+				Http\Response::status(400);
+				echo Exception\General::csrf($csrfError);
+				exit();
+			}
+		}
+
 		$this->container = new \Leaf\Helpers\Container();
 		$this->container["settings"] = Config::get();
 
