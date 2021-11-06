@@ -7,10 +7,16 @@
 
 - Added support for shorthand functions
 - Added more support for configuring with env variables.
+- Added `script` method on app to handle modes.
+- Added automatic loading for major modules.
+- Added CSRF handler.
+- Added autoloading for CSRF module
 
 ### Fixed
 
 - Fixed PHP 7.3 unsupported types
+- Created a standard for functional mode
+- Revamped error pages
 
 ### Changed
 
@@ -21,12 +27,16 @@
 - Moved bareui, fs, auth, form, cookies, session, db and date into modules
 - Moved `Leaf\Router` into installable module.
 - Changed leaf router `add` to `use`
+- Tied leaf router directly to `Leaf\App`
 
 ### Removed
 
 - Removed unused dependencies
 - Removed experimental features
 - Removed unused initializers
+- Removed `evadeCors` method on leaf
+- Removed `Leaf\Router::getRequestMethod`
+- Removed unnecessary code to improve performance
 
 ## v2.6.0 - ⚰️ The Goodbye Flower - 20th September, 2021
 
