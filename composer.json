@@ -1,32 +1,36 @@
 {
-    "name": "leafs/leaf",
-    "description": "Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly.",
-    "keywords": [
-        "microframework",
-        "rest",
-        "router",
-        "leaf",
-        "php",
-        "framework"
-    ],
-    "homepage": "https://leafphp.netlify.app/#/",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Michael Darko",
-            "email": "mickdd22@gmail.com",
-            "homepage": "https://mychi.netlify.app",
-            "role": "Developer"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-            "Leaf\\": "src"
-        }
-    },
-    "minimum-stability": "stable",
-    "require": {
-        "leafs/http": "^1.0"
-    }
+	"name": "leafs/leaf",
+	"description": "Leaf is a PHP micro framework that helps you create clean, simple but powerful web apps and APIs quickly.",
+	"keywords": [
+		"microframework",
+		"rest",
+		"router",
+		"leaf",
+		"php",
+		"framework"
+	],
+	"homepage": "https://leafphp.netlify.app/#/",
+	"type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Michael Darko",
+			"email": "mickdd22@gmail.com",
+			"homepage": "https://mychi.netlify.app",
+			"role": "Developer"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Leaf\\": "src"
+		},
+		"files": [
+			"src/functions.php"
+		]
+	},
+	"minimum-stability": "stable",
+	"require": {
+		"leafs/http": "^1.0",
+		"leafs/router": "^0.1.0"
+	}
 }
