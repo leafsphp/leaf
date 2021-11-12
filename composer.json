@@ -28,7 +28,8 @@
 			"src/functions.php"
 		]
 	},
-	"minimum-stability": "stable",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"require": {
 		"leafs/http": "^1.0",
 		"leafs/router": "^0.1.0"
