@@ -1,9 +1,8 @@
 <!-- markdownlint-disable no-inline-html -->
 <p align="center">
-  <br><br>
-  <img src="https://leafphp.netlify.app/assets/img/leaf3-logo.png" height="100"/>
-  <h1 align="center">Leaf PHP Framework</h1>
-  <br><br>
+    <br><br>
+    <img src="https://leafphp.dev/logo-circle.png" height="100"/>
+    <br>
 </p>
 
 # Leaf 3
