@@ -5,18 +5,22 @@
 
 ### Added
 
-- Added support for shorthand functions
+- Added support for global functions
 - Added more support for configuring with env variables.
 - Added `script` method on app to handle modes.
 - Added automatic loading for major modules.
 - Added CSRF handler.
 - Added autoloading for CSRF module
+- Added CORS handler for `leafs/cors`
+- Updated error pages
+- Added `.env` precedence over local config
 
 ### Fixed
 
 - Fixed PHP 7.3 unsupported types
 - Created a standard for functional mode
 - Revamped error pages
+- Fixed potential type errors
 
 ### Changed
 
@@ -28,6 +32,7 @@
 - Moved `Leaf\Router` into installable module.
 - Changed leaf router `add` to `use`
 - Tied leaf router directly to `Leaf\App`
+- Upgraded all dependencies
 
 ### Removed
 
@@ -37,6 +42,8 @@
 - Removed `evadeCors` method on leaf
 - Removed `Leaf\Router::getRequestMethod`
 - Removed unnecessary code to improve performance
+- Removed app instance on middleware
+- Removed unused helper functions
 
 ## v2.6.0 - ⚰️ The Goodbye Flower - 20th September, 2021
 
