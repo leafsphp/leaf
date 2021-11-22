@@ -32,18 +32,17 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 
 ```php
 <?php
+
 require __DIR__ . "vendor/autoload.php";
 
-$app = new Leaf\App;
-
 // Base example
-$app->get("/", function() use($app) {
-  $app->response()->json([
+app()->get("/", function () {
+  response()->json([
     "message" => "Welcome!"
   ]);
 });
 
-$app->run();
+app()->run();
 ```
 
 You may quickly test this using the built-in PHP server:
