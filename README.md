@@ -2,7 +2,7 @@
 <p align="center">
     <br><br>
     <img src="https://leafphp.dev/logo-circle.png" height="100"/>
-    <br>
+    <br><br>
 </p>
 
 # Leaf 3
@@ -15,17 +15,23 @@ Leaf is a PHP framework that helps you create clean, simple but powerful web app
 
 Leaf 3 brings a much cleaner, faster and simpler workflow to your apps. Powered by an ecosystem of powerful modules with zero setup and it's ease of use, Leaf now allows you to tackle complexities no matter the scale.
 
-## Installation
+## 📦 Installation
 
-You can easily install Leaf using [Composer](https://getcomposer.org/).
+You can create a Leaf 3 app with the [Leaf CLI](https://cli.leafphp.dev)
+
+```sh
+leaf create <project-name> --v3 --basic
+```
+
+`<project-name>` is your project name
+
+You can also use [Composer](https://getcomposer.org/) to install Leaf 3 in your project quickly.
 
 ```bash
 composer require leafs/leaf
 ```
 
-This will install Leaf in your project directory.
-
-## Basic Usage
+## 🗂 Basic Usage
 
 This is a simple demonstration of Leaf's simplicity.
 After [installing](#installation) Leaf, create an _index.php_ file.
@@ -45,6 +51,8 @@ app()->get("/", function () {
 app()->run();
 ```
 
+**If you use the Leaf CLI, this is already done for you 🚀.**
+
 You may quickly test this using the built-in PHP server:
 
 ```bash
@@ -53,7 +61,7 @@ php -S localhost:8000
 
 **You can view the full documentation [here](https://leafphp.netlify.app/#/)**
 
-## The Leaf Ecosystem (Libs & Frameworks)
+## ✈️ The Leaf Ecosystem (Libs & Frameworks)
 
 | Project    | Status                                                                                                                                                                                                                                         | Description                                            |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
@@ -64,7 +72,7 @@ php -S localhost:8000
 | [leaf-ui]  | [![Latest Stable Version](https://poser.pugx.org/leafs/ui/v/stable)](https://packagist.org/packages/leafs/ui) [![Total Downloads](https://poser.pugx.org/leafs/ui/downloads)](https://packagist.org/packages/leafs/ui)                         | A PHP library for building user interfaces             |
 | [cli]      | [![Latest Stable Version](https://poser.pugx.org/leafs/cli/v/stable)](https://packagist.org/packages/leafs/cli) [![Total Downloads](https://poser.pugx.org/leafs/cli/downloads)](https://packagist.org/packages/leafs/cli)                     | CLI for interacting with your leaf apps                |
 
-## The Leaf Ecosystem (Modules)
+## 🧩 The Leaf Ecosystem (Modules)
 
 | Project                | Status                                                                                                                                                                                                                                                         | Description                                                       |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
@@ -92,16 +100,38 @@ php -S localhost:8000
 | [fetch]                | [![Latest Stable Version](https://poser.pugx.org/leafs/fetch/v/stable)](https://packagist.org/packages/leafs/fetch) [![Total Downloads](https://poser.pugx.org/leafs/fetch/downloads)](https://packagist.org/packages/leafs/fetch)                             | HTTP requests made simple                                         |
 | [redis]                | [![Latest Stable Version](https://poser.pugx.org/leafs/redis/v/stable)](https://packagist.org/packages/leafs/redis) [![Total Downloads](https://poser.pugx.org/leafs/redis/downloads)](https://packagist.org/packages/leafs/redis)                             | Redis module                                                      |
 
-## Stay In Touch
+## 💬 Stay In Touch
 
 - [Twitter](https://twitter.com/leafphp)
+- [Join the forum](https://github.com/leafsphp/leaf/discussions/37)
+- [Chat on discord](https://discord.com/invite/Pkrm9NJPE3)
+
+## 📓 Learning Leaf 3
+
+- Leaf has a very easy to understand [documentation](https://leafphp.dev) which contains information on all operations in Leaf.
+- You can also check out our [youtube channel](https://www.youtube.com/channel/UCllE-GsYy10RkxBUK0HIffw) which has video tutorials on different topics
+- We are also working on codelabs which will bring hands-on tutorials you can follow and contribute to.
 
 ## Contribution
 
-Please make sure to read the [Contributing Guide](https://leafphp.netlify.app/#/contributing) before making a pull request.
+## 😇 Contributing
 
-And to all our existing contributors, we love you all ❤️
+We are glad to have you. All contributions are welcome! To get started, familiarize yourself with our [contribution guide](https://leafphp.dev/community/contributing.html) and you'll be ready to make your first pull request 🚀.
 
-<a href="https://github.com/leafsphp/fetch/graphs/contributors" target="_blank"><img src="https://opencollective.com/leafphp/contributors.svg?width=890" /></a>
+To report a security vulnerability, you can reach out to [@mychidarko](https://twitter.com/mychidarko) or [@leafphp](https://twitter.com/leafphp) on twitter. We will coordinate the fix and eventually commit the solution in this project.
 
-## View Leaf's docs [here](https://leafphp.netlify.app/#/)
+## 🤩 Sponsoring Leaf
+
+Your cash contributions go a long way to help us make Leaf even better for you. You can sponsor Leaf and any of our packages on [open collective](https://opencollective.com/leaf) or check the [contribution page](https://leafphp.dev/support/) for a list of ways to contribute.
+
+And to all our existing cash/code contributors, we love you all ❤️
+
+<a href="https://github.com/leafsphp/leaf/graphs/contributors" target="_blank"><img src="https://opencollective.com/leafphp/contributors.svg?width=890" /></a>
+
+## 🤯 Links/Projects
+
+- [Leaf Docs](https://leafphp.dev)
+- [Leaf MVC](https://mvc.leafphp.dev)
+- [Leaf API](https://api.leafphp.dev)
+- [Leaf CLI](https://cli.leafphp.dev)
+- [Aloe CLI](https://leafphp.dev/aloe-cli/)
