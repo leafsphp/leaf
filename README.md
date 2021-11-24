@@ -112,8 +112,6 @@ php -S localhost:8000
 - You can also check out our [youtube channel](https://www.youtube.com/channel/UCllE-GsYy10RkxBUK0HIffw) which has video tutorials on different topics
 - We are also working on codelabs which will bring hands-on tutorials you can follow and contribute to.
 
-## Contribution
-
 ## 😇 Contributing
 
 We are glad to have you. All contributions are welcome! To get started, familiarize yourself with our [contribution guide](https://leafphp.dev/community/contributing.html) and you'll be ready to make your first pull request 🚀.
