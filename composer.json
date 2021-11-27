@@ -31,7 +31,8 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"require": {
-		"leafs/http": "^1.0",
-		"leafs/router": "^0.1.0"
+		"leafs/http": "^1.1",
+		"leafs/router": "^0.1.4",
+		"leafs/anchor": "^1.1"
 	}
 }
