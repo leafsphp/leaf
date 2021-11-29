@@ -39,7 +39,7 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 ```php
 <?php
 
-require __DIR__ . "vendor/autoload.php";
+require __DIR__ . "/vendor/autoload.php";
 
 // Base example
 app()->get("/", function () {
