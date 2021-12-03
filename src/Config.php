@@ -49,7 +49,7 @@ class Config
 	public static function get($item = null)
 	{
 		if ($item) {
-			return static::$settings[$item];
+			return static::$settings[$item] ?? null;
 		}
 
 		return static::$settings;

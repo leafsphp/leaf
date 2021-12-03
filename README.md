@@ -17,6 +17,8 @@ Leaf 3 brings a much cleaner, faster and simpler workflow to your apps. Powered 
 
 ## 📦 Installation
 
+**Install Leaf 3:**
+
 You can create a Leaf 3 app with the [Leaf CLI](https://cli.leafphp.dev)
 
 ```sh
@@ -28,6 +30,20 @@ leaf create <project-name> --v3 --basic
 You can also use [Composer](https://getcomposer.org/) to install Leaf 3 in your project quickly.
 
 ```bash
+composer require leafs/leaf v3.0-beta
+```
+
+**Install Leaf 2:**
+
+Since leaf 3 is still in beta, you might want to install the stable leaf 2 instead. You can do this with Leaf CLI or composer.
+
+```sh
+leaf create <project-name> --basic
+```
+
+Or with composer
+
+```sh
 composer require leafs/leaf
 ```
 
@@ -39,7 +55,7 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 ```php
 <?php
 
-require __DIR__ . "vendor/autoload.php";
+require __DIR__ . "/vendor/autoload.php";
 
 // Base example
 app()->get("/", function () {
