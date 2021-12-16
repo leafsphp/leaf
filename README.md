@@ -134,13 +134,92 @@ We are glad to have you. All contributions are welcome! To get started, familiar
 
 To report a security vulnerability, you can reach out to [@mychidarko](https://twitter.com/mychidarko) or [@leafphp](https://twitter.com/leafphp) on twitter. We will coordinate the fix and eventually commit the solution in this project.
 
+### Code contributors
+
+<table>
+	<tr>
+		<td align="center">
+			<a href="https://github.com/mychidarko">
+				<img src="https://avatars.githubusercontent.com/u/26604242?v=4" width="100%" alt=""/>
+				<br />
+				<sub>
+					<b>Michael Darko</b>
+				</sub>
+			</a>
+		</td>
+		<td align="center">
+			<a href="https://github.com/ftonato">
+				<img src="https://avatars.githubusercontent.com/u/5417662?v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>Ademílson F. Tonato</b></sub>
+			</a>
+		</td>
+		<td align="center">
+			<a href="https://github.com/herber">
+				<img src="https://avatars.githubusercontent.com/u/22559657?&v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>Tobias Herber</b></sub>
+			</a>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">
+			<a href="https://github.com/pjotrsavitski">
+				<img src="https://avatars.githubusercontent.com/u/518331?&v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>Pjotr Savitski</b></sub>
+			</a>
+		</td>
+		<td align="center">
+			<a href="https://github.com/pablouser1">
+				<img src="https://avatars.githubusercontent.com/u/17802865?&v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>Pablo Ferreiro</b></sub>
+			</a>
+		</td>
+		<td align="center">
+			<a href="https://github.com/monkeywithacupcake">
+				<img src="https://avatars.githubusercontent.com/u/7316730?v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>jess</b></sub>
+			</a>
+		</td>
+	</tr>
+</table>
+
 ## 🤩 Sponsoring Leaf
 
 Your cash contributions go a long way to help us make Leaf even better for you. You can sponsor Leaf and any of our packages on [open collective](https://opencollective.com/leaf) or check the [contribution page](https://leafphp.dev/support/) for a list of ways to contribute.
 
 And to all our existing cash/code contributors, we love you all ❤️
 
-<a href="https://github.com/leafsphp/leaf/graphs/contributors" target="_blank"><img src="https://opencollective.com/leafphp/contributors.svg?width=890" /></a>
+### Cash contributors
+
+<table>
+	<tr>
+		<td align="center">
+			<a href="https://opencollective.com/aaron-smith3">
+				<img src="https://images.opencollective.com/aaron-smith3/08ee620/avatar/256.png" width="120px" alt=""/>
+				<br />
+				<sub><b>Aaron Smith</b></sub>
+			</a>
+		</td>
+		<td align="center">
+			<a href="https://opencollective.com/peter-bogner">
+				<img src="https://images.opencollective.com/peter-bogner/avatar/256.png" width="120px" alt=""/>
+				<br />
+				<sub><b>Peter Bogner</b></sub>
+			</a>
+		</td>
+		<td align="center">
+			<a href="#">
+				<img src="https://images.opencollective.com/guest-32634fda/avatar.png" width="120px" alt=""/>
+				<br />
+				<sub><b>Vano</b></sub>
+			</a>
+		</td>
+	</tr>
+</table>
 
 ## 🤯 Links/Projects
 
