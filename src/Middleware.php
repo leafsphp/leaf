@@ -51,7 +51,7 @@ abstract class Middleware
     /**
      * Call the next middleware
      */
-    final public function callNext()
+    final public function next()
     {
         $nextMiddleware = $this->next;
 
