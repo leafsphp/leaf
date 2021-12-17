@@ -41,12 +41,17 @@ class BareUI
     public static function render(string $view, array $data = [])
     {
         $view = static::getView($view);
+        $path = "./";
 
-        if (!file_exists($file = (static::$config["path"] ?? Config::get("views.path")) . "/$view")) {
+        if (class_exists("\Leaf\Config")) {
+            $path = Config::get("views.path");
+        }
+
+        if (!file_exists($file = (static::$config["path"] ?? $path) . "/$view")) {
             trigger_error("The file $view could not be found.");
         }
 
-        extract(array_merge($data, ['template' => self::class]));
+        extract(array_merge($data, ['template' => self::class], static::$config["params"]));
 
         ob_start();
 
