@@ -2,8 +2,6 @@
 
 namespace Leaf\Helpers;
 
-use \Leaf\Exception\General as Exception;
-
 /**
  * JSON Web Token implementation, based on this spec:
  * https://tools.ietf.org/html/rfc7519

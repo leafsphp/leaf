@@ -9,7 +9,7 @@ namespace Leaf\Helpers;
  * 
  * @since v2.0
  */
-class Container implements \ArrayAccess, \Countable, \IteratorAggregate
+class Container
 {
     /**
      * Key-value array of arbitrary data

@@ -105,7 +105,7 @@ class Form
 				}
 			}
 		];
-		
+
 		static::$rules = array_merge(static::$rules, $rules);
 	}
 
@@ -136,7 +136,7 @@ class Form
 	 * Get a list of all supported rules.
 	 * This includes default and custom rules.
 	 */
-	public static function supportedRules()
+	public static function supportedRules(): array
 	{
 		$supportedRules = [];
 
@@ -162,11 +162,11 @@ class Form
 	/**
 	 * make sure that the form data is safe to work with
 	 *
-	 * @param string $data: The data gotten from the form field
+	 * @param string $data The data gotten from the form field
 	 *
 	 * @return string
 	 */
-	public static function sanitizeInput($data)
+	public static function sanitizeInput(string $data): string
 	{
 		return htmlspecialchars(stripslashes(trim($data)));
 	}
@@ -177,14 +177,14 @@ class Form
 	 * @param  array  $rules
 	 * @param  array  $messages
 	 * 
-	 * @return void
+	 * @return bool
 	 */
-	public static function validate(array $rules, array $messages = [])
+	public static function validate(array $rules, array $messages = []): bool
 	{
 		$fields = [];
 
 		foreach ($rules as $param => $rule) {
-			array_push($fields, ["name" => $param, "value" => Request::get($param), "rule" => $rule]);
+			$fields[] = ["name" => $param, "value" => Request::get($param), "rule" => $rule];
 		}
 
 		foreach ($fields as $field) {
@@ -208,20 +208,20 @@ class Form
 	 * @param  array  $rules The data to be validated, plus rules
 	 * @param  array  $messages
 	 * 
-	 * @return void
+	 * @return bool
 	 */
-	public static function validateData(array $rules, array $messages = [])
+	public static function validateData(array $rules, array $messages = []): bool
 	{
 		$fields = [];
 
 		foreach ($rules as $param => $rule) {
-			array_push($fields, ["name" => $param, "value" => $param, "rule" => $rule]);
+			$fields[] = ["name" => $param, "value" => $param, "rule" => $rule];
 		}
 
 		foreach ($fields as $field) {
 			if (is_array($field["rule"])) {
 				foreach ($field["rule"] as $rule) {
-					$rule = strtolower($rule);	
+					$rule = strtolower($rule);
 					return static::validateField($field["name"], $field["value"], $rule);
 				}
 			} else {
@@ -229,6 +229,8 @@ class Form
 				return static::validateField($field["name"], $field["value"], $field["rule"]);
 			}
 		}
+
+		return false;
 	}
 
 	/**
@@ -238,14 +240,14 @@ class Form
 	 * @param string $fieldValue The value of the field to validate
 	 * @param string $rule The rule to apply
 	 */
-	public static function validateField($fieldName, $fieldValue, $rule)
+	public static function validateField(string $fieldName, string $fieldValue, string $rule): bool
 	{
 		static::rules();
 
 		$isValid = true;
 
 		$data = static::applyRule($rule);
-		
+
 		if (is_array($data)) {
 			$data = $data[0]($fieldName, $fieldValue, $data[1] ?? null);
 		} else {
@@ -276,7 +278,7 @@ class Form
 		";
 	}
 
-	public static function isEmail($value)
+	public static function isEmail($value): bool
 	{
 		return !!filter_var($value, 274);
 	}
@@ -284,7 +286,7 @@ class Form
 	/**
 	 * Return the form fields+data
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	public static function body()
 	{
@@ -294,7 +296,7 @@ class Form
 	/**
 	 * Return the form fields+data
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	public static function get()
 	{
@@ -306,7 +308,7 @@ class Form
 	 *
 	 * @return array
 	 */
-	public static function errors()
+	public static function errors(): array
 	{
 		return static::$errorsArray;
 	}

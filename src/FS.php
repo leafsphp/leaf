@@ -36,9 +36,9 @@ class FS
 	/**
 	 * Create a new directory in current directory (\_\_DIR\_\_)
 	 *
-	 * @param string $dirname: the name of the directory to create
+	 * @param string $dirname the name of the directory to create
 	 *
-	 * @return void
+	 * @return void|bool
 	 */
 	public static function createFolder(String $dirname)
 	{
@@ -46,23 +46,25 @@ class FS
 			self::$errorsArray[$dirname] = "$dirname already exists in " . dirname($dirname);
 			return false;
 		}
+
 		mkdir($dirname);
 	}
 
 	/**
 	 * Rename a directory
 	 *
-	 * @param string $dirname: the name of the folder to rename
-	 * @param string $newdirname: the new name of the folder
+	 * @param string $dirname the name of the folder to rename
+	 * @param string $newdirname the new name of the folder
 	 *
-	 * @return void
+	 * @return void|bool
 	 */
-	public static function renameFolder(String $dirname, String $newdirname)
+	public static function renameFolder(string $dirname, string $newdirname)
 	{
 		if (!is_dir($dirname)) {
 			self::$errorsArray[$dirname] = "$dirname not found in " . dirname($dirname) . ".";
 			return false;
 		}
+
 		rename($dirname, $newdirname);
 	}
 
@@ -70,16 +72,17 @@ class FS
 	/**
 	 * Delete a directory
 	 *
-	 * @param string $dirname: the name of the folder to delete
+	 * @param string $dirname the name of the folder to delete
 	 *
-	 * @return void
+	 * @return void|bool
 	 */
-	public static function deleteFolder($dirname)
+	public static function deleteFolder(string $dirname)
 	{
 		if (!is_dir($dirname)) {
 			self::$errorsArray[$dirname] = "$dirname not found in " . dirname($dirname) . ".";
 			return false;
 		}
+
 		rmdir($dirname);
 	}
 
@@ -87,11 +90,11 @@ class FS
 	/**
 	 * List all files and folders in a directory
 	 *
-	 * @param string $dirname: the name of the directory to list
-	 *
-	 * @return array|void
+	 * @param string $dirname the name of the directory to list
+	 * @param null $pattern
+	 * @return array
 	 */
-	public static function listDir($dirname, $pattern = null)
+	public static function listDir(string $dirname, $pattern = null): array
 	{
 		$files = glob($dirname . "/*$pattern*");
 		$filenames = [];
@@ -102,9 +105,9 @@ class FS
 
 			if (isset($file['extension'])) {
 				$extension = $file['extension'];
-				array_push($filenames, "$filename.$extension");
+				$filenames[] = "$filename.$extension";
 			} else {
-				array_push($filenames, "$filename/");
+				$filenames[] = "$filename/";
 			}
 		}
 
@@ -112,12 +115,12 @@ class FS
 	}
 
 	/**
-	 * Get all of the directories within a given directory.
+	 * Get all the directories within a given directory.
 	 *
-	 * @param  string  $directory
+	 * @param string $directory
 	 * @return array
 	 */
-	public static function listFolders($directory)
+	public static function listFolders(string $directory): array
 	{
 		$directories = [];
 
@@ -131,20 +134,22 @@ class FS
 	/**
 	 * Create a new file
 	 *
-	 * @param string $filename: the name of the file to create
+	 * @param string $filename the name of the file to create
 	 *
-	 * @return void
+	 * @return bool|void
 	 */
-	public static function createFile($filename)
+	public static function createFile(string $filename)
 	{
 		if (!is_dir(dirname($filename))) {
 			self::createFolder(dirname($filename));
 		}
+
 		if (file_exists($filename)) {
 			touch(time() . "." . $filename);
 			return;
 		}
-		touch($filename);
+
+		return touch($filename);
 	}
 
 	/**
@@ -154,48 +159,50 @@ class FS
 	 * @param mixed $content the name of the file to write to
 	 * @param bool $lock Lock file?
 	 *
-	 * @return void
+	 * @return false|int
 	 */
-	public static function writeFile($filename, $content, $lock = false)
+	public static function writeFile(string $filename, $content, bool $lock = false)
 	{
 		if (!file_exists($filename)) {
 			self::createFile($filename);
 		}
-		file_put_contents($filename, $content, $lock ? LOCK_EX : 0);
+
+		return file_put_contents($filename, $content, $lock ? LOCK_EX : 0);
 	}
 
 	/**
 	 * Read the content of a file into a string
 	 *
-	 * @param String $filename: the name of the file to read
+	 * @param string $filename the name of the file to read
 	 *
-	 * @return String|false file content
+	 * @return string|false file content
 	 */
-	public static function readFile(String $filename)
+	public static function readFile(string $filename)
 	{
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
 			return false;
 		}
+
 		return file_get_contents($filename);
 	}
 
 	/**
 	 * Rename a file
 	 *
-	 * @param string $filename: the name of the file to rename
-	 * @param string $newfilename: the new name of the file
+	 * @param string $filename the name of the file to rename
+	 * @param string $newfilename the new name of the file
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public static function renameFile($filename, $newfilename)
+	public static function renameFile(string $filename, string $newfilename): bool
 	{
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
 			return false;
 		}
 
-		rename($filename, $newfilename);
+		return rename($filename, $newfilename);
 	}
 
 	/**
@@ -468,10 +475,10 @@ class FS
 	/**
 	 * Clone a file into a new file
 	 *
-	 * @param string $filename: the name of the file to copy
-	 * @param string $to: the name of the new file to copy file to
+	 * @param string $filename the name of the file to copy
+	 * @param string $to the name of the new file to copy file to
 	 *
-	 * @return void
+	 * @return void|bool
 	 */
 	public static function cloneFile($filename, $to)
 	{
@@ -479,21 +486,22 @@ class FS
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
 			return false;
 		}
+
 		try {
 			copy($filename, $to);
 		} catch (\Throwable $err) {
-			throw "Unable to copy file: $err";
+			trigger_error("Unable to copy file: $err");
 		}
 	}
 
 	/**
 	 * Move a file
 	 *
-	 * @param string $dirname: the name of the file to move
+	 * @param string $filename the name of the file to move
 	 *
-	 * @return void
+	 * @return bool|void
 	 */
-	public static function moveFile($filename, $to)
+	public static function moveFile(string $filename, $to)
 	{
 		if (!file_exists($filename)) {
 			self::$errorsArray[$filename] = "$filename not found in " . dirname($filename);
