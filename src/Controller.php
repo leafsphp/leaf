@@ -47,7 +47,7 @@ class Controller
 	 * 
 	 * @return string|bool
 	 */
-	public function fileUpload($file, $path, $config = [])
+	public function fileUpload(string $file, string $path, array $config = [])
 	{
 		return \Leaf\Fs::uploadFile($file, $path, $config);
 	}

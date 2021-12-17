@@ -37,7 +37,7 @@ class ApiController extends Response
 	 *
 	 * @return array Any errors caught
 	 */
-	public function returnErrors()
+	public function returnErrors(): array
 	{
 		return $this->form->errors();
 	}
@@ -51,7 +51,7 @@ class ApiController extends Response
 	 * 
 	 * @return string|bool
 	 */
-	public function fileUpload($file, $path, $config = [])
+	public function fileUpload(string $file, string $path, array $config = [])
 	{
 		return \Leaf\FS::uploadFile($file, $path, $config);
 	}
