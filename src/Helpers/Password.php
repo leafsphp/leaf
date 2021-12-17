@@ -17,7 +17,7 @@ class Password
 	public const DEFAULT = PASSWORD_DEFAULT;
 	public const MD5 = "md5";
 
-	/**Spice up an inputed password for better security */
+	/**Spice up an inputted password for better security */
 	protected static $spice = null;
 
 	/**
@@ -42,7 +42,7 @@ class Password
 	/** 
 	 * Checks if the given hash matches the given options.
 	 */
-	public static function verify(string $password, $hashedPassword)
+	public static function verify(string $password, $hashedPassword): bool
 	{
 		return password_verify(static::$spice . $password, $hashedPassword);
 	}
@@ -68,7 +68,7 @@ class Password
 	/** 
 	 * Checks if the given argon2 hash matches the given options.
 	 */
-	public static function argon2Verify(string $password, string $hashedPassword)
+	public static function argon2Verify(string $password, string $hashedPassword): bool
 	{
 		return password_verify(static::$spice . $password, $hashedPassword);
 	}
@@ -87,7 +87,7 @@ class Password
 	/** 
 	 * Checks if the given BCRYPT hash matches the given options.
 	 */
-	public static function bcryptVerify(string $password, string $hashedPassword)
+	public static function bcryptVerify(string $password, string $hashedPassword): bool
 	{
 		return password_verify(static::$spice . $password, $hashedPassword);
 	}
