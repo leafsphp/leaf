@@ -45,7 +45,7 @@ class Session
 		$data = $_SESSION[$param];
 
 		if ($sanitize) {
-			$data = \Leaf\Util::sanitize($data);
+			$data = \Leaf\Anchor::sanitize($data);
 		}
 
 		return $data;
@@ -186,7 +186,7 @@ class Session
 	}
 
 	/**
-	 * Regenerate the session id
+	 * Regenerate the session id/Generate a new session if none exists
 	 * 
 	 * @param bool $clearData: Clear all session data?
 	 * 
@@ -194,6 +194,12 @@ class Session
 	 */
 	public static function regenerate($clearData = false)
 	{
+		if (!isset($_SESSION)) {
+			session_start();
+			static::id();
+			return true;
+		}
+
 		return session_regenerate_id($clearData);
 	}
 
