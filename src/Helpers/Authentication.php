@@ -26,7 +26,7 @@ class Authentication
 	 * 
 	 * @return string The generated token
 	 */
-	public static function generateSimpleToken(string $userId, string $secretPhrase, int $expiresAt = null)
+	public static function generateSimpleToken(string $userId, string $secretPhrase, int $expiresAt = null): string
 	{
 		$payload = [
 			'iat' => time(),
@@ -40,13 +40,13 @@ class Authentication
 
 	/**
 	 * Create a JWT with your own payload
-	 * 
-	 * @param string $payload The JWT payload
+	 *
+	 * @param array $payload The JWT payload
 	 * @param string $secretPhrase The user id to encode
-	 * 
+	 *
 	 * @return string The generated token
 	 */
-	public static function generateToken(array $payload, string $secretPhrase)
+	public static function generateToken(array $payload, string $secretPhrase): string
 	{
 		return JWT::encode($payload, $secretPhrase);
 	}
@@ -113,8 +113,12 @@ class Authentication
 	 */
 	public static function validate($token, $secretPhrase)
 	{
-		$payload = JWT::decode($token, $secretPhrase, ['HS256']);
-		if ($payload !== null) return $payload;
+		try {
+			$payload = JWT::decode($token, $secretPhrase, ['HS256']);
+			if ($payload !== null) return $payload;
+		} catch (\DomainException $exception) {
+			self::$errorsArray["token"] = "Malformed token";
+		}
 
 		self::$errorsArray = array_merge(self::$errorsArray, JWT::errors());
 		return null;
