@@ -12,25 +12,28 @@ namespace Leaf\Http;
  */
 class Headers
 {
-    protected static $http_code;
+    /**
+     * @var int
+     */
+    protected static $httpCode = 200;
 
     /**
      * Get or Set an HTTP code for response
      *
-     * @param int|null $http_code The current response code.
+     * @param int|null $httpCode The current response code.
      */
-    public static function status($http_code = null)
+    public static function status(int $httpCode = null)
     {
-        if (!$http_code) return self::$http_code;
-        self::$http_code = $http_code;
+        if ($httpCode === null) return self::$httpCode;
+        self::$httpCode = $httpCode;
     }
 
     /**
      * Force an HTTP code for response using PHP's `http_response_code`
      */
-    public static function resetStatus($http_code = null)
+    public static function resetStatus($httpCode = 200)
     {
-        return http_response_code($http_code);
+        return http_response_code($httpCode);
     }
 
     /**
@@ -38,21 +41,21 @@ class Headers
      *
      * @param bool $safeOutput Try to sanitize header data
      */
-    public static function all($safeOutput = false): array
+    public static function all(bool $safeOutput = false): array
     {
         if ($safeOutput === false) return self::findHeaders();
-        return \Leaf\Util::sanitize(self::findHeaders());
+        return \Leaf\Anchor::sanitize(self::findHeaders());
     }
 
     /**
      * Return a particular header passed into app
      *
-     * @param string|array $param The header(s) to return
+     * @param array|string $params The header(s) to return
      * @param bool $safeOutput Try to sanitize header data
      *
-     * @return string|array
+     * @return array|string|null
      */
-    public static function get($params, $safeOutput = false)
+    public static function get($params, bool $safeOutput = false)
     {
         if (is_string($params)) return self::all($safeOutput)[$params] ?? null;
 
@@ -66,17 +69,20 @@ class Headers
     /**
      * Set a new header
      */
-    public static function set($key, $value = "", $replace = true, $http_code = null): void
+    public static function set($key, string $value = "", $replace = true, $httpCode = null): void
     {
         if (!is_array($key)) {
-            header("$key: $value", $replace, $http_code ?? self::$http_code);
+            header("$key: $value", $replace, $httpCode ?? self::$httpCode);
         } else {
-            foreach ($key as $header => $header_value) {
-                self::set($header, $header_value, $replace, $http_code);
+            foreach ($key as $header => $headerValue) {
+                self::set($header, $headerValue, $replace, $httpCode);
             }
         }
     }
 
+    /**
+     * Remove a header
+     */
     public static function remove($keys)
     {
         if (!is_array($keys)) {
@@ -88,35 +94,57 @@ class Headers
         }
     }
 
-    public static function contentPlain($code = null): void
+    /**
+     * Set the content-type to plain text
+     */
+    public static function contentPlain($code = 200): void
     {
-        self::set("Content-Type", "text/plain", true, $code ?? self::$http_code);
+        self::set("Content-Type", "text/plain", true, $code ?? self::$httpCode);
     }
 
-    public static function contentHtml($code = null): void
+    /**
+     * Set the content-type to html
+     */
+    public static function contentHtml($code = 200): void
     {
-        self::set("Content-Type", "text/html", true, $code ?? self::$http_code);
+        self::set("Content-Type", "text/html", true, $code ?? self::$httpCode);
     }
 
-    public static function contentJSON($code = null): void
+    /**
+     * Set the content-type to xml
+     */
+    public static function contentXml($code = 200): void
     {
-        self::set("Content-Type", "application/json", true, $code ?? self::$http_code);
+        self::set("Content-Type", "application/xml", true, $code ?? self::$httpCode);
     }
 
-    public static function accessControl($key, $value = "", $code = null)
+    /**
+     * Set the content-type to json
+     */
+    public static function contentJSON($code = 200): void
+    {
+        self::set("Content-Type", "application/json", true, $code ?? self::$httpCode);
+    }
+
+    /**
+     * Quickly set an access control header
+     */
+    public static function accessControl($key, $value = "", $code = 200)
     {
         if (is_string($key)) {
-            self::set("Access-Control-$key", $value, true, $code ?? self::$http_code);
+            self::set("Access-Control-$key", $value, true, $code ?? self::$httpCode);
         } else {
-            foreach ($key as $header => $header_value) {
-                self::accessControl($header, $header_value, $code);
+            foreach ($key as $header => $headerValue) {
+                self::accessControl($header, $headerValue, $code);
             }
         }
     }
 
     protected static function findHeaders()
     {
-        if (function_exists("getallheaders") && \getallheaders()) return \getallheaders();
+        if (function_exists("getallheaders") && \getallheaders()) {
+            return \getallheaders();
+        }
 
         $headers = [];
         foreach ($_SERVER as $name => $value) {
@@ -125,97 +153,5 @@ class Headers
             }
         }
         return $headers;
-    }
-
-    /********************************************************************************
-     * HTTP Caching
-     *******************************************************************************/
-
-    /**
-     * Set Last-Modified HTTP Response Header
-     *
-     * Set the HTTP 'Last-Modified' header and stop if a conditional
-     * GET request's `If-Modified-Since` header matches the last modified time
-     * of the resource. The `time` argument is a UNIX timestamp integer value.
-     * When the current request includes an 'If-Modified-Since' header that
-     * matches the specified last modified time, the application will stop
-     * and send a '304 Not Modified' response to the client.
-     *
-     * @param int $time The last modified UNIX timestamp
-     */
-    public static function lastModified(int $time)
-    {
-        Headers::set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
-
-        if ($time === strtotime(Headers::get('If-Modified-Since'))) {
-            \Leaf\App::halt(304);
-        }
-    }
-
-    /**
-     * Set ETag HTTP Response Header
-     *
-     * Set the etag header and stop if the conditional GET request matches.
-     * The `value` argument is a unique identifier for the current resource.
-     * The `type` argument indicates whether the etag should be used as a strong or
-     * weak cache validator.
-     *
-     * When the current request includes an 'If-None-Match' header with
-     * a matching etag, execution is immediately stopped. If the request
-     * method is GET or HEAD, a '304 Not Modified' response is sent.
-     *
-     * @param string $value The etag value
-     * @param string $type The type of etag to create; either "strong" or "weak"
-     */
-    public static function etag(string $value, string $type = "strong")
-    {
-        if (!in_array($type, ["strong", "weak"])) {
-            trigger_error("Invalid Leaf::etag type. Expected either \"strong\" or \"weak\".");
-        }
-
-        $value = "\"$value\"";
-
-        if ($type === "weak") {
-            $value = "W/" . $value;
-        }
-
-        Headers::set("ETag", $value);
-
-        if ($etagsHeader = Headers::get("If-None-Match")) {
-            $etags = preg_split("@\s*,\s*@", $etagsHeader);
-
-            if (in_array($value, $etags) || in_array("*", $etags)) {
-                $_304Methods = [Request::METHOD_GET, Request::METHOD_HEAD];
-
-                if (in_array(Request::getMethod(), $_304Methods)) {
-                    \Leaf\App::halt(304);
-                } else {
-                    // according to https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.26
-                    // all methods besides GET and HEAD should return a 421 (Precondition Failed)
-                    \Leaf\App::halt(412);
-                }
-            }
-        }
-    }
-
-    /**
-     * Set Expires HTTP response header
-     *
-     * The `Expires` header tells the HTTP client the time at which
-     * the current resource should be considered stale. At that time the HTTP
-     * client will send a conditional GET request to the server; the server
-     * may return a 200 OK if the resource has changed, else a 304 Not Modified
-     * if the resource has not changed. The `Expires` header should be used in
-     * conjunction with the `etag()` or `lastModified()` methods above.
-     *
-     * @param string|int $time If string, a time to be parsed by `strtotime()`;  If int, a UNIX timestamp;
-     */
-    public static function expires($time)
-    {
-        if (is_string($time)) {
-            $time = strtotime($time);
-        }
-
-        Headers::set('Expires', gmdate('D, d M Y H:i:s T', $time));
     }
 }
