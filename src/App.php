@@ -5,7 +5,7 @@ namespace Leaf;
 /**
  * Leaf PHP Framework
  * --------
- * The easiest way to build simple but powerful apps and APIs quickly.
+ * [v3 Compatibility Build] The easiest way to build simple but powerful apps and APIs quickly.
  *
  * @author Michael Darko <mickdd22@gmail.com>
  * @copyright 2019-2021 Michael Darko
