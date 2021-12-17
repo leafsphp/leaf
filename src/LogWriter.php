@@ -38,10 +38,10 @@ class LogWriter
      * Write message
      * 
      * @param mixed $message
-     * @param int $level
-     * @return int|bool
+     * @param int|null $level
+     * @return int
      */
-    public function write($message, $level = null)
+    public function write($message, int $level = null): int
     {
         if ($level !== null) {
             $level = Log::getLevel($level) . " - ";
@@ -51,6 +51,7 @@ class LogWriter
             $this->logFile,
             (string) "[" . Date::now() . "]\n" . $level . "$message\n"
         );
+
         return 1;
     }
 }

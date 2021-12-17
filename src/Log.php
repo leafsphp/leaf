@@ -141,7 +141,7 @@ class Log
      * Is logging enabled?
      * @return bool
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
@@ -275,7 +275,7 @@ class Log
      * @param array $context   An array of placeholder values
      * @return string The processed string
      */
-    protected function interpolate($message, array $context = [])
+    protected function interpolate($message, array $context = []): string
     {
         $replace = [];
 
