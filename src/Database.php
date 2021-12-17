@@ -14,14 +14,16 @@ class Database
 
     public static function config($config = [])
     {
+        if (empty($config)) {
+            return static::$config;
+        }
+
         static::$config = array_merge(static::$config, $config);
     }
 
     public static function connect()
     {
-        $connection = isset(static::$config["default"]) ?
-            static::$config["default"] :
-            "mysql";
+        $connection = static::$config["default"] ?? "mysql";
 
         static::$capsule = new Manager;
         static::$capsule->addConnection(
