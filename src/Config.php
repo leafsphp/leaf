@@ -15,8 +15,8 @@ class Config
         "mode" => "development",
         "debug" => true,
         "log.writer" => null,
-        "log.level" => \Leaf\Log::DEBUG,
-        "log.enabled" => true,
+        "log.level" => null,
+        "log.enabled" => false,
         "log.dir" => __DIR__ . "/../../../../storage/logs/",
         "log.file" => "log.txt",
         "log.open" => true,
@@ -45,11 +45,13 @@ class Config
      * Get configuration
      * 
      * @param string|null $item The config to get. Returns all items if nothing is specified.
+     * 
+     * @return mixed
      */
     public static function get($item = null)
     {
         if ($item) {
-            return static::$settings[$item];
+            return static::$settings[$item] ?? null;
         }
 
         return static::$settings;
