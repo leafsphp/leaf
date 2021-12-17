@@ -31,6 +31,8 @@
         "illuminate/container": "^8.0",
         "illuminate/events": "^8.0",
         "phpmailer/phpmailer": "^6.2",
-        "illuminate/view": "^8.0"
+        "illuminate/view": "^8.0",
+        "leafs/cors": "^1.0",
+        "leafs/anchor": "^1.1"
     }
 }
