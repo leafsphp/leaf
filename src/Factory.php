@@ -40,9 +40,9 @@ abstract class Factory
 	 *
 	 * @return array
 	 */
-	public function definition()
+	public function definition(): array
 	{
-		//
+		return [];
 	}
 
 	/**
@@ -52,7 +52,7 @@ abstract class Factory
 	 * 
 	 * @return self
 	 */
-	public function create(int $number)
+	public function create(int $number): Factory
 	{
 		$data = [];
 
@@ -67,11 +67,13 @@ abstract class Factory
 
 	/**
 	 * Create a relationship with another factory
-	 * 
+	 *
 	 * @param \Leaf\Factory $factory The instance of the factory to tie to
 	 * @param array|string $primaryKey The primary key for that factory's table
+	 * @throws \Exception
+	 * @throws \Throwable
 	 */
-	public function has($factory, $primaryKey = null)
+	public function has(Factory $factory, $primaryKey = null): Factory
 	{
 		if (count($this->data) === 0) {
 			$this->data[] = $this->definition();
@@ -107,12 +109,13 @@ abstract class Factory
 
 	/**
 	 * Save created records in db
-	 * 
-	 * @param \array $override Override data to save
-	 * 
-	 * @return true|Throwable
+	 *
+	 * @param \array|null $override Override data to save
+	 *
+	 * @return true
+	 * @throws \Exception
 	 */
-	public function save($override = null)
+	public function save(array $override = null): bool
 	{
 		$model = $this->model ?? $this->getModelName();
 
@@ -120,33 +123,29 @@ abstract class Factory
 			$this->data[] = $this->definition();
 		}
 
-		try {
-			foreach ($this->data as $item) {
-				if ($override) {
-					$item = array_merge($item, $override);
-				}
-
-				$model = new $model;
-				foreach ($item as $key => $value) {
-					$model->{$key} = $value;
-				}
-				$model->save();
+		foreach ($this->data as $item) {
+			if ($override) {
+				$item = array_merge($item, $override);
 			}
 
-			return true;
-		} catch (\Throwable $th) {
-			throw $th;
+			$model = new $model;
+			foreach ($item as $key => $value) {
+				$model->{$key} = $value;
+			}
+			$model->save();
 		}
+
+		return true;
 	}
 
 	/**
 	 * Return created records
 	 * 
-	 * @param \array $override Override data to save
+	 * @param \array|null $override Override data to save
 	 * 
 	 * @return array
 	 */
-	public function get($override = null)
+	public function get(array $override = null): array
 	{
 		if (count($this->data) === 0) {
 			$this->data[] = $this->definition();
@@ -163,8 +162,9 @@ abstract class Factory
 
 	/**
 	 * Get the default model name
+	 * @throws \Exception
 	 */
-	public function getModelName()
+	public function getModelName(): string
 	{
 		$class = get_class($this);
 		$modelClass = "\App\Models" . Str::studly(str_replace(["App\Database\Factories", "Factory"], "", $class));
