@@ -594,9 +594,9 @@ class Db
 	/**
 	 * Get number of rows from SELECT
 	 *
-	 * @return int $connection->num_rows
+	 * @return int|null $connection->num_rows
 	 */
-	public function count(): int
+	public function count(): ?int
 	{
 		if (!$this->execute()) return null;
 		$this->clearState();
@@ -660,7 +660,7 @@ class Db
 	/**
 	 * Fetch all
 	 */
-	public function fetchAll()
+	public function fetchAll(): ?array
 	{
 		if (!$this->execute()) return null;
 		$result = mysqli_fetch_all($this->queryResult, \MYSQLI_ASSOC);
@@ -695,7 +695,7 @@ class Db
 	/**
 	 * Alias of fetchAll
 	 */
-	public function all()
+	public function all(): ?array
 	{
 		return $this->fetchAll();
 	}
@@ -706,7 +706,7 @@ class Db
 	public function first()
 	{
 		$result = $this->fetchAll();
-		return isset($result[0]) ? $result[0] : $result;
+		return $result[0] ?? $result;
 	}
 
 	/**
@@ -715,13 +715,13 @@ class Db
 	public function last()
 	{
 		$result = $this->fetchAll();
-		return isset($result[count($result) - 1]) ? $result[count($result) - 1] : $result;
+		return $result[count($result) - 1] ?? $result;
 	}
 
 	/**
 	 * Return raw query result
 	 */
-	public function fetch(): array
+	public function fetch(): ?array
 	{
 		if (!$this->execute()) return null;
 		return $this->queryResult;
@@ -730,7 +730,7 @@ class Db
 	/**
 	 * Set the current db table
 	 */
-	public function table($table)
+	public function table($table): Db
 	{
 		$this->queryData["table"] = $table;
 
@@ -740,7 +740,7 @@ class Db
 	/**
 	 * Search a db table for a value
 	 */
-	public function search($row, $value, $hidden = null)
+	public function search($row, $value, $hidden = null): ?array
 	{
 		return $this->select($this->queryData["table"])->like($row, static::includes($value))->hidden($hidden)->all();
 	}
@@ -780,7 +780,7 @@ class Db
 	/**
 	 * Construct search that begins with a phrase in db 
 	 */
-	public static function beginsWith($phrase)
+	public static function beginsWith($phrase): string
 	{
 		return "$phrase%";
 	}
@@ -788,7 +788,7 @@ class Db
 	/**
 	 * Construct search that ends with a phrase in db 
 	 */
-	public static function endsWith($phrase)
+	public static function endsWith($phrase): string
 	{
 		return "%$phrase";
 	}
@@ -796,7 +796,7 @@ class Db
 	/**
 	 * Construct search that includes a phrase in db 
 	 */
-	public static function includes($phrase)
+	public static function includes($phrase): string
 	{
 		return "%$phrase%";
 	}
@@ -804,7 +804,7 @@ class Db
 	/**
 	 * Construct search that begins and ends with a phrase in db 
 	 */
-	public static function word($beginsWith, $endsWith)
+	public static function word($beginsWith, $endsWith): string
 	{
 		return "$beginsWith%$endsWith";
 	}
