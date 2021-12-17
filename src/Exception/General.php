@@ -102,10 +102,10 @@ class General extends \Exception
 
 	/**
 	 * Render response body
-	 * 
+	 *
 	 * @param array $env
 	 * @param \Exception $exception
-	 * 
+	 *
 	 * @return string
 	 */
 	protected static function renderBody($exception)
@@ -121,13 +121,14 @@ class General extends \Exception
 			['<div>#', '</div>'],
 			htmlspecialchars($exception->getTraceAsString())
 		);
-		$body = "<h1 style=\"color:#038f03;\">$title</h1>";
+		$trace = str_replace(['): ', '</div>'], ['): <span style="color:#f4ae5d;">', '</span></div>'], $trace);
+		$body = "<h1 style=\"color:#34be6d;\">$title</h1>";
 		$body .= '<p>The application could not run because of the following error:</p>';
 		$body .= '<h2>Details</h2>';
 		$body .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
 
 		if ($code) {
-			$body .= "'<div><strong>Code:</strong> $code</div>";
+			$body .= "<div><strong>Code:</strong> $code</div>";
 		}
 
 		if ($message) {
@@ -144,7 +145,7 @@ class General extends \Exception
 
 		if ($trace) {
 			$body .= '<h2>Trace</h2>';
-			$body .= "<pre style=\"padding:20px 20px 5px 20px;background:#f1f1f1;overflow-x:scroll;\">$trace</pre>";
+			$body .= "<pre style=\"padding:20px 30px 15px 30px;background:#003543;overflow-x:scroll;border-radius:10px;\">$trace</pre>";
 		}
 
 		return static::exceptionMarkup($title, $body);
@@ -161,7 +162,7 @@ class General extends \Exception
 	 */
 	protected static function errorMarkup($title, $body)
 	{
-		return "<html><head><title>$title</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body><h1 style=\"color: #038f03;\">$title</h1>$body</body></html>";
+		return "<html><head><title>$title</title><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700;display=swap\"><style>body{display:flex;justify-content:center;align-items:center;background-color:rgb(0,30,38);color:white;margin:0;padding:0px 30px;font-family:DM Sans,sans-serif;}h1{margin:0;font-weight:normal;}strong{display:inline-block;width:65px;}</style></head><body><h1 style=\"color: #34be6d;border-right:1px solid #555855;padding-right:20px;\">$title</h1><main style=\"padding-left:20px;\">$body</main></body></html>";
 	}
 
 	/**
@@ -175,7 +176,7 @@ class General extends \Exception
 	 */
 	protected static function exceptionMarkup($title, $body)
 	{
-		return "<html><head><title>$title</title><style>body{margin:0;padding:50px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{color:#038f03;display:inline-block;width:65px;}</style></head><body>$body</body></html>";
+		return "<html><head><title>$title</title><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700;display=swap\"><style>body{background-color:rgb(0,30,38);color:white;margin:0;padding:50px;font:15px/14px DM Sans,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}h2{margin-top:70px;}strong{color:#34be6d;display:inline-block;width:65px;}div{margin:15px 0px;}div strong{margin-right:40px;}</style></head><body>$body</body></html>";
 	}
 
 	/**
@@ -183,7 +184,10 @@ class General extends \Exception
 	 */
 	public static function defaultDown()
 	{
-		echo static::errorMarkup("Oops! We're down for maintainance.", '<p style="font-size: 22px;">We\'re working quickly to get back up and running, please check back soon.</p>');
+		echo static::errorMarkup(
+			'Oops!',
+			'<p>App is under maintainance, please check back soon.</p>'
+		);
 	}
 
 	/**
@@ -191,7 +195,21 @@ class General extends \Exception
 	 */
 	public static function default404()
 	{
-		echo static::errorMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a style="color: #038f03;" href="/">Go back home</a>');
+		echo static::errorMarkup(
+			'404',
+			'<p>The page you are looking for could not be found.</p>'
+		);
+	}
+
+	/**
+	 * CSRF error
+	 */
+	public static function csrf($error = null)
+	{
+		echo static::errorMarkup(
+			'Invalid request',
+			"<p>$error</p>" ?? '<p>The page you are looking for has expired.</p>'
+		);
 	}
 
 	/**
@@ -207,6 +225,6 @@ class General extends \Exception
 			}
 		}
 
-		echo self::errorMarkup('Application Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+		echo self::errorMarkup('Oops!', '<p>A website error has occurred, our team has been notified.</p>');
 	}
 }
