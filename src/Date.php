@@ -92,9 +92,10 @@ class Date
 	}
 
 	/**
-	 * Convert a timstamp to a date
+	 * Convert a timestamp to a date
+	 * @throws \Exception
 	 */
-	public static function toDate($timestamp, $format = 'Y-m-d')
+	public static function toDate($timestamp, $format = 'Y-m-d'): string
 	{
 		$timestamp = new DateTime($timestamp);
 		$date = $timestamp;
@@ -103,8 +104,9 @@ class Date
 
 	/**
 	 * Get a neatly formatted english date from a timestamp
+	 * @throws \Exception
 	 */
-	public static function toEnglishDate($timestamp)
+	public static function toEnglishDate($timestamp): string
 	{
 		$timestamp = new DateTime($timestamp);
 		$day = $timestamp->format('d');
@@ -112,20 +114,20 @@ class Date
 		$month = ltrim($month, 0);
 		$month = self::intToMonth($month);
 		$year = $timestamp->format('Y');
-		$date = $month . ' ' . $day . ', ' . $year;
-		return $date;
+		return "$month $day, $year";
 	}
 
 	/**
 	 * Format a timestamp to an english readable of a timestamp
+	 * @throws \Exception
 	 */
-	public static function toEnglishTs($timestamp)
+	public static function toEnglishTs($timestamp): string
 	{
-		$timestampp = new DateTime($timestamp);
-		$day = $timestampp->format('d');
-		$month = $timestampp->format('m');
+		$ts = new DateTime($timestamp);
+		$day = $ts->format('d');
+		$month = $ts->format('m');
 		$month = self::intToMonth(ltrim($month, '0'));
-		$year = $timestampp->format('Y');
+		$year = $ts->format('Y');
 		$time = self::toTime($timestamp);
 		$english_timeStamp = $day . ' ' . $month . ' ' . $year . ' ' . $time;
 		return $english_timeStamp;
@@ -133,8 +135,9 @@ class Date
 
 	/**
 	 * Get the time from a timestamp
+	 * @throws \Exception
 	 */
-	public static function toTime($ts)
+	public static function toTime($ts): string
 	{
 		$ts = new DateTime($ts);
 		return $ts->format('G:i:s');
@@ -142,8 +145,9 @@ class Date
 
 	/**
 	 * Format a TimeStamp
+	 * @throws \Exception
 	 */
-	public static function format($ts, $format = "Y-m-d")
+	public static function format($ts, $format = "Y-m-d"): string
 	{
 		$ts = new DateTime($ts);
 		return $ts->format($format);
@@ -176,22 +180,20 @@ class Date
 	/**
 	 * Get the month from a number
 	 */
-	public static function intToMonth(int $number)
+	public static function intToMonth(int $number): string
 	{
 		$number = ltrim($number, '0');
 		$months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-		$month = $months[$number - 1];
-		return $month;
+		return $months[$number - 1];
 	}
 
 	/**
 	 * Get the day from a number
 	 */
-	public static function intToDay(int $number)
+	public static function intToDay(int $number): string
 	{
 		$number = ltrim($number, '0');
 		$days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-		$day = $days[$number - 1];
-		return $day;
+		return $days[$number - 1];
 	}
 }
