@@ -19,7 +19,7 @@ class App extends Router
 	 * Leaf container instance
 	 * @var \Leaf\Helpers\Container
 	 */
-	public $container;
+	protected $container;
 
 	/**
 	 * Callable to be invoked on application error
@@ -42,13 +42,13 @@ class App extends Router
 			Config::set($userSettings);
 		}
 
-		if (class_exists("\Leaf\Anchor\CSRF")) {
+		if (class_exists('\Leaf\Anchor\CSRF')) {
 			if (!Anchor\CSRF::token()) {
 				Anchor\CSRF::init();
 			}
 
 			if (!Anchor\CSRF::verify()) {
-				$csrfError = Anchor\CSRF::errors()["token"];
+				$csrfError = Anchor\CSRF::errors()['token'];
 				Http\Response::status(400);
 				echo Exception\General::csrf($csrfError);
 				exit();
@@ -56,12 +56,11 @@ class App extends Router
 		}
 
 		$this->container = new \Leaf\Helpers\Container();
-		$this->container["settings"] = Config::get();
 
 		$this->setupDefaultContainer();
 
-		if (class_exists("\Leaf\BareUI")) {
-			View::attach(\Leaf\BareUI::class, "template");
+		if (class_exists('\Leaf\BareUI')) {
+			View::attach(\Leaf\BareUI::class, 'template');
 		}
 
 		$this->loadViewEngines();
@@ -69,14 +68,14 @@ class App extends Router
 
 	protected function setupErrorHandler()
 	{
-		if ($this->config("debug")) {
-			$debugConfig = [E_ALL, 1, ["\Leaf\Exception\General", "handleErrors"], false];
+		if ($this->config('debug')) {
+			$debugConfig = [E_ALL, 1, ['\Leaf\Exception\General', 'handleErrors'], false];
 		} else {
-			$debugConfig = [0, 0, ["\Leaf\Exception\General", "defaultError"], true];
+			$debugConfig = [0, 0, ['\Leaf\Exception\General', 'defaultError'], true];
 		}
 
 		error_reporting($debugConfig[0]);
-		ini_set("display_errors", $debugConfig[1]);
+		ini_set('display_errors', $debugConfig[1]);
 
 		$this->setErrorHandler($debugConfig[2], $debugConfig[3]);
 	}
@@ -91,7 +90,7 @@ class App extends Router
 		$errorHandler = $handler;
 
 		if ($wrapper) {
-			$errorHandler = function ($errno, $errstr = "", $errfile = "", $errline = "") use ($handler) {
+			$errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
 				$exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
 				Http\Response::status(500);
 				call_user_func_array($handler, [$exception]);
@@ -127,36 +126,36 @@ class App extends Router
 	private function setupDefaultContainer()
 	{
 		// Default request
-		$this->container->singleton("request", function () {
+		$this->container->singleton('request', function () {
 			return new \Leaf\Http\Request();
 		});
 
 		// Default response
-		$this->container->singleton("response", function () {
+		$this->container->singleton('response', function () {
 			return new \Leaf\Http\Response();
 		});
 
 		// Default headers
-		$this->container->singleton("headers", function () {
+		$this->container->singleton('headers', function () {
 			return new \Leaf\Http\Headers();
 		});
 
-		if ($this->config("log.enabled")) {
-			if (class_exists("Leaf\Log")) {
+		if ($this->config('log.enabled')) {
+			if (class_exists('Leaf\Log')) {
 				// Default log writer
-				$this->container->singleton("logWriter", function ($c) {
-					$logWriter = Config::get("log.writer");
+				$this->container->singleton('logWriter', function ($c) {
+					$logWriter = Config::get('log.writer');
 
-					$file = $this->config("log.dir") . $this->config("log.file");
+					$file = $this->config('log.dir') . $this->config('log.file');
 
-					return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config("log.open") ?? true);
+					return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config('log.open') ?? true);
 				});
 
 				// Default log
-				$this->container->singleton("log", function ($c) {
-					$log = new \Leaf\Log($c["logWriter"]);
-					$log->enabled($this->config("log.enabled"));
-					$log->level($this->config("log.level"));
+				$this->container->singleton('log', function ($c) {
+					$log = new \Leaf\Log($c['logWriter']);
+					$log->enabled($this->config('log.enabled'));
+					$log->level($this->config('log.level'));
 
 					return $log;
 				});
@@ -164,33 +163,33 @@ class App extends Router
 		}
 
 		// Default mode
-		$this->container["mode"] = function ($c) {
-			$mode = $c["settings"]["mode"];
+		(function () {
+			$mode = $this->config('mode');
 
-			if (_env("APP_ENV")) {
-				$mode = _env("APP_ENV");
+			if (_env('APP_ENV')) {
+				$mode = _env('APP_ENV');
 			}
 
-			if (_env("LEAF_MODE")) {
-				$mode = _env("LEAF_MODE");
+			if (_env('LEAF_MODE')) {
+				$mode = _env('LEAF_MODE');
 			}
 
-			if (isset($_ENV["LEAF_MODE"])) {
-				$mode = $_ENV["LEAF_MODE"];
+			if (isset($_ENV['LEAF_MODE'])) {
+				$mode = $_ENV['LEAF_MODE'];
 			} else {
-				$envMode = getenv("LEAF_MODE");
+				$envMode = getenv('LEAF_MODE');
 
 				if ($envMode !== false) {
 					$mode = $envMode;
 				}
 			}
 
-			return $mode;
-		};
+			$this->config('mode', $mode);
+		})();
 
-		Config::set("app", [
-			"instance" => $this,
-			"container" => $this->container,
+		Config::set('app', [
+			'instance' => $this,
+			'container' => $this->container,
 		]);
 	}
 
@@ -235,27 +234,11 @@ class App extends Router
 	 */
 	public function config($name, $value = null)
 	{
-		$c = $this->container;
-
 		if ($value === null && is_string($name)) {
 			return Config::get($name);
 		}
 
-		$settings = [];
-
-		if (is_array($name)) {
-			if ($value === true) {
-				$settings = array_merge_recursive($c["settings"], $name);
-			} else {
-				$settings = array_merge($c["settings"], $name);
-			}
-		} else {
-			$settings = $c["settings"];
-			$settings[$name] = $value;
-		}
-
-		$c["settings"] = $settings;
-		Config::set($settings);
+		Config::set($name, $value);
 	}
 
 	/********************************************************************************
@@ -270,7 +253,7 @@ class App extends Router
 	public function logger()
 	{
 		if (!$this->log) {
-			trigger_error("You need to enable logging to use this feature! Set log.enabled to true and install the logger module");
+			trigger_error('You need to enable logging to use this feature! Set log.enabled to true and install the logger module');
 		}
 
 		return $this->log;
@@ -317,7 +300,7 @@ class App extends Router
     public static function script($mode, $callback)
     {
         static::hook('router.before', function () use($mode, $callback) {
-			$appMode = Config::get("app")["container"]["mode"] ?? "development";
+			$appMode = Config::get('mode') ?? 'development';
 
             if ($mode === $appMode) {
                 return $callback();
@@ -330,9 +313,9 @@ class App extends Router
 	 *******************************************************************************/
 
 	/**
-	 * Get the absolute path to this Leaf application"s root directory
+	 * Get the absolute path to this Leaf application's root directory
 	 *
-	 * This method returns the absolute path to the Leaf application"s
+	 * This method returns the absolute path to the Leaf application's
 	 * directory. If the Leaf application is installed in a public-accessible
 	 * sub-directory, the sub-directory path will be included. This method
 	 * will always return an absolute path WITH a trailing slash.
@@ -341,7 +324,7 @@ class App extends Router
 	 */
 	public function root()
 	{
-		return rtrim($_SERVER["DOCUMENT_ROOT"], "/") . rtrim($this->request->getRootUri(), "/") . "/";
+		return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getRootUri(), '/') . '/';
 	}
 
 	/**
@@ -364,7 +347,7 @@ class App extends Router
 	 * @param int $status The HTTP response status
 	 * @param string $message The HTTP response body
 	 */
-	public static function halt($status, $message = "")
+	public static function halt($status, $message = '')
 	{
 		if (ob_get_level() !== 0) {
 			ob_clean();
@@ -379,7 +362,7 @@ class App extends Router
 	/**
 	 * Stop
 	 *
-	 * The thrown exception will be caught in application"s `call()` method
+	 * The thrown exception will be caught in application's `call()` method
 	 * and the response will be sent as is to the HTTP client.
 	 *
 	 * @throws \Leaf\Exception\Stop
@@ -392,8 +375,8 @@ class App extends Router
 	/**
 	 * Pass
 	 *
-	 * The thrown exception is caught in the application"s `call()` method causing
-	 * the router"s current iteration to stop and continue to the subsequent route if available.
+	 * The thrown exception is caught in the application's `call()` method causing
+	 * the router's current iteration to stop and continue to the subsequent route if available.
 	 * If no subsequent matching routes are found, a 404 response will be sent to the client.
 	 *
 	 * @throws \Leaf\Exception\Pass
@@ -413,10 +396,10 @@ class App extends Router
 	 */
 	public function cors($options = [])
 	{
-		if (class_exists("Leaf\Http\Cors")) {
+		if (class_exists('Leaf\Http\Cors')) {
 			Http\Cors::config($options);
 		} else {
-			trigger_error("Cors module not found! Run `composer require leafs/cors` to install the CORS module. This is required to configure CORS.");
+			trigger_error('Cors module not found! Run `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
 		}
 	}
 }

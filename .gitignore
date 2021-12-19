@@ -3,3 +3,4 @@ Experimental
 vendor
 composer.lock
 .DS_Store
+.phpunit*
