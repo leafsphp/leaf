@@ -23,10 +23,6 @@ jobs:
         tools: composer:v2
         coverage: none
 
-    # - name: Setup Problem Matches
-    #   run: |
-    #     echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-    #     echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
     - name: Install PHP dependencies
       run: composer update --no-interaction --no-progress
 
