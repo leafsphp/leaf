@@ -34,5 +34,8 @@
 		"leafs/http": "^1.1",
 		"leafs/router": "^0.1.4",
 		"leafs/anchor": "^1.1"
+	},
+	"require-dev": {
+		"pestphp/pest": "^1.21"
 	}
 }

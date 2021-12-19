@@ -37,7 +37,11 @@ class Config
 		if (is_string($item)) {
 			static::$settings[$item] = $value;
 		} else {
-			static::$settings = array_merge(static::$settings, $item);
+			if ($value === true) {
+				static::$settings = array_merge_recursive(static::$settings, $item);
+			} else {
+				static::$settings = array_merge(static::$settings, $item);
+			}
 		}
 	}
 
