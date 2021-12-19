@@ -56,3 +56,75 @@ test('set 404', function () {
 
 	expect(app()->config('app.down'))->toBe(true);
 });
+
+test('leaf middleware', function () {
+	$app = new Leaf\App;
+	app()->config('app.down', false);
+
+	class AppMid extends \Leaf\Middleware {
+		public function call()
+		{
+			app()->config('app.down', true);
+			$this->next();
+		}
+	}
+
+	$_SERVER['REQUEST_METHOD'] = 'GET';
+	$_SERVER['REQUEST_URI'] = '/';
+
+	app()->use(new AppMid);
+	app()->get('/', function () {});
+	app()->run();
+
+	expect(app()->config('app.down'))->toBe(true);
+});
+
+test('in-route middleware', function () {
+	$_SERVER['REQUEST_METHOD'] = 'GET';
+	$_SERVER['REQUEST_URI'] = '/';
+
+	$app = new Leaf\App;
+	$app->config('app.down', false);
+
+	$m = function () use($app) {
+		$app->config('app.down', true);
+	};
+
+	$app->get('/', ['middleware' => $m, function () {}]);
+	$app->run();
+
+	expect($app->config('app.down'))->toBe(true);
+});
+
+test('before route middleware', function () {
+	$_SERVER['REQUEST_METHOD'] = 'GET';
+	$_SERVER['REQUEST_URI'] = '/';
+
+	$app = new Leaf\App;
+
+	$app->config('inTest', 'true');
+	$app->before('GET', '/', function () use($app) {
+		$app->config('inTest', 'false');
+	});
+	$app->get('/', function () {});
+	$app->run();
+
+	expect($app->config('inTest'))->toBe('false');
+});
+
+test('before router middleware', function () {
+	$_SERVER['REQUEST_METHOD'] = 'GET';
+	$_SERVER['REQUEST_URI'] = '/test';
+
+	$app = new Leaf\App;
+	
+	$app->config('inTest2', 'true');
+
+	$app->before('GET', '/.*', function () use($app) {
+		$app->config('inTest2', 'false');
+	});
+	$app->get('/test', function () {});
+	$app->run();
+
+	expect($app->config('inTest2'))->toBe('false');
+});
