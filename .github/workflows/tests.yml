@@ -8,11 +8,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        php: ['8.0', '8.1']
-        dependency-version: [prefer-lowest, prefer-stable]
-        parallel: ['', '--parallel']
+        php: ['8.0']
 
-    name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }} - ${{ matrix.parallel }}
+    name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
 
     steps:
     - name: Checkout
@@ -30,7 +28,7 @@ jobs:
     #     echo "::add-matcher::${{ runner.tool_cache }}/php.json"
     #     echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
     - name: Install PHP dependencies
-      run: composer update --${{ matrix.dependency-version }} --no-interaction --no-progress
+      run: composer update --no-interaction --no-progress
 
     - name: All Tests
       run: php bin/pest --colors=always
