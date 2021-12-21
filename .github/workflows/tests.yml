@@ -21,10 +21,10 @@ jobs:
       with:
         php-version: ${{ matrix.php }}
         tools: composer:v2
-        coverage: none
+        coverage: xdebug
 
     - name: Install PHP dependencies
       run: composer update --no-interaction --no-progress
 
     - name: All Tests
-      run: php vendor/bin/pest --colors=always
+      run: php vendor/bin/pest --colors=always --coverage
