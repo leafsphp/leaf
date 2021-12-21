@@ -1,6 +1,16 @@
-test
-Experimental
-vendor
-composer.lock
-.DS_Store
+# Global
 .phpunit*
+.composer
+composer.lock
+package-lock.json
+vendor/
+
+# OS Generated
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.swp
+
+# phpstorm
+.idea/*

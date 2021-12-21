@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leaf;
 
 /**
@@ -75,7 +77,7 @@ class App extends Router
 		}
 
 		error_reporting($debugConfig[0]);
-		ini_set('display_errors', $debugConfig[1]);
+		ini_set('display_errors', (string) $debugConfig[1]);
 
 		$this->setErrorHandler($debugConfig[2], $debugConfig[3]);
 	}
