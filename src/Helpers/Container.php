@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Leaf\Helpers;
 
 /**
@@ -9,7 +11,7 @@ namespace Leaf\Helpers;
  * 
  * @since v2.0
  */
-class Container implements \ArrayAccess, \Countable, \IteratorAggregate
+class Container
 {
 	/**
 	 * Key-value array of arbitrary data
@@ -191,7 +193,6 @@ class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Countable
 	 */
-
 	public function count()
 	{
 		return count($this->data);
@@ -200,7 +201,6 @@ class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * IteratorAggregate
 	 */
-
 	public function getIterator()
 	{
 		return new \ArrayIterator($this->data);
