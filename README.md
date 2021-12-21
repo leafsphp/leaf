@@ -161,8 +161,6 @@ To report a security vulnerability, you can reach out to [@mychidarko](https://t
 				<sub><b>Tobias Herber</b></sub>
 			</a>
 		</td>
-	</tr>
-	<tr>
 		<td align="center">
 			<a href="https://github.com/pjotrsavitski">
 				<img src="https://avatars.githubusercontent.com/u/518331?&v=4" width="100%" alt=""/>
@@ -170,6 +168,8 @@ To report a security vulnerability, you can reach out to [@mychidarko](https://t
 				<sub><b>Pjotr Savitski</b></sub>
 			</a>
 		</td>
+	</tr>
+	<tr>
 		<td align="center">
 			<a href="https://github.com/pablouser1">
 				<img src="https://avatars.githubusercontent.com/u/17802865?&v=4" width="100%" alt=""/>
@@ -182,6 +182,13 @@ To report a security vulnerability, you can reach out to [@mychidarko](https://t
 				<img src="https://avatars.githubusercontent.com/u/7316730?v=4" width="100%" alt=""/>
 				<br />
 				<sub><b>jess</b></sub>
+			</a>
+		</td>
+		<td align="center">
+			<a href="https://github.com/Awilum">
+				<img src="https://avatars.githubusercontent.com/u/477114?v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>Sergey Romanenko</b></sub>
 			</a>
 		</td>
 	</tr>

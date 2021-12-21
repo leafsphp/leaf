@@ -4,6 +4,7 @@
 composer.lock
 package-lock.json
 vendor/
+test/
 
 # OS Generated
 .DS_Store*
