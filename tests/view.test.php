@@ -1,7 +1,5 @@
 <?php
 
-use function PHPUnit\Framework\assertFalse;
-
 class TView {
 	static $num = 1;
 
