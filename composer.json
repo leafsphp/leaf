@@ -36,6 +36,7 @@
 		"leafs/anchor": "^1.1"
 	},
 	"require-dev": {
-		"pestphp/pest": "^1.21"
+		"pestphp/pest": "^1.21",
+		"symfony/var-dumper": "^5.4.0"
 	}
 }
