@@ -12,20 +12,19 @@ namespace Leaf;
 class Config
 {
 	protected static $settings = [
-		"app" => null,
-		"app.down" => false,
-		"mode" => "development",
-		"debug" => true,
-		"log.writer" => null,
-		"log.level" => null,
-		"log.enabled" => false,
-		"log.dir" => __DIR__ . "/../../../../storage/logs/",
-		"log.file" => "log.txt",
-		"log.open" => true,
-		"http.version" => "1.1",
-		// views
-		"views.path" => null,
-		"views.cachePath" => null,
+		'app' => ['down' => false, 'instance' => null],
+		'mode' => 'development',
+		'debug' => true,
+		'log' => [
+			'writer' => null,
+			'level' => null,
+			'enabled' => false,
+			'dir' => __DIR__ . '/../../../../storage/logs/',
+			'file' => 'log.txt',
+			'open' => true,
+		],
+		'http' => ['version' => '1.1'],
+		'views' => ['path' => null, 'cachePath' => null],
 	];
 
 	/**
@@ -37,14 +36,36 @@ class Config
 	public static function set($item, $value = null)
 	{
 		if (is_string($item)) {
-			static::$settings[$item] = $value;
-		} else {
-			if ($value === true) {
-				static::$settings = array_merge_recursive(static::$settings, $item);
+			if (!strpos($item, '.')) {
+				static::$settings[$item] = $value;
 			} else {
-				static::$settings = array_merge(static::$settings, $item);
+				static::$settings = array_merge(
+					static::$settings,
+					static::mapConfig($item, $value)
+				);
+			}
+		} else {
+			foreach ($item as $k => $v) {
+				static::set($k, $v);
 			}
 		}
+	}
+
+	/**
+	 * Map nested config to their parents recursively
+	 */
+	protected static function mapConfig(string $item, $value = null)
+	{
+		$config = explode('.', $item);
+
+		if (count($config) > 2) {
+			trigger_error('Nested config can\'t be more than 1 level deep');
+		}
+
+		return [$config[0] => array_merge(
+			static::$settings[$config[0]] ?? [],
+			[$config[1] => $value]
+		)];
 	}
 
 	/**
@@ -55,6 +76,12 @@ class Config
 	public static function get($item = null)
 	{
 		if ($item) {
+			$items = explode('.', $item);
+
+			if (count($items) > 1) {
+				return static::$settings[$items[0]][$items[1]];
+			}
+
 			return static::$settings[$item] ?? null;
 		}
 
