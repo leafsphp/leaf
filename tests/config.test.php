@@ -19,3 +19,13 @@ test('centralized config after init', function () {
 
 	expect($appMode)->toBe($testMode);
 });
+
+test('nested config', function () {
+	app()->config('app.key', '2');
+
+	$appConfig = app()->config('app');
+
+	expect(isset($appConfig['key']))->toBeTrue();
+	expect($appConfig['key'])->toBe('2');
+	expect(app()->config('app.key'))->toBe('2');
+});
