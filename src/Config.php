@@ -63,7 +63,7 @@ class Config
 		}
 
 		return [$config[0] => array_merge(
-			static::$settings[$config[0]],
+			static::$settings[$config[0]] ?? [],
 			[$config[1] => $value]
 		)];
 	}
