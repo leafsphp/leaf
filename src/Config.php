@@ -79,7 +79,7 @@ class Config
 			$items = explode('.', $item);
 
 			if (count($items) > 1) {
-				return static::$settings[$items[0]][$items[1]];
+				return static::$settings[$items[0]][$items[1]] ?? null;
 			}
 
 			return static::$settings[$item] ?? null;
