@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-if (!function_exists('app')) {
-	/**
-	 * Return the Leaf instance
-	 * 
-	 * @return Leaf\App
-	 */
-	function app()
-	{
-		$app = Leaf\Config::get("app")["instance"] ?? null;
+if (! function_exists('app')) {
+    /**
+     * Return the Leaf instance
+     *
+     * @return Leaf\App
+     */
+    function app()
+    {
+        $app = Leaf\Config::get("app")["instance"] ?? null;
 
-		if (!$app) {
-			$app = new Leaf\App;
-			Leaf\Config::set("app", ["instance" => $app]);
-		}
+        if (! $app) {
+            $app = new Leaf\App();
+            Leaf\Config::set("app", ["instance" => $app]);
+        }
 
-		return $app;
-	}
+        return $app;
+    }
 }
 
-if (!function_exists('_env')) {
+if (! function_exists('_env')) {
     /**
      * Gets the value of an environment variable.
      *
@@ -33,7 +33,7 @@ if (!function_exists('_env')) {
     {
         $item = getenv($key);
 
-        if (!isset($_ENV[$key]) || (isset($_ENV[$key]) && $_ENV[$key] == null)) {
+        if (! isset($_ENV[$key]) || (isset($_ENV[$key]) && $_ENV[$key] == null)) {
             $item = $default;
         }
 
