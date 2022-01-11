@@ -59,7 +59,7 @@ class General extends \Exception
      */
     public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '')
     {
-        if (! ($errno & error_reporting())) {
+        if (!($errno & error_reporting())) {
             return;
         }
 
@@ -91,7 +91,7 @@ class General extends \Exception
      */
     public static function toException($errno, $errstr = '', $errfile = '', $errline = '')
     {
-        if (! ($errno & error_reporting())) {
+        if (!($errno & error_reporting())) {
             return;
         }
 

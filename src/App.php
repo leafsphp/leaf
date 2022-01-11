@@ -45,11 +45,11 @@ class App extends Router
         }
 
         if (class_exists('\Leaf\Anchor\CSRF')) {
-            if (! Anchor\CSRF::token()) {
+            if (!Anchor\CSRF::token()) {
                 Anchor\CSRF::init();
             }
 
-            if (! Anchor\CSRF::verify()) {
+            if (!Anchor\CSRF::verify()) {
                 $csrfError = Anchor\CSRF::errors()['token'];
                 Http\Response::status(400);
                 echo Exception\General::csrf($csrfError);
@@ -254,7 +254,7 @@ class App extends Router
      */
     public function logger()
     {
-        if (! $this->log) {
+        if (!$this->log) {
             trigger_error('You need to enable logging to use this feature! Set log.enabled to true and install the logger module');
         }
 

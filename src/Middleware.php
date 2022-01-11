@@ -57,7 +57,7 @@ abstract class Middleware
     {
         $nextMiddleware = $this->next;
 
-        if (! $nextMiddleware) {
+        if (!$nextMiddleware) {
             return;
         }
 

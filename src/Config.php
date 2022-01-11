@@ -36,7 +36,7 @@ class Config
     public static function set($item, $value = null)
     {
         if (is_string($item)) {
-            if (! strpos($item, '.')) {
+            if (!strpos($item, '.')) {
                 static::$settings[$item] = $value;
             } else {
                 static::$settings = array_merge(
