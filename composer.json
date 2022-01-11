@@ -40,6 +40,7 @@
 		"friendsofphp/php-cs-fixer": "^3.0"
 	},
 	"scripts": {
-        "format": "vendor/bin/php-cs-fixer fix --config=.php_cs.dist.php --allow-risky=yes"
+        "format": "vendor/bin/php-cs-fixer fix --config=.php_cs.dist.php --allow-risky=yes",
+        "test": "vendor/bin/pest"
     }
 }
