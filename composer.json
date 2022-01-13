@@ -36,6 +36,11 @@
 		"leafs/anchor": "^1.1"
 	},
 	"require-dev": {
-		"pestphp/pest": "^1.21"
-	}
+		"pestphp/pest": "^1.21",
+		"friendsofphp/php-cs-fixer": "^3.0"
+	},
+	"scripts": {
+        "format": "vendor/bin/php-cs-fixer fix --config=.php_cs.dist.php --allow-risky=yes",
+        "test": "vendor/bin/pest"
+    }
 }
