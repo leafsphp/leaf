@@ -10,7 +10,7 @@ namespace Leaf;
  * The easiest way to build simple but powerful apps and APIs quickly.
  *
  * @author Michael Darko <mickdd22@gmail.com>
- * @copyright 2019-2021 Michael Darko
+ * @copyright 2019-2022 Michael Darko
  * @link https://leafphp.dev
  * @license MIT
  * @package Leaf
