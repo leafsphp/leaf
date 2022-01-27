@@ -10,7 +10,7 @@ namespace Leaf;
  * The easiest way to build simple but powerful apps and APIs quickly.
  *
  * @author Michael Darko <mickdd22@gmail.com>
- * @copyright 2019-2021 Michael Darko
+ * @copyright 2019-2022 Michael Darko
  * @link https://leafphp.dev
  * @license MIT
  * @package Leaf
@@ -70,16 +70,17 @@ class App extends Router
 
     protected function setupErrorHandler()
     {
-        if ($this->config('debug')) {
-            $debugConfig = [E_ALL, 1, ['\Leaf\Exception\General', 'handleErrors'], false];
+        if ($this->config('debug') === true) {
+            $debugConfig = [E_ALL, 1];
+            $this->errorHandler = (new \Leaf\Exception\Run());
+            $this->errorHandler->register();
         } else {
-            $debugConfig = [0, 0, ['\Leaf\Exception\General', 'defaultError'], true];
+            $debugConfig = [0, 0];
+            $this->setErrorHandler(['\Leaf\Exception\General', 'defaultError'], true);
         }
 
         error_reporting($debugConfig[0]);
         ini_set('display_errors', (string) $debugConfig[1]);
-
-        $this->setErrorHandler($debugConfig[2], $debugConfig[3]);
     }
 
     /**
@@ -90,6 +91,15 @@ class App extends Router
     public function setErrorHandler($handler, bool $wrapper = true)
     {
         $errorHandler = $handler;
+
+        if ($this->errorHandler instanceof \Leaf\Exception\Run) {
+            $this->errorHandler->unregister();
+        }
+
+        if ($handler instanceof \Leaf\Exception\Handler\Handler) {
+            $this->errorHandler = new \Leaf\Exception\Run();
+            $this->errorHandler->pushHandler($handler)->register();
+        }
 
         if ($wrapper) {
             $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
@@ -241,6 +251,7 @@ class App extends Router
         }
 
         Config::set($name, $value);
+        $this->setupErrorHandler();
     }
 
     /********************************************************************************
@@ -359,35 +370,6 @@ class App extends Router
         Http\Response::markup($message);
 
         exit();
-    }
-
-    /**
-     * Stop
-     *
-     * The thrown exception will be caught in application's `call()` method
-     * and the response will be sent as is to the HTTP client.
-     *
-     * @throws \Leaf\Exception\Stop
-     */
-    public function stop()
-    {
-        throw new \Leaf\Exception\Stop();
-    }
-
-    /**
-     * Pass
-     *
-     * The thrown exception is caught in the application's `call()` method causing
-     * the router's current iteration to stop and continue to the subsequent route if available.
-     * If no subsequent matching routes are found, a 404 response will be sent to the client.
-     *
-     * @throws \Leaf\Exception\Pass
-     */
-    public function pass()
-    {
-        $this->cleanBuffer();
-
-        throw new \Leaf\Exception\Pass();
     }
 
     /**
