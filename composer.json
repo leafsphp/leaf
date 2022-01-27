@@ -31,9 +31,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"require": {
-		"leafs/http": "^1.1",
-		"leafs/router": "^0.1.4",
-		"leafs/anchor": "^1.1"
+		"leafs/http": "^1.2",
+		"leafs/router": "^0.1.5",
+		"leafs/anchor": "^1.2",
+		"leafs/exception": "^3.0"
 	},
 	"require-dev": {
 		"pestphp/pest": "^1.21",
@@ -42,5 +43,10 @@
 	"scripts": {
         "format": "vendor/bin/php-cs-fixer fix --config=.php_cs.dist.php --allow-risky=yes",
         "test": "vendor/bin/pest"
-    }
+    },
+	"config": {
+		"allow-plugins": {
+			"pestphp/pest-plugin": true
+		}
+	}
 }

@@ -7,49 +7,32 @@ test('application accessors', function () {
 });
 
 test('app mode', function () {
-    app()->config('app.down', false);
-
     $_SERVER['REQUEST_METHOD'] = 'GET';
     $_SERVER['REQUEST_URI'] = '/';
 
+    app()->setBasePath('/');
+
+    app()->config('test', false);
     app()->config('mode', 'TEST');
-    app()->get('/', function () {
+
+    app()->set404(function () {
     });
+
     app()->script('TEST', function () {
-        app()->config('app.down', true);
+        app()->config('test', true);
     });
 
     app()->run();
 
     expect(app()->config('mode'))->toBe('TEST');
-    expect(app()->config('app.down'))->toBe(true);
-});
-
-test('set error handler', function () {
-    app()->config('app.down', false);
-
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    $_SERVER['REQUEST_URI'] = '/';
-
-    // create an error to trigger error handler
-    app()->get('/', function () {
-        $app;
-    });
-
-    app()->setErrorHandler(function () {
-        app()->config('app.down', true);
-    });
-
-    app()->run();
-
-    expect(app()->config('app.down'))->toBe(true);
+    expect(app()->config('test'))->toBe(true);
 });
 
 test('set 404', function () {
     app()->config('app.down', false);
 
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    $_SERVER['REQUEST_URI'] = '/';
+    $_SERVER['REQUEST_METHOD'] = 'POST';
+    $_SERVER['REQUEST_URI'] = '/home';
 
     app()->set404(function () {
         app()->config('app.down', true);
