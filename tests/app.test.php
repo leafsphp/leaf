@@ -7,15 +7,16 @@ test('application accessors', function () {
 });
 
 test('app mode', function () {
-	$_SERVER['REQUEST_METHOD'] = 'GET';
-	$_SERVER['REQUEST_URI'] = '/';
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/';
 
-	app()->setBasePath('/');
+    app()->setBasePath('/');
 
-	app()->config('test', false);
-	app()->config('mode', 'TEST');
+    app()->config('test', false);
+    app()->config('mode', 'TEST');
 
-	app()->set404(function () {});
+    app()->set404(function () {
+    });
 
     app()->script('TEST', function () {
         app()->config('test', true);
