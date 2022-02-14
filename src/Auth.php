@@ -2,222 +2,536 @@
 
 namespace Leaf;
 
+use Leaf\Auth\Core;
+use Leaf\Helpers\Authentication;
+use Leaf\Helpers\Password;
+
 /**
  * Leaf Simple Auth
  * -------------------------
- * Authentication made easy.
+ * Simple, straightforward authentication.
  *
  * @author Michael Darko
  * @since 1.5.0
  * @version 2.0.0
  */
-class Auth
+class Auth extends Core
 {
-	/**
-	 * Create a db connection
-	 *
-	 * @param string $host The db name
-	 * @param string $user
-	 * @param string $password
-	 * @param string $dbname
-	 */
-	public static function connect(string $host, string $user, string $password, string $dbname): void
-	{
-		Auth\Core::connect($host, $user, $password, $dbname);
-	}
+    /**
+     * Simple user login
+     *
+     * @param array $credentials User credentials
+     *
+     * @return array|null null or all user info + tokens + session data
+     */
+    public static function login(array $credentials) {
+        static::leafDbConnect();
 
-	/**
-	 * Create a database connection from env variables
-	 */
-	public static function autoConnect()
-	{
-		Auth\Core::autoConnect();
-	}
+        $table = static::$settings['DB_TABLE'];
 
-	/**
-	 * Set auth config
-	 */
-	public static function config($config, $value = null)
-	{
-		return Auth\Core::config($config, $value);
-	}
+        if (static::config('USE_SESSION')) {
+            static::useSession();
+        }
 
-	/**
-	 * Simple user login
-	 *
-	 * @param string table: Table to look for users
-	 * @param array $credentials User credentials
-	 * @param array $validate Validation for parameters
-	 *
-	 * @return array user: all user info + tokens + session data
-	 */
-	public static function login(string $table, array $credentials, array $validate = []): array
-	{
-		return Auth\Login::user($table, $credentials, $validate);
-	}
+        $passKey = static::$settings['PASSWORD_KEY'];
+        $password = $credentials[$passKey] ?? null;
 
-	/**
-	 * Simple user registration
-	 *
-	 * @param string $table Table to store user in
-	 * @param array $credentials Information for new user
-	 * @param array $uniques Parameters which should be unique
-	 * @param array $validate Validation for parameters
-	 *
-	 * @return array user: all user info + tokens + session data
-	 */
-	public static function register(string $table, array $credentials, array $uniques = [], array $validate = []): array
-	{
-		return Auth\Register::user($table, $credentials, $uniques, $validate);
-	}
+        if (isset($credentials[$passKey])) {
+            unset($credentials[$passKey]);
+        } else {
+            static::$settings['AUTH_NO_PASS'] = true;
+        }
 
-	/**
-	 * Simple user update
-	 *
-	 * @param string $table Table to store user in
-	 * @param array $credentials New information for user
-	 * @param array $where Information to find user by
-	 * @param array $uniques Parameters which should be unique
-	 * @param array $validate Validation for parameters
-	 *
-	 * @return array user: all user info + tokens + session data
-	 */
-	public static function update(string $table, array $credentials, array $where, array $uniques = [], array $validate = []): array
-	{
-		return Auth\User::update($table, $credentials, $where, $uniques, $validate);
-	}
+        $user = static::$db->select($table)->where($credentials)->fetchAssoc();
 
-	/**
-	 * Validate Json Web Token
-	 *
-	 * @param string $token The token validate
-	 * @param string|null $secretKey The secret key used to encode token
-	 */
-	public static function validate(string $token, string $secretKey = null)
-	{
-		return Auth\User::validate($token, $secretKey);
-	}
+        if (!$user) {
+            static::$errors['auth'] = static::$settings['LOGIN_PARAMS_ERROR'];
+            return null;
+        }
 
-	/**
-	 * Validate Bearer Token
-	 *
-	 * @param string|null $secretKey The secret key used to encode token
-	 */
-	public static function validateToken(string $secretKey = null)
-	{
-		return Auth\User::validateToken($secretKey);
-	}
+        if (static::$settings['AUTH_NO_PASS'] === false) {
+            $passwordIsValid = true;
 
-	/**
-	 * Get Bearer token
-	 */
-	public static function getBearerToken()
-	{
-		return Auth\User::getBearerToken();
-	}
+            if (static::$settings['PASSWORD_VERIFY'] !== false && isset($user[$passKey])) {
+                if (is_callable(static::$settings['PASSWORD_VERIFY'])) {
+                    $passwordIsValid = call_user_func(static::$settings['PASSWORD_VERIFY'], $password, $user[$passKey]);
+                } else if (static::$settings['PASSWORD_VERIFY'] === Password::MD5) {
+                    $passwordIsValid = (md5($password) === $user[$passKey]);
+                } else {
+                    $passwordIsValid = Password::verify($password, $user[$passKey]);
+                }
+            }
 
-	/**
-	 * Get the current user data from token
-	 *
-	 * @param string $table The table to look for user
-	 * @param array $hidden Fields to hide from user array
-	 */
-	public static function user(string $table = "users", array $hidden = [])
-	{
-		return Auth\User::info($table, $hidden);
-	}
+            if (!$passwordIsValid) {
+                static::$errors['password'] = static::$settings['LOGIN_PASSWORD_ERROR'];
+                return null;
+            }
+        }
 
-	/**
-	 * Return the user id encoded in token
-	 */
-	public static function id()
-	{
-		return Auth\User::id();
-	}
+        $token = Authentication::generateSimpleToken(
+            $user[static::$settings['ID_KEY']],
+            static::config('TOKEN_SECRET'),
+            static::config('TOKEN_LIFETIME')
+        );
 
-	/**
-	 * Return form field
-	 */
-	public static function get($param)
-	{
-		return Auth\Core::$form->get($param);
-	}
+        if (isset($user[static::$settings['ID_KEY']])) {
+            $userId = $user[static::$settings['ID_KEY']];
+        }
 
-	/**
-	 * Manually start an auth session
-	 */
-	public static function useSession()
-	{
-		Auth\Session::init();
-	}
+        if (static::$settings['HIDE_ID']) {
+            unset($user[static::$settings['ID_KEY']]);
+        }
 
-	/**
-	 * Session Length
-	 */
-	public static function sessionLength()
-	{
-		return Auth\Session::length();
-	}
+        if (static::$settings['HIDE_PASSWORD'] && (isset($user[$passKey]) || !$user[$passKey])) {
+            unset($user[$passKey]);
+        }
 
-	/**
-	 * Session last active
-	 * 
-	 * @deprecated Use `Auth\Session::lastActive()` instead
-	 */
-	public static function sessionActive()
-	{
-		return Auth\Session::lastActive();
-	}
+        if (!$token) {
+            static::$errors = array_merge(static::$errors, Authentication::errors());
+            return null;
+        }
 
-	/**
-	 * Check session status
-	 */
-	protected static function session()
-	{
-		return Auth\Session::status();
-	}
+        if (static::config('USE_SESSION')) {
+            if (isset($userId)) {
+                $user[static::$settings['ID_KEY']] = $userId;
+            }
 
-	/**
-	 * End a session
-	 */
-	public static function endSession($location = null)
-	{
-		return Auth\Session::end($location);
-	}
+            static::$session->set('AUTH_USER', $user);
+            static::$session->set('HAS_SESSION', true);
 
-	/**
-	 * Define/Return session middleware
-	 *
-	 * **This method only works with session auth**
-	 */
-	public static function middleware(string $name, callable $handler = null)
-	{
-		return Auth\Session::middleware($name, $handler);
-	}
+            if (static::config('SAVE_SESSION_JWT')) {
+                static::$session->set('AUTH_TOKEN', $token);
+            }
 
-	/**
-	 * Save some data to auth session
-	 * 
-	 * @deprecated Use `Auth::save()` instead
-	 */
-	public static function saveToSession($key, $data = null)
-	{
-		Auth\Session::save($key, $data);
-	}
+            exit(header('location: ' . static::config('GUARD_HOME')));
+        }
 
-	/**
-	 * Save some data to auth session
-	 */
-	public static function save($key, $data = null)
-	{
-		Auth\Session::save($key, $data);
-	}
+        $response['user'] = $user;
+        $response['token'] = $token;
 
-	/**
-	 * Get all authentication errors as associative array
-	 */
-	public static function errors(): array
-	{
-		return Auth\Core::errors();
-	}
+        return $response;
+    }
+
+    /**
+     * Simple user registration
+     *
+     * @param array $credentials Information for new user
+     * @param array $uniques Parameters which should be unique
+     *
+     * @return array null or all user info + tokens + session data
+     */
+    public static function register(array $credentials, array $uniques = []) {
+        static::leafDbConnect();
+
+        $table = static::$settings['DB_TABLE'];
+        $passKey = static::$settings['PASSWORD_KEY'];
+
+        if (!isset($credentials[$passKey])) {
+            static::$settings['AUTH_NO_PASS'] = true;
+        }
+
+        if (static::$settings['AUTH_NO_PASS'] === false) {
+            if (static::$settings['PASSWORD_ENCODE'] !== false) {
+                if (is_callable(static::$settings['PASSWORD_ENCODE'])) {
+                    $credentials[$passKey] = call_user_func(static::$settings['PASSWORD_ENCODE'], $credentials[$passKey]);
+                } else if (static::$settings['PASSWORD_ENCODE'] === 'md5') {
+                    $credentials[$passKey] = md5($credentials[$passKey]);
+                } else {
+                    $credentials[$passKey] = Password::hash($credentials[$passKey]);
+                }
+            }
+        }
+
+        if (static::$settings['USE_TIMESTAMPS']) {
+            $now = Date::now();
+            $credentials['created_at'] = $now;
+            $credentials['updated_at'] = $now;
+        }
+
+        if (static::$settings['USE_UUID'] !== false) {
+            $credentials[static::$settings['ID_KEY']] = static::$settings['USE_UUID'];
+        }
+
+        try {
+            $query = static::$db->insert($table)->params($credentials)->unique($uniques)->execute();
+        } catch (\Throwable $th) {
+            trigger_error($th->getMessage());
+        }
+
+        if (!$query) {
+            static::$errors = array_merge(static::$errors, static::$db->errors());
+            return null;
+        }
+
+        $user = static::$db->select($table)->where($credentials)->fetchAssoc();
+
+        if (!$user) {
+            static::$errors = array_merge(static::$errors, static::$db->errors());
+            return null;
+        }
+
+        $token = Authentication::generateSimpleToken(
+            $user[static::$settings['ID_KEY']],
+            static::config('TOKEN_SECRET'),
+            static::config('TOKEN_LIFETIME')
+        );
+
+        if (isset($user[static::$settings['ID_KEY']])) {
+            $userId = $user[static::$settings['ID_KEY']];
+        }
+
+        if (static::$settings['HIDE_ID']) {
+            unset($user[static::$settings['ID_KEY']]);
+        }
+
+        if (static::$settings['HIDE_PASSWORD'] && (isset($user[$passKey]) || !$user[$passKey])) {
+            unset($user[$passKey]);
+        }
+
+        if (!$token) {
+            static::$errors = array_merge(static::$errors, Authentication::errors());
+            return null;
+        }
+
+        if (static::config('USE_SESSION')) {
+            if (static::config('SESSION_ON_REGISTER')) {
+                if (isset($userId)) {
+                    $user[static::$settings['ID_KEY']] = $userId;
+                }
+
+                static::$session->set('AUTH_USER', $user);
+                static::$session->set('HAS_SESSION', true);
+
+                if (static::config('SAVE_SESSION_JWT')) {
+                    static::$session->set('AUTH_TOKEN', $token);
+                }
+
+                exit(header('location: ' . static::config('GUARD_HOME')));
+            } else {
+                exit(header('location: ' . static::config('GUARD_LOGIN')));
+            }
+        }
+
+        $response['user'] = $user;
+        $response['token'] = $token;
+
+        return $response;
+    }
+
+    /**
+     * Simple user update
+     *
+     * @param array $credentials New information for user
+     * @param array $uniques Parameters which should be unique
+     *
+     * @return array all user info + tokens + session data
+     */
+    public static function update(array $credentials, array $uniques = [])
+    {
+        static::leafDbConnect();
+
+        $table = static::$settings['DB_TABLE'];
+
+        if (static::config('USE_SESSION')) {
+            static::useSession();
+        }
+
+        $passKey = static::$settings['PASSWORD_KEY'];
+        $loggedInUser = static::user();
+
+        if (!$loggedInUser) {
+            static::$errors['auth'] = 'Not authenticated';
+            return null;
+        }
+
+        $where = isset($loggedInUser[static::$settings['ID_KEY']]) ? [static::$settings['ID_KEY'] => $loggedInUser[static::$settings['ID_KEY']]] : $loggedInUser;
+
+        if (!isset($credentials[$passKey])) {
+            static::$settings['AUTH_NO_PASS'] = true;
+        }
+
+        if (
+            static::$settings['AUTH_NO_PASS'] === false &&
+            static::$settings['PASSWORD_ENCODE'] !== false
+        ) {
+            if (is_callable(static::$settings['PASSWORD_ENCODE'])) {
+                $credentials[$passKey] = call_user_func(static::$settings['PASSWORD_ENCODE'], $credentials[$passKey]);
+            } else if (static::$settings['PASSWORD_ENCODE'] === 'md5') {
+                $credentials[$passKey] = md5($credentials[$passKey]);
+            } else {
+                $credentials[$passKey] = Password::hash($credentials[$passKey]);
+            }
+        }
+
+        if (static::$settings['USE_TIMESTAMPS']) {
+            $credentials['updated_at'] = Date::now();
+        }
+
+        if (count($uniques) > 0) {
+            foreach ($uniques as $unique) {
+                if (!isset($credentials[$unique])) {
+                    trigger_error("$unique not found in credentials.");
+                }
+
+                $data = static::$db->select($table)->where($unique, $credentials[$unique])->fetchAssoc();
+
+                $wKeys = array_keys($where);
+                $wValues = array_values($where);
+
+                if (isset($data[$wKeys[0]]) && $data[$wKeys[0]] != $wValues[0]) {
+                    static::$errors[$unique] = "$unique already exists";
+                }
+            }
+
+            if (count(static::$errors) > 0) return null;
+        }
+
+        try {
+            $query = static::$db->update($table)->params($credentials)->where($where)->execute();
+        } catch (\Throwable $th) {
+            trigger_error($th->getMessage());
+        }
+
+        if (!$query) {
+            static::$errors = array_merge(static::$errors, static::$db->errors());
+            return null;
+        }
+
+        if (isset($credentials['updated_at'])) {
+            unset($credentials['updated_at']);
+        }
+
+        $user = static::$db->select($table)->where($credentials)->fetchAssoc();
+        if (!$user) {
+            static::$errors = array_merge(static::$errors, static::$db->errors());
+            return null;
+        }
+
+        $token = Authentication::generateSimpleToken(
+            $user[static::$settings['ID_KEY']],
+            static::config('TOKEN_SECRET'),
+            static::config('TOKEN_LIFETIME')
+        );
+
+        if (isset($user[static::$settings['ID_KEY']])) {
+            $userId = $user[static::$settings['ID_KEY']];
+        }
+
+        if (static::$settings['HIDE_ID'] && isset($user[static::$settings['ID_KEY']])) {
+            unset($user[static::$settings['ID_KEY']]);
+        }
+
+        if (static::$settings['HIDE_PASSWORD'] && (isset($user[$passKey]) || !$user[$passKey])) {
+            unset($user[$passKey]);
+        }
+
+        if (!$token) {
+            static::$errors = array_merge(static::$errors, Authentication::errors());
+            return null;
+        }
+
+        if (static::config('USE_SESSION')) {
+            if (isset($userId)) {
+                $user[static::$settings['ID_KEY']] = $userId;
+            }
+
+            static::$session->set('AUTH_USER', $user);
+            static::$session->set('HAS_SESSION', true);
+
+            if (static::config('SAVE_SESSION_JWT')) {
+                static::$session->set('AUTH_TOKEN', $token);
+            }
+
+            return $user;
+        }
+
+        $response['user'] = $user;
+        $response['token'] = $token;
+
+        return $response;
+    }
+
+    /**
+     * Validation for parameters
+     * 
+     * @param array $rules Rules for parameter validation
+     */
+    public function validate(array $rules): bool
+    {
+        $validation = Form::validate($rules);
+
+        if (!$validation) {
+            static::$errors = array_merge(static::$errors, Form::errors());
+        }
+
+        return $validation;
+    }
+
+    /**
+     * Manually start an auth session
+     */
+    public static function useSession()
+    {
+        static::config('USE_SESSION', true);
+        static::$session = Auth\Session::init();
+    }
+
+    /**
+     * Throw a 'use session' warning
+     */
+    protected static function sessionCheck()
+    {
+        if (!static::config('USE_SESSION')) {
+            trigger_error('Turn on USE_SESSION to use this feature.');
+        }
+
+        if (!static::$session) {
+            static::useSession();
+        }
+    }
+
+    /**
+     * A simple auth guard: 'guest' pages can't be viewed when logged in,
+     * 'auth' pages can't be viewed without authentication
+     *
+     * @param string $type The type of guard/guard options
+     */
+    public static function guard(string $type)
+    {
+        static::sessionCheck();
+
+        if ($type === 'guest' && static::status()) {
+            exit(header('location: ' . static::config('GUARD_HOME'), true, 302));
+        }
+
+        if ($type === 'auth' && !static::status()) {
+            exit(header('location: ' . static::config('GUARD_LOGIN'), true, 302));
+        }
+    }
+
+    /**
+     * Check session status
+     */
+    public static function status()
+    {
+        static::sessionCheck();
+
+        return static::$session->get('AUTH_USER') ?? false;
+    }
+
+    /**
+     * Return the user id encoded in token or session
+     */
+    public static function id()
+    {
+        static::leafDbConnect();
+
+        if (static::config('USE_SESSION')) {
+            return static::$session->get('AUTH_USER')[static::$settings['ID_KEY']] ?? null;
+        }
+
+        $payload = static::validateToken(static::config('TOKEN_SECRET'));
+        if (!$payload) return null;
+        return $payload->user_id;
+    }
+
+    /**
+     * Get the current user data from token
+     *
+     * @param array $hidden Fields to hide from user array
+     */
+    public static function user(array $hidden = [])
+    {
+        $table = static::$settings['DB_TABLE'];
+
+        if (!static::id()) {
+            if (static::config('USE_SESSION')) {
+                return static::$session->get('AUTH_USER');
+            }
+
+            return null;
+        }
+
+        $user = static::$db->select($table)->where('id', static::id())->fetchAssoc();
+
+        if (count($hidden) > 0) {
+            foreach ($hidden as $item) {
+                if (isset($user[$item]) || !$user[$item]) {
+                    unset($user[$item]);
+                }
+            }
+        }
+
+        return $user;
+    }
+
+    /**
+     * End a session
+     * 
+     * @param string $location A route to redirect to after logout
+     */
+    public static function logout(?string $location = null)
+    {
+        static::sessionCheck();
+
+        static::$session->destroy();
+
+        if (is_string($location)) {
+            $route = static::config($location) ?? $location;
+            exit(\Leaf\Http\Response::redirect($route));
+        }
+    }
+
+    /**
+     * Session last active
+     */
+    public static function lastActive()
+    {
+        static::sessionCheck();
+
+        return time() - static::$session->get('SESSION_LAST_ACTIVITY');
+    }
+
+    /**
+     * Refresh session
+     * 
+     * @param bool $clearData Remove existing session data
+     */
+    public static function refresh(bool $clearData = true)
+    {
+        static::sessionCheck();
+
+        $success = static::$session->regenerate($clearData);
+
+        static::$session->set('SESSION_STARTED_AT', time());
+        static::$session->set('SESSION_LAST_ACTIVITY', time());
+        static::$session->set('AUTH_SESISON', true);
+
+        return $success;
+    }
+
+    /**
+     * Define/Return session middleware
+     * 
+     * @param string $name The name of the middleware to set/get
+     * @param callable|null $handler The handler for the middleware
+     */
+    public static function middleware(string $name, ?callable $handler = null)
+    {
+        static::sessionCheck();
+
+        if (!$handler) return static::$middleware[$name];
+
+        static::$middleware[$name] = $handler;
+    }
+
+    /**
+     * Check how long a session has been going on
+     */
+    public static function length()
+    {
+        static::sessionCheck();
+
+        return time() - static::$session->get('SESSION_STARTED_AT');
+    }
 }
