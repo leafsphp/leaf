@@ -1,15 +1,31 @@
 <!-- markdownlint-disable no-inline-html -->
 <p align="center">
-    <br><br>
-    <img src="https://leafphp.dev/logo-circle.png" height="100"/>
-    <br><br>
+  <br><br>
+  <img src="https://leafphp.dev/logo-circle.png" height="100"/>
+  <br>
 </p>
 
-# Leaf 3
+<h1 align="center">Leaf 3</h1>
 
-[![Latest Stable Version](https://poser.pugx.org/leafs/leaf/v/stable)](https://packagist.org/packages/leafs/leaf)
-[![Total Downloads](https://poser.pugx.org/leafs/leaf/downloads)](https://packagist.org/packages/leafs/leaf)
-[![License](https://poser.pugx.org/leafs/leaf/license)](https://packagist.org/packages/leafs/leaf)
+<p align="center">
+	<a href="https://packagist.org/packages/leafs/leaf"
+		><img
+			src="https://poser.pugx.org/leafs/leaf/v/stable"
+			alt="Latest Stable Version"
+	/></a>
+	<a href="https://packagist.org/packages/leafs/leaf"
+		><img
+			src="https://poser.pugx.org/leafs/leaf/downloads"
+			alt="Total Downloads"
+	/></a>
+	<a href="https://packagist.org/packages/leafs/leaf"
+		><img
+			src="https://poser.pugx.org/leafs/leaf/license"
+			alt="License"
+	/></a>
+</p>
+<br />
+<br />
 
 Leaf is a PHP framework that helps you create clean, simple but powerful web apps and APIs quickly and easily. Leaf introduces a cleaner and much simpler structure to the PHP language while maintaining it's flexibility. With a simple structure and a shallow learning curve, it's an excellent way to rapidly build powerful and high performant web apps and APIs.
 
