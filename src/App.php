@@ -254,6 +254,30 @@ class App extends Router
         $this->setupErrorHandler();
     }
 
+	/**
+	 * Swap out Leaf request instance
+	 * 
+	 * @param mixed $class The new request class to attach
+	 */
+	public function setRequestClass($class)
+	{
+		$this->container->singleton('request', function () {
+			return new \Leaf\Http\Request();
+		});
+	}
+
+	/**
+	 * Swap out Leaf response instance
+	 * 
+	 * @param mixed $class The new response class to attach
+	 */
+	public function setResponseClass($class)
+	{
+		$this->container->singleton('response', function () use($class) {
+			return new $class;
+		});
+	}
+
     /********************************************************************************
      * Logging
      *******************************************************************************/
