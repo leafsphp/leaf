@@ -119,3 +119,18 @@ test('before router middleware', function () {
 
     expect($app->config('inTest2'))->toBe('false');
 });
+
+test('swap out leaf response', function () {
+    class TestResponse extends \Leaf\Http\Response
+    {
+        public function customMethod()
+        {
+            return 'This is some test response';
+        }
+    }
+
+    $leafInstance1 = new \Leaf\App();
+    $leafInstance1->setResponseClass(TestResponse::class);
+
+    expect($leafInstance1->response->customMethod())->toBe('This is some test response');
+});
