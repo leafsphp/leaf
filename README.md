@@ -51,7 +51,7 @@ composer require leafs/leaf
 
 **Install Leaf 2:**
 
-Since leaf 3 is still in beta, you might want to install the stable leaf 2 instead. You can do this with Leaf CLI or composer.
+You can install Leaf 2 in your project with Leaf CLI or composer.
 
 ```sh
 leaf create <project-name> --basic --v2
