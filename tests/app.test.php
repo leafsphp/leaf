@@ -134,3 +134,17 @@ test('swap out leaf response', function () {
 
     expect($leafInstance1->response->customMethod())->toBe('This is some test response');
 });
+
+test('get route info', function () {
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/homepage';
+
+    $routePath = '/homepage';
+
+    app()->get($routePath, function () use ($routePath) {
+        $routeData = app()->getRoute();
+        expect($routeData['path'])->toBe($routePath);
+    });
+
+    app()->run();
+});
