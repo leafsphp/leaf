@@ -136,15 +136,15 @@ test('swap out leaf response', function () {
 });
 
 test('get route info', function () {
-	$_SERVER['REQUEST_METHOD'] = 'GET';
-	$_SERVER['REQUEST_URI'] = '/homepage';
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/homepage';
 
     $routePath = '/homepage';
 
-    app()->get($routePath, function () use($routePath) {
+    app()->get($routePath, function () use ($routePath) {
         $routeData = app()->getRoute();
         expect($routeData['path'])->toBe($routePath);
     });
 
-	app()->run();
+    app()->run();
 });
