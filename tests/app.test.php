@@ -121,17 +121,18 @@ test('before router middleware', function () {
 });
 
 test('swap out leaf response', function () {
-	class TestResponse extends \Leaf\Http\Response {
-		public function customMethod()
-		{
-			return 'This is some test response';
-		}
-	}
+    class TestResponse extends \Leaf\Http\Response
+    {
+        public function customMethod()
+        {
+            return 'This is some test response';
+        }
+    }
 
-	$leafInstance1 = new \Leaf\App();
-	$leafInstance1->setResponseClass(TestResponse::class);
+    $leafInstance1 = new \Leaf\App();
+    $leafInstance1->setResponseClass(TestResponse::class);
 
-	expect($leafInstance1->response->customMethod())->toBe('This is some test response');
+    expect($leafInstance1->response->customMethod())->toBe('This is some test response');
 });
 
 test('get route info', function () {
