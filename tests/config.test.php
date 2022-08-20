@@ -51,7 +51,7 @@ test('nested config (custom group)', function () {
 });
 
 test('Env is successfully retrieved', function () {
-	$user = getenv('USER');
+    $user = getenv('USER');
 
-	expect(_env('USER'))->toBe($user);
+    expect(_env('USER'))->toBe($user);
 });
