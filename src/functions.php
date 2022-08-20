@@ -31,12 +31,12 @@ if (!function_exists('_env')) {
      */
     function _env($key, $default = null)
     {
-        $item = getenv($key);
+		$env = array_merge(getenv(), $_ENV ?? []);
 
-        if (!isset($_ENV[$key]) || (isset($_ENV[$key]) && $_ENV[$key] == null)) {
-            $item = $default;
-        }
+		if (!isset($env[$key]) || (isset($env[$key]) && $env[$key] == null)) {
+			$env[$key] = $default;
+		}
 
-        return $item;
+		return $env[$key];
     }
 }
