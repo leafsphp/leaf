@@ -165,7 +165,7 @@ class App extends Router
 
                 // Default log
                 $this->container->singleton('log', function ($c) {
-                    $log = new \Leaf\Log($c['logWriter']);
+                    $log = new \Leaf\Log($c->logWriter);
                     $log->enabled($this->config('log.enabled'));
                     $log->level($this->config('log.level'));
 
