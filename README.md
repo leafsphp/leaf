@@ -217,6 +217,22 @@ To report a security vulnerability, you can reach out to [@mychidarko](https://t
 				<sub><b>Sergey Romanenko</b></sub>
 			</a>
 		</td>
+		<td align="center">
+			<a href="https://github.com/Kristories">
+				<img src="https://avatars.githubusercontent.com/u/774338?v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>Wahyu Kristianto</b></sub>
+			</a>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">
+			<a href="https://github.com/jeijei4">
+				<img src="https://avatars.githubusercontent.com/u/21228328?v=4" width="100%" alt=""/>
+				<br />
+				<sub><b>JeiHO</b></sub>
+			</a>
+		</td>
 	</tr>
 </table>
 
