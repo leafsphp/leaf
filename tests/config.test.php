@@ -49,3 +49,7 @@ test('nested config (custom group)', function () {
     expect($homeConfig['key'])->toBe('2');
     expect(app()->config('home.key'))->toBe('2');
 });
+
+test('Env is successfully retrieved', function () {
+    expect(_env('USER', false))->toBe(getenv('USER'));
+});

@@ -32,7 +32,7 @@
 	"prefer-stable": true,
 	"require": {
 		"leafs/http": "^2.0",
-		"leafs/router": "^0.1.6",
+		"leafs/router": "^0.1.7",
 		"leafs/anchor": "^1.2",
 		"leafs/exception": "^3.0"
 	},
