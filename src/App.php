@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace Leaf;
 
@@ -38,11 +38,13 @@ class App extends Router
      */
     public function __construct(array $userSettings = [])
     {
-        $this->setupErrorHandler();
-
-        if (count($userSettings) > 0) {
-            Config::set($userSettings);
+        if (class_exists('\Leaf\BareUI')) {
+            View::attach(\Leaf\BareUI::class, 'template');
         }
+
+        $this->setupErrorHandler();
+        $this->container = new \Leaf\Helpers\Container();
+        $this->loadConfig($userSettings);
 
         if (class_exists('\Leaf\Anchor\CSRF')) {
             if (!Anchor\CSRF::token()) {
@@ -56,15 +58,15 @@ class App extends Router
                 exit();
             }
         }
+    }
 
-        $this->container = new \Leaf\Helpers\Container();
-
-        $this->setupDefaultContainer();
-
-        if (class_exists('\Leaf\BareUI')) {
-            View::attach(\Leaf\BareUI::class, 'template');
+    protected function loadConfig(array $userSettings = [])
+    {
+        if (count($userSettings) > 0) {
+            Config::set($userSettings);
         }
 
+        $this->setupDefaultContainer();
         $this->loadViewEngines();
     }
 
@@ -165,7 +167,7 @@ class App extends Router
 
                 // Default log
                 $this->container->singleton('log', function ($c) {
-                    $log = new \Leaf\Log($c['logWriter']);
+                    $log = new \Leaf\Log($c->logWriter);
                     $log->enabled($this->config('log.enabled'));
                     $log->level($this->config('log.level'));
 
@@ -175,33 +177,32 @@ class App extends Router
         }
 
         // Default mode
-        (function () {
-            $mode = $this->config('mode');
+        $mode = $this->config('mode');
 
-            if (_env('APP_ENV')) {
-                $mode = _env('APP_ENV');
+        if (_env('APP_ENV')) {
+            $mode = _env('APP_ENV');
+        }
+
+        if (_env('LEAF_MODE')) {
+            $mode = _env('LEAF_MODE');
+        }
+
+        if (isset($_ENV['LEAF_MODE'])) {
+            $mode = $_ENV['LEAF_MODE'];
+        } else {
+            $envMode = getenv('LEAF_MODE');
+
+            if ($envMode !== false) {
+                $mode = $envMode;
             }
+        }
 
-            if (_env('LEAF_MODE')) {
-                $mode = _env('LEAF_MODE');
-            }
-
-            if (isset($_ENV['LEAF_MODE'])) {
-                $mode = $_ENV['LEAF_MODE'];
-            } else {
-                $envMode = getenv('LEAF_MODE');
-
-                if ($envMode !== false) {
-                    $mode = $envMode;
-                }
-            }
-
-            $this->config('mode', $mode);
-        })();
-
-        Config::set('app', [
-            'instance' => $this,
-            'container' => $this->container,
+        Config::set([
+            'mode' => $mode,
+            'app' => [
+                'instance' => $this,
+                'container' => $this->container,
+            ],
         ]);
     }
 
@@ -251,6 +252,7 @@ class App extends Router
         }
 
         Config::set($name, $value);
+        $this->loadConfig();
         $this->setupErrorHandler();
     }
 
@@ -326,7 +328,6 @@ class App extends Router
     {
         return $this->response;
     }
-
 
     /**
      * Create mode-specific code
