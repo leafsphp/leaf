@@ -106,7 +106,7 @@ class App extends Router
         if ($wrapper) {
             $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
                 $exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
-                Http\Response::status(500);
+                Http\Headers::resetStatus(500);
                 call_user_func_array($handler, [$exception]);
                 exit();
             };
