@@ -12,19 +12,19 @@ namespace Leaf;
 class Config
 {
     protected static $settings = [
-      'app' => ['down' => false, 'instance' => null],
-      'mode' => 'development',
-      'debug' => true,
-      'log' => [
-        'writer' => null,
-        'level' => null,
-        'enabled' => false,
-        'dir' => __DIR__ . '/../../../../storage/logs/',
-        'file' => 'log.txt',
-        'open' => true,
-      ],
-      'http' => ['version' => '1.1'],
-      'views' => ['path' => null, 'cachePath' => null],
+        'app' => ['down' => false, 'instance' => null],
+        'mode' => 'development',
+        'debug' => true,
+        'log' => [
+            'writer' => null,
+            'level' => null,
+            'enabled' => false,
+            'dir' => __DIR__ . '/../../../../storage/logs/',
+            'file' => 'log.txt',
+            'open' => true,
+        ],
+        'http' => ['version' => '1.1'],
+        'views' => ['path' => null, 'cachePath' => null],
     ];
 
     /**
