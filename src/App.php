@@ -362,7 +362,7 @@ class App extends Router
      */
     public function root()
     {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getRootUri(), '/') . '/';
+        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getScriptName(), '/') . '/';
     }
 
     /**
