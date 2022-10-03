@@ -263,8 +263,8 @@ class App extends Router
      */
     public function setRequestClass($class)
     {
-        $this->container->singleton('request', function () {
-            return new \Leaf\Http\Request();
+        $this->container->singleton('request', function () use ($class) {
+            return new $class();
         });
     }
 
