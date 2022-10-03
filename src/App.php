@@ -38,11 +38,13 @@ class App extends Router
      */
     public function __construct(array $userSettings = [])
     {
-        $this->setupErrorHandler();
-
-        if (count($userSettings) > 0) {
-            Config::set($userSettings);
+        if (class_exists('\Leaf\BareUI')) {
+            View::attach(\Leaf\BareUI::class, 'template');
         }
+
+        $this->setupErrorHandler();
+        $this->container = new \Leaf\Helpers\Container();
+        $this->loadConfig($userSettings);
 
         if (class_exists('\Leaf\Anchor\CSRF')) {
             if (!Anchor\CSRF::token()) {
@@ -56,21 +58,21 @@ class App extends Router
                 exit();
             }
         }
+    }
 
-        $this->container = new \Leaf\Helpers\Container();
-
-        $this->setupDefaultContainer();
-
-        if (class_exists('\Leaf\BareUI')) {
-            View::attach(\Leaf\BareUI::class, 'template');
+    protected function loadConfig(array $userSettings = [])
+    {
+        if (count($userSettings) > 0) {
+            Config::set($userSettings);
         }
 
+        $this->setupDefaultContainer();
         $this->loadViewEngines();
     }
 
     protected function setupErrorHandler()
     {
-        if ($this->config('debug') === true) {
+        if (Anchor::toBool($this->config('debug')) === true) {
             $debugConfig = [E_ALL, 1];
             $this->errorHandler = (new \Leaf\Exception\Run());
             $this->errorHandler->register();
@@ -90,27 +92,29 @@ class App extends Router
      */
     public function setErrorHandler($handler, bool $wrapper = true)
     {
-        $errorHandler = $handler;
+        if (Anchor::toBool($this->config('debug')) === false) {
+            $errorHandler = $handler;
 
-        if ($this->errorHandler instanceof \Leaf\Exception\Run) {
-            $this->errorHandler->unregister();
+            if ($this->errorHandler instanceof \Leaf\Exception\Run) {
+                $this->errorHandler->unregister();
+            }
+
+            if ($handler instanceof \Leaf\Exception\Handler\Handler) {
+                $this->errorHandler = new \Leaf\Exception\Run();
+                $this->errorHandler->pushHandler($handler)->register();
+            }
+
+            if ($wrapper) {
+                $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
+                    $exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
+                    Http\Headers::resetStatus(500);
+                    call_user_func_array($handler, [$exception]);
+                    exit();
+                };
+            }
+
+            set_error_handler($errorHandler);
         }
-
-        if ($handler instanceof \Leaf\Exception\Handler\Handler) {
-            $this->errorHandler = new \Leaf\Exception\Run();
-            $this->errorHandler->pushHandler($handler)->register();
-        }
-
-        if ($wrapper) {
-            $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
-                $exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
-                Http\Response::status(500);
-                call_user_func_array($handler, [$exception]);
-                exit();
-            };
-        }
-
-        set_error_handler($errorHandler);
     }
 
     /**
@@ -175,33 +179,32 @@ class App extends Router
         }
 
         // Default mode
-        (function () {
-            $mode = $this->config('mode');
+        $mode = $this->config('mode');
 
-            if (_env('APP_ENV')) {
-                $mode = _env('APP_ENV');
+        if (_env('APP_ENV')) {
+            $mode = _env('APP_ENV');
+        }
+
+        if (_env('LEAF_MODE')) {
+            $mode = _env('LEAF_MODE');
+        }
+
+        if (isset($_ENV['LEAF_MODE'])) {
+            $mode = $_ENV['LEAF_MODE'];
+        } else {
+            $envMode = getenv('LEAF_MODE');
+
+            if ($envMode !== false) {
+                $mode = $envMode;
             }
+        }
 
-            if (_env('LEAF_MODE')) {
-                $mode = _env('LEAF_MODE');
-            }
-
-            if (isset($_ENV['LEAF_MODE'])) {
-                $mode = $_ENV['LEAF_MODE'];
-            } else {
-                $envMode = getenv('LEAF_MODE');
-
-                if ($envMode !== false) {
-                    $mode = $envMode;
-                }
-            }
-
-            $this->config('mode', $mode);
-        })();
-
-        Config::set('app', [
-            'instance' => $this,
-            'container' => $this->container,
+        Config::set([
+            'mode' => $mode,
+            'app' => [
+                'instance' => $this,
+                'container' => $this->container,
+            ],
         ]);
     }
 
@@ -251,6 +254,7 @@ class App extends Router
         }
 
         Config::set($name, $value);
+        $this->loadConfig();
         $this->setupErrorHandler();
     }
 
@@ -261,8 +265,8 @@ class App extends Router
      */
     public function setRequestClass($class)
     {
-        $this->container->singleton('request', function () {
-            return new \Leaf\Http\Request();
+        $this->container->singleton('request', function () use ($class) {
+            return new $class();
         });
     }
 
@@ -327,7 +331,6 @@ class App extends Router
         return $this->response;
     }
 
-
     /**
      * Create mode-specific code
      *
@@ -361,7 +364,7 @@ class App extends Router
      */
     public function root()
     {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getRootUri(), '/') . '/';
+        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getScriptName(), '/') . '/';
     }
 
     /**

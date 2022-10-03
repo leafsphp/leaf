@@ -21,23 +21,23 @@ test('centralized config after init', function () {
 });
 
 test('nested config', function () {
-    app()->config('app.key', '2');
+    app()->config('randomKey.number', '2');
 
-    $appConfig = app()->config('app');
+    $randomKey = app()->config('randomKey');
 
-    expect(isset($appConfig['key']))->toBeTrue();
-    expect($appConfig['key'])->toBe('2');
-    expect(app()->config('app.key'))->toBe('2');
+    expect(isset($randomKey['number']))->toBeTrue();
+    expect($randomKey['number'])->toBe('2');
+    expect(app()->config('randomKey.number'))->toBe('2');
 });
 
 test('nested config (array)', function () {
-    app()->config(['app.key' => '2']);
+    app()->config(['nestedKey.number' => '2']);
 
-    $appConfig = app()->config('app');
+    $nestedKey = app()->config('nestedKey');
 
-    expect(isset($appConfig['key']))->toBeTrue();
-    expect($appConfig['key'])->toBe('2');
-    expect(app()->config('app.key'))->toBe('2');
+    expect(isset($nestedKey['number']))->toBeTrue();
+    expect($nestedKey['number'])->toBe('2');
+    expect(app()->config('nestedKey.number'))->toBe('2');
 });
 
 test('nested config (custom group)', function () {
