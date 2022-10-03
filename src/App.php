@@ -72,7 +72,7 @@ class App extends Router
 
     protected function setupErrorHandler()
     {
-        if ($this->config('debug') === true) {
+        if (Anchor::toBool($this->config('debug')) === true) {
             $debugConfig = [E_ALL, 1];
             $this->errorHandler = (new \Leaf\Exception\Run());
             $this->errorHandler->register();
@@ -92,27 +92,29 @@ class App extends Router
      */
     public function setErrorHandler($handler, bool $wrapper = true)
     {
-        $errorHandler = $handler;
+        if (Anchor::toBool($this->config('debug')) === false) {
+            $errorHandler = $handler;
 
-        if ($this->errorHandler instanceof \Leaf\Exception\Run) {
-            $this->errorHandler->unregister();
+            if ($this->errorHandler instanceof \Leaf\Exception\Run) {
+                $this->errorHandler->unregister();
+            }
+
+            if ($handler instanceof \Leaf\Exception\Handler\Handler) {
+                $this->errorHandler = new \Leaf\Exception\Run();
+                $this->errorHandler->pushHandler($handler)->register();
+            }
+
+            if ($wrapper) {
+                $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
+                    $exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
+                    Http\Headers::resetStatus(500);
+                    call_user_func_array($handler, [$exception]);
+                    exit();
+                };
+            }
+
+            set_error_handler($errorHandler);
         }
-
-        if ($handler instanceof \Leaf\Exception\Handler\Handler) {
-            $this->errorHandler = new \Leaf\Exception\Run();
-            $this->errorHandler->pushHandler($handler)->register();
-        }
-
-        if ($wrapper) {
-            $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
-                $exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
-                Http\Headers::resetStatus(500);
-                call_user_func_array($handler, [$exception]);
-                exit();
-            };
-        }
-
-        set_error_handler($errorHandler);
     }
 
     /**
@@ -198,11 +200,11 @@ class App extends Router
         }
 
         Config::set([
-          'mode' => $mode,
-          'app' => [
-            'instance' => $this,
-            'container' => $this->container,
-          ],
+            'mode' => $mode,
+            'app' => [
+                'instance' => $this,
+                'container' => $this->container,
+            ],
         ]);
     }
 
