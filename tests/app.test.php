@@ -29,29 +29,28 @@ test('app mode', function () {
 });
 
 test('set 404', function () {
-    app()->config('app.down', false);
+    app()->config('testKey.one', 'ooooo');
 
     $_SERVER['REQUEST_METHOD'] = 'POST';
     $_SERVER['REQUEST_URI'] = '/home';
 
     app()->set404(function () {
-        app()->config('app.down', true);
+        app()->config('testKey.one', true);
     });
 
     app()->run();
 
-    expect(app()->config('app.down'))->toBe(true);
+    expect(app()->config('testKey.one'))->toBe(true);
 });
 
 test('leaf middleware', function () {
-    $app = new Leaf\App();
-    app()->config('app.down', false);
+    app()->config('anotherKey', false);
 
     class AppMid extends \Leaf\Middleware
     {
         public function call()
         {
-            app()->config('app.down', true);
+            app()->config('anotherKey', true);
             $this->next();
         }
     }
@@ -64,7 +63,7 @@ test('leaf middleware', function () {
     });
     app()->run();
 
-    expect(app()->config('app.down'))->toBe(true);
+    expect(app()->config('anotherKey'))->toBe(true);
 });
 
 test('in-route middleware', function () {
@@ -72,17 +71,17 @@ test('in-route middleware', function () {
     $_SERVER['REQUEST_URI'] = '/';
 
     $app = new Leaf\App();
-    $app->config('app.down', false);
+    $app->config('useMiddleware', false);
 
     $m = function () use ($app) {
-        $app->config('app.down', true);
+        $app->config('useMiddleware', true);
     };
 
     $app->get('/', ['middleware' => $m, function () {
     }]);
     $app->run();
 
-    expect($app->config('app.down'))->toBe(true);
+    expect($app->config('useMiddleware'))->toBe(true);
 });
 
 test('before route middleware', function () {
