@@ -31,10 +31,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"require": {
-		"leafs/http": "^2.1",
-		"leafs/router": "^0.1",
-		"leafs/anchor": "^1.2",
-		"leafs/exception": "^3.0"
+		"leafs/http": "*",
+		"leafs/router": "*",
+		"leafs/anchor": "*",
+		"leafs/exception": "*"
 	},
 	"require-dev": {
 		"pestphp/pest": "^1.21",
