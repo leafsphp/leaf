@@ -414,4 +414,30 @@ class App extends Router
             trigger_error('Cors module not found! Run `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
         }
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function run(?callable $callback = null)
+    {
+        if (class_exists('Leaf\Eien\Server')) {
+            // this entire part can be added to the run method of the app class
+            // This would mean that no part of the user's app would be changed
+            // They just install eien and reap immediete benefits
+
+            server()
+                ->wrap(function () use ($callback) {
+                    \ob_start();
+                    parent::run($callback);
+                    ob_end_clean();
+
+                    return Config::get('response.data');
+                })
+                ->listen(function ($server) {
+                    echo "Leaf Eien server started on http://127.0.0.1:{$server->port}";
+                });
+        } else {
+            return parent::run($callback);
+        }
+    }
 }
