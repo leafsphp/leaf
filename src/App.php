@@ -421,21 +421,11 @@ class App extends Router
     public static function run(?callable $callback = null)
     {
         if (class_exists('Leaf\Eien\Server')) {
-            // this entire part can be added to the run method of the app class
-            // This would mean that no part of the user's app would be changed
-            // They just install eien and reap immediete benefits
-
             server()
                 ->wrap(function () use ($callback) {
-                    \ob_start();
                     parent::run($callback);
-                    ob_end_clean();
-
-                    return Config::get('response.data');
                 })
-                ->listen(function ($server) {
-                    echo "Leaf Eien server started on http://127.0.0.1:{$server->port}";
-                });
+                ->listen();
         } else {
             return parent::run($callback);
         }
