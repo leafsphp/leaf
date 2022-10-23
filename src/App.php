@@ -414,4 +414,20 @@ class App extends Router
             trigger_error('Cors module not found! Run `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
         }
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function run(?callable $callback = null)
+    {
+        if (class_exists('Leaf\Eien\Server')) {
+            server()
+                ->wrap(function () use ($callback) {
+                    parent::run($callback);
+                })
+                ->listen();
+        } else {
+            return parent::run($callback);
+        }
+    }
 }
