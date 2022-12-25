@@ -156,26 +156,24 @@ class App extends Router
             return new \Leaf\Http\Headers();
         });
 
-        if ($this->config('log.enabled')) {
-            if (class_exists('Leaf\Log')) {
-                // Default log writer
-                $this->container->singleton('logWriter', function ($c) {
-                    $logWriter = Config::get('log.writer');
+        if ($this->config('log.enabled') && class_exists('Leaf\Log')) {
+            // Default log writer
+            $this->container->singleton('logWriter', function ($c) {
+                $logWriter = Config::get('log.writer');
 
-                    $file = $this->config('log.dir') . $this->config('log.file');
+                $file = $this->config('log.dir') . $this->config('log.file');
 
-                    return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config('log.open') ?? true);
-                });
+                return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config('log.open') ?? true);
+            });
 
-                // Default log
-                $this->container->singleton('log', function ($c) {
-                    $log = new \Leaf\Log($c->logWriter);
-                    $log->enabled($this->config('log.enabled'));
-                    $log->level($this->config('log.level'));
+            // Default log
+            $this->container->singleton('log', function ($c) {
+                $log = new \Leaf\Log($c->logWriter);
+                $log->enabled($this->config('log.enabled'));
+                $log->level($this->config('log.level'));
 
-                    return $log;
-                });
-            }
+                return $log;
+            });
         }
 
         // Default mode
