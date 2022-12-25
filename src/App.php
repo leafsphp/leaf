@@ -189,16 +189,6 @@ class App extends Router
             $mode = _env('LEAF_MODE');
         }
 
-        if (isset($_ENV['LEAF_MODE'])) {
-            $mode = $_ENV['LEAF_MODE'];
-        } else {
-            $envMode = getenv('LEAF_MODE');
-
-            if ($envMode !== false) {
-                $mode = $envMode;
-            }
-        }
-
         Config::set([
             'mode' => $mode,
             'app' => [
@@ -393,10 +383,8 @@ class App extends Router
             ob_clean();
         }
 
-        Http\Headers::status($status);
-        Http\Response::markup($message);
-
-        exit();
+        Http\Headers::resetStatus($status);
+        response()->exit($message, $status);
     }
 
     /**
