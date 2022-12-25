@@ -53,7 +53,7 @@ class App extends Router
 
             if (!Anchor\CSRF::verify()) {
                 $csrfError = Anchor\CSRF::errors()['token'];
-                Http\Response::status(400);
+                Http\Headers::resetStatus(400);
                 echo Exception\General::csrf($csrfError);
                 exit();
             }
