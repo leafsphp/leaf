@@ -296,7 +296,7 @@ class App extends Router
     {
         Config::set('eien.events', array_merge(
             Config::get('eien.events') ?? [],
-            [$name = $callback]
+            [$name => $callback]
         ));
     }
 
