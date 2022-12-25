@@ -270,6 +270,36 @@ class App extends Router
         });
     }
 
+    /**
+     * Evade CORS errors
+     *
+     * @param $options Config for cors
+     */
+    public function cors($options = [])
+    {
+        if (class_exists('Leaf\Http\Cors')) {
+            Http\Cors::config($options);
+        } else {
+            trigger_error('Cors module not found! Run `leaf install cors` or `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
+        }
+    }
+
+    /**
+     * Create a route handled by websocket (requires Eien module)
+     * 
+     * @param string $name The url of the route
+     * @param callable $callback The callback function
+     * @uses package Eien module
+     * @see https://leafphp.dev/modules/eien/
+     */
+    public function ws(string $name, callable $callback)
+    {
+        Config::set('eien.events', array_merge(
+            Config::get('eien.events') ?? [],
+            [$name = $callback]
+        ));
+    }
+
     /********************************************************************************
      * Logging
      *******************************************************************************/
@@ -383,22 +413,6 @@ class App extends Router
 
         Http\Headers::resetStatus($status);
         response()->exit($message, $status);
-    }
-
-    /**
-     * Evade CORS errors
-     *
-     * Cors handler
-     *
-     * @param $options Config for cors
-     */
-    public function cors($options = [])
-    {
-        if (class_exists('Leaf\Http\Cors')) {
-            Http\Cors::config($options);
-        } else {
-            trigger_error('Cors module not found! Run `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
-        }
     }
 
     /**
