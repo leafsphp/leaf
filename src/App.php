@@ -286,7 +286,7 @@ class App extends Router
 
     /**
      * Create a route handled by websocket (requires Eien module)
-     * 
+     *
      * @param string $name The url of the route
      * @param callable $callback The callback function
      * @uses package Eien module
