@@ -84,6 +84,27 @@ test('in-route middleware', function () {
     expect($app->config('useMiddleware'))->toBe(true);
 });
 
+test('in-route middleware + group', function () {
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/group-test';
+
+    $app = new Leaf\App();
+    $app->config('useMiddlewares', false);
+
+    $m = function () use ($app) {
+        $app->config('useMiddlewares', true);
+    };
+
+    $app->group('/group-test', function () use($app, $m) {
+        $app->get('/', ['middleware' => $m, function () {
+        }]);
+    });
+
+    $app->run();
+
+    expect($app->config('useMiddlewares'))->toBe(true);
+});
+
 test('before route middleware', function () {
     $_SERVER['REQUEST_METHOD'] = 'GET';
     $_SERVER['REQUEST_URI'] = '/';
