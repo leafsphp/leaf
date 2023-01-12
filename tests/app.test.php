@@ -95,7 +95,7 @@ test('in-route middleware + group', function () {
         $app->config('useMiddlewares', true);
     };
 
-    $app->group('/group-test', function () use($app, $m) {
+    $app->group('/group-test', function () use ($app, $m) {
         $app->get('/', ['middleware' => $m, function () {
         }]);
     });
