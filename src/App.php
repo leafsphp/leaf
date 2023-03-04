@@ -173,7 +173,7 @@ class App extends Router
         }
 
         Config::set([
-            'mode' => _env('APP_ENV', 'development'),
+            'mode' => _env('APP_ENV') ?? $this->config('mode'),
             'app' => [
                 'instance' => $this,
                 'container' => $this->container,
