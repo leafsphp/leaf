@@ -257,7 +257,7 @@ class App extends Router
 
     /**
      * Evade CORS errors
-     * 
+     *
      * @param $options Config for cors
      */
     public function cors($options = [])
