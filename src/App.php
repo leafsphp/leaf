@@ -53,7 +53,7 @@ class App extends Router
 
             if (!Anchor\CSRF::verify()) {
                 $csrfError = Anchor\CSRF::errors()['token'];
-                Http\Response::status(400);
+                Http\Headers::resetStatus(400);
                 echo Exception\General::csrf($csrfError);
                 exit();
             }
@@ -156,26 +156,24 @@ class App extends Router
             return new \Leaf\Http\Headers();
         });
 
-        if ($this->config('log.enabled')) {
-            if (class_exists('Leaf\Log')) {
-                // Default log writer
-                $this->container->singleton('logWriter', function ($c) {
-                    $logWriter = Config::get('log.writer');
+        if ($this->config('log.enabled') && class_exists('Leaf\Log')) {
+            // Default log writer
+            $this->container->singleton('logWriter', function ($c) {
+                $logWriter = Config::get('log.writer');
 
-                    $file = $this->config('log.dir') . $this->config('log.file');
+                $file = $this->config('log.dir') . $this->config('log.file');
 
-                    return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config('log.open') ?? true);
-                });
+                return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config('log.open') ?? true);
+            });
 
-                // Default log
-                $this->container->singleton('log', function ($c) {
-                    $log = new \Leaf\Log($c->logWriter);
-                    $log->enabled($this->config('log.enabled'));
-                    $log->level($this->config('log.level'));
+            // Default log
+            $this->container->singleton('log', function ($c) {
+                $log = new \Leaf\Log($c->logWriter);
+                $log->enabled($this->config('log.enabled'));
+                $log->level($this->config('log.level'));
 
-                    return $log;
-                });
-            }
+                return $log;
+            });
         }
 
         // Default mode
@@ -187,16 +185,6 @@ class App extends Router
 
         if (_env('LEAF_MODE')) {
             $mode = _env('LEAF_MODE');
-        }
-
-        if (isset($_ENV['LEAF_MODE'])) {
-            $mode = $_ENV['LEAF_MODE'];
-        } else {
-            $envMode = getenv('LEAF_MODE');
-
-            if ($envMode !== false) {
-                $mode = $envMode;
-            }
         }
 
         Config::set([
@@ -280,6 +268,36 @@ class App extends Router
         $this->container->singleton('response', function () use ($class) {
             return new $class();
         });
+    }
+
+    /**
+     * Evade CORS errors
+     *
+     * @param $options Config for cors
+     */
+    public function cors($options = [])
+    {
+        if (class_exists('Leaf\Http\Cors')) {
+            Http\Cors::config($options);
+        } else {
+            trigger_error('Cors module not found! Run `leaf install cors` or `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
+        }
+    }
+
+    /**
+     * Create a route handled by websocket (requires Eien module)
+     *
+     * @param string $name The url of the route
+     * @param callable $callback The callback function
+     * @uses package Eien module
+     * @see https://leafphp.dev/modules/eien/
+     */
+    public function ws(string $name, callable $callback)
+    {
+        Config::set('eien.events', array_merge(
+            Config::get('eien.events') ?? [],
+            [$name => $callback]
+        ));
     }
 
     /********************************************************************************
@@ -393,26 +411,8 @@ class App extends Router
             ob_clean();
         }
 
-        Http\Headers::status($status);
-        Http\Response::markup($message);
-
-        exit();
-    }
-
-    /**
-     * Evade CORS errors
-     *
-     * Cors handler
-     *
-     * @param $options Config for cors
-     */
-    public function cors($options = [])
-    {
-        if (class_exists('Leaf\Http\Cors')) {
-            Http\Cors::config($options);
-        } else {
-            trigger_error('Cors module not found! Run `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
-        }
+        Http\Headers::resetStatus($status);
+        response()->exit($message, $status);
     }
 
     /**
