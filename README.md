@@ -6,6 +6,7 @@
 </p>
 
 <h1 align="center">Leaf 3</h1>
+<p align="center">Simple and elegant PHP.</p>
 
 <p align="center">
 	<a href="https://packagist.org/packages/leafs/leaf"
@@ -29,38 +30,71 @@
 
 Leaf is a PHP framework that helps you create clean, simple but powerful web apps and APIs quickly and easily. Leaf introduces a cleaner and much simpler structure to the PHP language while maintaining it's flexibility. With a simple structure and a shallow learning curve, it's an excellent way to rapidly build powerful and high performant web apps and APIs.
 
-Leaf 3 brings a much cleaner, faster and simpler workflow to your apps. Powered by an ecosystem of powerful modules with zero setup and it's ease of use, Leaf now allows you to tackle complexities no matter the scale.
+## 🍁 Why Leaf?
+
+When it comes to building web applications, there are numerous tools and frameworks at your disposal. Nevertheless, we are convinced that Leaf is the optimal selection for developing powerful, web applications and APIs.
+
+### The problems
+
+While PHP frameworks can make web development faster and more efficient, there are some potential challenges or drawbacks to using them, including:
+
+- Learning curve: Most PHP frameworks have a steep learning curve, especially for developers who are new to the language or the framework's conventions.
+- Performance overhead: Some PHP frameworks can add unnecessary performance overhead, due to the additional abstraction layers and features they provide.
+- Code maintenance: Most frameworks require adhering to specific coding standards and conventions, which can make maintenance and updates more challenging if you are not already familiar with those standards.
+- Limited flexibility: PHP frameworks can be more rigid than writing code from scratch, as they may require you to adhere to specific coding standards and conventions. This can limit your flexibility in terms of how you structure your code and handle specific use cases.
+- Compatibility with other systems: Most PHP frameworks are bound to a particular ecosystem and make it difficult to randomly pick and use packages which don't have support for the framework you are using.
+- Packing a ton of unused code/packages: Just about every PHP framework out there adds a ton of complexity to your applications in the form of unused code, classes and packages. This in turn leads to bloat and ultimately a drop in performance
+
+### How Leaf tackles these
+
+Leaf 3 provides a bunch of features that aim to tackle these common problems found in just about every PHP framework out there.
+
+#### Low barrier to entry
+
+Leaf is the easiest framework to learn with PHP newbies building powerful leaf apps in a few minutes of reading the docs/watching out tutorial videos. All you truly need to get started with Leaf is basic PHP knowledge and optional but recommended knowledge on some backend concepts like JWT auth and more.
+
+#### Lightweight
+
+Leaf 2 was lightweight and fast enough to be considered one of the most lightweight but powerful frameworks around, and Leaf 3 makes leaf 2 look like a joke. Leaf 3 can now be considered the most lightweight PHP framework with a source of about 30kb and allows you to build full apps and APIs which end up less than 20mb including user dependencies (leaf api). This is a big haul compared to other frameworks that require dependencies and tons of files which end up more than 200mb.
+
+![image](https://user-images.githubusercontent.com/26604242/146754044-4c71c4ec-7b37-4c85-9c8b-56e8c2b54831.png)
+
+> a comparison with slim - slim (left) - leaf (right)
+
+#### Enables high developer productivity
+
+A whole lot of research and testing has been done to build amazing features which allow developers to focus on only what they need: their apps. Leaf 3 has put tons of strategies together to create the best developer experience known to PHP. From things like removing class initializers and creating global functions which allow you call classes from anywhere in your application, modules and other amazing leaf features.
+
+#### Powered by [modules](https://leafphp.dev/modules/)
+
+Leaf 3 and its ecosystem are heavily powered by modules, which are simply pieces of leaf's functionality shipped into independently installable libraries. Modules help make leaf even more lightweight and help developers only deal with features which they need in their applications. This means that you only install what you need.
+
+#### Easy to use features
+
+As mentioned above, a lot of research has gone into the developer experience for leaf 3 and one aspect was to make our existing features more performant and easier to use. We employed various strategies like modeling some features after popular libraries in other languages and frameworks. For instance, the API for leaf cors is almost an exact replica of the expressjs cors middleware.
+
+#### Library/Framework compatibility
+
+Since the beginning of Leaf, we've set out to create code which could easily be integrated with other libraries and frameworks. No matter how powerful leaf is, we try to base of everything we do on simple concepts as opposed to other frameworks which need things like providers in order to access framework features in libraries.
+
+#### Scalability
+
+One of the most beautiful things about leaf is that, no matter what package you're using with leaf, if it works in development, it will definitely work in production with near zero config, unless you want some special features. Leaf provides a core and other frameworks/libraries that build around leaf. This makes leaf appropriate for almost any project no matter it's size.
 
 ## 📦 Installation
 
-**Install Leaf 3:**
-
 You can create a Leaf 3 app with the [Leaf CLI](https://cli.leafphp.dev)
 
-```sh
+```bash
 leaf create <project-name> --v3 --basic
 ```
 
-`<project-name>` is your project name
+`<project-name>` is the name of your project
 
 You can also use [Composer](https://getcomposer.org/) to install Leaf 3 in your project quickly.
 
 ```bash
 composer require leafs/leaf
-```
-
-**Install Leaf 2:**
-
-You can install Leaf 2 in your project with Leaf CLI or composer.
-
-```sh
-leaf create <project-name> --basic --v2
-```
-
-Or with composer
-
-```sh
-composer require leafs/leaf v2.6
 ```
 
 ## 🗂 Basic Usage
@@ -71,11 +105,11 @@ After [installing](#installation) Leaf, create an _index.php_ file.
 ```php
 <?php
 
-require __DIR__ . "/vendor/autoload.php";
+require __DIR__ . '/vendor/autoload.php';
 
-app()->get("/", function () {
+app()->get('/', function () {
   response()->json([
-    "message" => "Welcome!"
+    'message' => 'Welcome!'
   ]);
 });
 
@@ -86,13 +120,13 @@ app()->run();
 
 You may quickly test this using the built-in PHP server:
 
-```sh
+```bash
 php -S localhost:8000
 ```
 
 Or with the Leaf CLI:
 
-```sh
+```bash
 leaf serve
 ```
 
@@ -113,7 +147,7 @@ leaf serve
 
 | Project                                                         | Status                                                                                                                                                                                                                                                         | Description                                                       |
 | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| [alchemy](https://github.com/leafsphp/alchemy)                  | [![Latest Stable Version](https://poser.pugx.org/leafs/alchemy/v/stable)](https://packagist.org/packages/leafs/alchemy) [![Total Downloads](https://poser.pugx.org/leafs/alchemy/downloads)](https://packagist.org/packages/leafs/alchemy)                     | Simpler tests for your PHP apps                                   |
+| [alchemy](https://github.com/leafsphp/alchemy)                  | [![Latest Stable Version](https://poser.pugx.org/leafs/alchemy/v/stable)](https://packagist.org/packages/leafs/alchemy) [![Total Downloads](https://poser.pugx.org/leafs/alchemy/downloads)](https://packagist.org/packages/leafs/alchemy)                     | A test runner for your Leaf apps                                   |
 | [aloe](https://github.com/leafsphp/aloe)                        | [![Latest Stable Version](https://poser.pugx.org/leafs/aloe/v/stable)](https://packagist.org/packages/leafs/aloe) [![Total Downloads](https://poser.pugx.org/leafs/aloe/downloads)](https://packagist.org/packages/leafs/aloe)                                 | Smart console helper for leaf mvc, leaf api and skeleton          |
 | [anchor](https://github.com/leafsphp/anchor)                    | [![Latest Stable Version](https://poser.pugx.org/leafs/anchor/v/stable)](https://packagist.org/packages/leafs/anchor) [![Total Downloads](https://poser.pugx.org/leafs/anchor/downloads)](https://packagist.org/packages/leafs/anchor)                         | Basic security tools                                              |
 | [auth](https://github.com/leafsphp/auth)                        | [![Latest Stable Version](https://poser.pugx.org/leafs/auth/v/stable)](https://packagist.org/packages/leafs/auth) [![Total Downloads](https://poser.pugx.org/leafs/auth/downloads)](https://packagist.org/packages/leafs/auth)                                 | Simple but powerful authentication system for your apps           |
@@ -160,172 +194,11 @@ We are glad to have you. All contributions are welcome! To get started, familiar
 
 To report a security vulnerability, you can reach out to [@mychidarko](https://twitter.com/mychidarko) or [@leafphp](https://twitter.com/leafphp) on twitter. We will coordinate the fix and eventually commit the solution in this project.
 
-### Code contributors
-
-<table>
-	<tr>
-		<td align="center">
-			<a href="https://github.com/mychidarko">
-				<img src="https://avatars.githubusercontent.com/u/26604242?v=4" width="100%" alt=""/>
-				<br />
-				<sub>
-					<b>Michael Darko</b>
-				</sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="https://github.com/ftonato">
-				<img src="https://avatars.githubusercontent.com/u/5417662?v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>Ademílson F. Tonato</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="https://github.com/herber">
-				<img src="https://avatars.githubusercontent.com/u/22559657?&v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>Tobias Herber</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="https://github.com/pjotrsavitski">
-				<img src="https://avatars.githubusercontent.com/u/518331?&v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>Pjotr Savitski</b></sub>
-			</a>
-		</td>
-	</tr>
-	<tr>
-		<td align="center">
-			<a href="https://github.com/pablouser1">
-				<img src="https://avatars.githubusercontent.com/u/17802865?&v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>Pablo Ferreiro</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="https://github.com/monkeywithacupcake">
-				<img src="https://avatars.githubusercontent.com/u/7316730?v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>jess</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="https://github.com/Awilum">
-				<img src="https://avatars.githubusercontent.com/u/477114?v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>Sergey Romanenko</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="https://github.com/Kristories">
-				<img src="https://avatars.githubusercontent.com/u/774338?v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>Wahyu Kristianto</b></sub>
-			</a>
-		</td>
-	</tr>
-	<tr>
-		<td align="center">
-			<a href="https://github.com/jeijei4">
-				<img src="https://avatars.githubusercontent.com/u/21228328?v=4" width="100%" alt=""/>
-				<br />
-				<sub><b>JeiHO</b></sub>
-			</a>
-		</td>
-	</tr>
-</table>
-
 ## 🤩 Sponsoring Leaf
 
 Your cash contributions go a long way to help us make Leaf even better for you. You can sponsor Leaf and any of our packages on [open collective](https://opencollective.com/leaf) or check the [contribution page](https://leafphp.dev/support/) for a list of ways to contribute.
 
-And to all our existing cash/code contributors, we love you all ❤️
-
-### Sponsors
-
-<table>
-	<tr>
-		<td align="center">
-			<a href="https://netlify.com/">
-				<img src="https://user-images.githubusercontent.com/26604242/186772985-b21c2850-3cc3-41c6-9299-fe9cc5bac46a.png" width="120px" alt=""/>
-				<br />
-				<sub><b>Netlify</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="#">
-				<img
-					src="https://images.opencollective.com/guest-c72a498e/avatar.png"
-					width="120px"
-					alt=""
-				/>
-				<br />
-				<sub><b>Casprine</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="#">
-				<img src="https://images.opencollective.com/guest-32634fda/avatar.png" width="120px" alt=""/>
-				<br />
-				<sub><b>Vano</b></sub>
-			</a>
-		</td>
-		<td align="center">
-			<a href="https://github.com/doc-han">
-				<img src="https://avatars.githubusercontent.com/u/35382021?v=4" width="120px" alt=""/>
-				<br />
-				<sub><b>Farhan Yahaya</b></sub>
-			</a>
-		</td>
-	</tr>
-  <tr>
-    <td align="center">
-		<a href="https://www.lucaschaplain.design/">
-			<img src="https://images.opencollective.com/sptaule/aa5f956/avatar/256.png" width="120px" alt=""/>
-			<br />
-			<sub><b>Lucas Chaplain</b></sub>
-		</a>
-	</td>
-	<td align="center">
-		<a href="https://github.com/dawoodiddris">
-			<img src="https://avatars.githubusercontent.com/u/31323758?v=4" width="120px" alt=""/>
-			<br />
-			<sub><b>Dawuda Iddris</b></sub>
-		</a>
-	</td>
-	<td align="center">
-		<a href="https://opencollective.com/aaron-smith3">
-			<img src="https://images.opencollective.com/aaron-smith3/08ee620/avatar/256.png" width="120px" alt=""/>
-			<br />
-			<sub><b>Aaron Smith</b></sub>
-		</a>
-	</td>
-	<td align="center">
-		<a href="https://opencollective.com/peter-bogner">
-			<img src="https://images.opencollective.com/peter-bogner/avatar/256.png" width="120px" alt=""/>
-			<br />
-			<sub><b>Peter Bogner</b></sub>
-		</a>
-	</td>
-  </tr>
-  <tr>
-	<td align="center">
-		<a href="https://github.com/kdgyimah">
-			<img src="https://avatars.githubusercontent.com/u/29569594?v=4" width="120px" alt=""/>
-			<br />
-			<sub><b>King David Gyimah</b></sub>
-		</a>
-	</td>
-	<td align="center">
-		<a href="https://github.com/andykwesi">
-			<img src="https://avatars.githubusercontent.com/u/36931378?v=4" width="120px" alt=""/>
-			<br />
-			<sub><b>Andy Kwesi Apenteng</b></sub>
-		</a>
-	</td>
-  </tr>
-</table>
+And to all our [existing cash/code contributors](https://leafphp.dev#sponsors), we love you all ❤️
 
 ## 🤯 Links/Projects
 
