@@ -26,14 +26,12 @@ class View
     {
         $class = new $className();
         static::$engines[$name ?? static::getDiIndex($class)] = $class;
-        Config::set("views.engine", $name ?? static::getDiIndex($class));
+        Config::set('views.engine', $name ?? static::getDiIndex($class));
     }
 
     private static function getDiIndex($class)
     {
-        $className = strtolower(get_class($class));
-
-        $fullName = explode("\\", $className);
+        $fullName = explode("\\", strtolower(get_class($class)));
         $className = $fullName[count($fullName) - 1];
 
         return $className;

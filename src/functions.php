@@ -10,11 +10,11 @@ if (!function_exists('app')) {
      */
     function app()
     {
-        $app = Leaf\Config::get("app")["instance"] ?? null;
+        $app = Leaf\Config::get('app')['instance'] ?? null;
 
         if (!$app) {
             $app = new Leaf\App();
-            Leaf\Config::set("app", ["instance" => $app]);
+            Leaf\Config::set('app', ['instance' => $app]);
         }
 
         return $app;

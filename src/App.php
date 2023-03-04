@@ -62,7 +62,7 @@ class App extends Router
 
     protected function loadConfig(array $userSettings = [])
     {
-        if (count($userSettings) > 0) {
+        if (!empty($userSettings)) {
             Config::set($userSettings);
         }
 
@@ -87,7 +87,6 @@ class App extends Router
 
     /**
      * Set a custom error screen.
-     *
      * @param callable|array $handler The function to be executed
      */
     public function setErrorHandler($handler, bool $wrapper = true)
@@ -126,11 +125,14 @@ class App extends Router
         $this->container->singleton($name, $value);
     }
 
+    /**
+     * This method loads all added view engines
+     */
     public function loadViewEngines()
     {
         $views = View::$engines;
 
-        if (count($views) > 0) {
+        if (!empty($views)) {
             foreach ($views as $key => $value) {
                 $this->container->singleton($key, function () use ($value) {
                     return $value;
@@ -141,32 +143,26 @@ class App extends Router
 
     private function setupDefaultContainer()
     {
-        // Default request
         $this->container->singleton('request', function () {
             return new \Leaf\Http\Request();
         });
 
-        // Default response
         $this->container->singleton('response', function () {
             return new \Leaf\Http\Response();
         });
 
-        // Default headers
         $this->container->singleton('headers', function () {
             return new \Leaf\Http\Headers();
         });
 
         if ($this->config('log.enabled') && class_exists('Leaf\Log')) {
-            // Default log writer
             $this->container->singleton('logWriter', function ($c) {
                 $logWriter = Config::get('log.writer');
-
                 $file = $this->config('log.dir') . $this->config('log.file');
 
                 return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config('log.open') ?? true);
             });
 
-            // Default log
             $this->container->singleton('log', function ($c) {
                 $log = new \Leaf\Log($c->logWriter);
                 $log->enabled($this->config('log.enabled'));
@@ -176,19 +172,8 @@ class App extends Router
             });
         }
 
-        // Default mode
-        $mode = $this->config('mode');
-
-        if (_env('APP_ENV')) {
-            $mode = _env('APP_ENV');
-        }
-
-        if (_env('LEAF_MODE')) {
-            $mode = _env('LEAF_MODE');
-        }
-
         Config::set([
-            'mode' => $mode,
+            'mode' => _env('APP_ENV', 'development'),
             'app' => [
                 'instance' => $this,
                 'container' => $this->container,
@@ -272,7 +257,7 @@ class App extends Router
 
     /**
      * Evade CORS errors
-     *
+     * 
      * @param $options Config for cors
      */
     public function cors($options = [])
