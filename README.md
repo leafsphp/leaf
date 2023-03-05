@@ -29,6 +29,36 @@
 
 Leaf is a PHP framework that helps you create clean, simple but powerful web apps and APIs quickly and easily. Leaf introduces a cleaner and much simpler structure to the PHP language while maintaining it's flexibility. With a simple structure and a shallow learning curve, it's an excellent way to rapidly build powerful and high performant web apps and APIs.
 
+## 🗂 Basic Usage
+
+This is a "hello world" application created using Leaf. After [installing](#installation) Leaf, create an _index.php_ file.
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+app()->get('/', function () {
+  response()->json([
+    'message' => 'Welcome!'
+  ]);
+});
+
+app()->run();
+```
+
+You may quickly test this using the Leaf CLI:
+
+```bash
+leaf serve
+```
+
+Or with the built-in PHP server:
+
+```bash
+php -S localhost:8000
+```
+
 ## 🍁 Why Leaf?
 
 When it comes to building web applications, there are numerous tools and frameworks at your disposal. Nevertheless, we are convinced that Leaf is the optimal selection for developing powerful, web applications and APIs.
@@ -95,41 +125,6 @@ You can also use [Composer](https://getcomposer.org/) to install Leaf 3 in your 
 ```bash
 composer require leafs/leaf
 ```
-
-## 🗂 Basic Usage
-
-This is a simple demonstration of Leaf's simplicity.
-After [installing](#installation) Leaf, create an _index.php_ file.
-
-```php
-<?php
-
-require __DIR__ . '/vendor/autoload.php';
-
-app()->get('/', function () {
-  response()->json([
-    'message' => 'Welcome!'
-  ]);
-});
-
-app()->run();
-```
-
-**If you use the Leaf CLI, this is already done for you 🚀.**
-
-You may quickly test this using the built-in PHP server:
-
-```bash
-php -S localhost:8000
-```
-
-Or with the Leaf CLI:
-
-```bash
-leaf serve
-```
-
-**You can view the full documentation [here](https://leafphp.dev/)**
 
 ## ✈️ The Leaf Ecosystem (Libs & Frameworks)
 
