@@ -31,7 +31,7 @@ Leaf is a PHP framework that helps you create clean, simple but powerful web app
 
 ## 🗂 Basic Usage
 
-This is a "hello world" application created using Leaf. After [installing](#installation) Leaf, create an _index.php_ file.
+This is a "hello world" application created using Leaf. After [installing](#-installation) Leaf, create an _index.php_ file.
 
 ```php
 <?php
