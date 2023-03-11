@@ -172,13 +172,9 @@ class App extends Router
             });
         }
 
-        Config::set([
-            'mode' => _env('APP_ENV') ?? $this->config('mode'),
-            'app' => [
-                'instance' => $this,
-                'container' => $this->container,
-            ],
-        ]);
+        Config::set('mode', _env('APP_ENV', $this->config('mode')));
+        Config::set('app.instance', $this);
+        Config::set('app.container', $this->container);
     }
 
     public function __get($name)
