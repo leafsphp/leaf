@@ -45,7 +45,7 @@ test('set 404', function () {
 
 test('set app down', function () {
     app()->config('testKey.three', 1);
-    
+
     $_SERVER['REQUEST_METHOD'] = 'POST';
     $_SERVER['REQUEST_URI'] = '/setAppDown';
 
