@@ -330,23 +330,6 @@ class App extends Router
         return $this->response;
     }
 
-    /**
-     * Create mode-specific code
-     *
-     * @param string $mode The mode to run code in
-     * @param callable $callback The code to run in selected mode.
-     */
-    public static function script($mode, $callback)
-    {
-        static::hook('router.before', function () use ($mode, $callback) {
-            $appMode = Config::get('mode') ?? 'development';
-
-            if ($mode === $appMode) {
-                return $callback();
-            }
-        });
-    }
-
     /********************************************************************************
      * Helper Methods
      *******************************************************************************/
@@ -367,16 +350,6 @@ class App extends Router
     }
 
     /**
-     * Clean current output buffer
-     */
-    protected function cleanBuffer()
-    {
-        if (ob_get_level() !== 0) {
-            ob_clean();
-        }
-    }
-
-    /**
      * Halt
      *
      * Stop the application and immediately send the response with a
@@ -394,6 +367,27 @@ class App extends Router
 
         Http\Headers::resetStatus($status);
         response()->exit($message, $status);
+    }
+
+    /********************************************************************************
+     * Env, router and server
+     *******************************************************************************/
+
+    /**
+     * Create mode-specific code
+     *
+     * @param string $mode The mode to run code in
+     * @param callable $callback The code to run in selected mode.
+     */
+    public static function script($mode, $callback)
+    {
+        static::hook('router.before', function () use ($mode, $callback) {
+            $appMode = Config::get('mode') ?? 'development';
+
+            if ($mode === $appMode) {
+                return $callback();
+            }
+        });
     }
 
     /**
