@@ -41,6 +41,23 @@ test('in-route middleware', function () {
     expect($app->config('useMiddleware'))->toBe(true);
 });
 
+test('in-route named middleware', function () {
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/';
+
+    $app = new Leaf\App();
+    $app->config('useNamedMiddleware', false);
+    $app->registerMiddleware('mid1', function () use ($app) {
+        $app->config('useNamedMiddleware', true);
+    });
+
+    $app->get('/', ['middleware' => 'mid1', function () {
+    }]);
+    $app->run();
+
+    expect($app->config('useNamedMiddleware'))->toBe(true);
+});
+
 test('in-route middleware + group', function () {
     $_SERVER['REQUEST_METHOD'] = 'GET';
     $_SERVER['REQUEST_URI'] = '/group-test';
@@ -60,6 +77,26 @@ test('in-route middleware + group', function () {
     $app->run();
 
     expect($app->config('useMiddlewares'))->toBe(true);
+});
+
+test('grouped in-route named middleware', function () {
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/groups/test';
+
+    $app = new Leaf\App();
+    $app->config('useGroupNamedMiddleware', false);
+    $app->registerMiddleware('mid2', function () use ($app) {
+        $app->config('useGroupNamedMiddleware', true);
+    });
+
+    $app->group('/groups', function () use($app) {
+        $app->get('/test', ['middleware' => 'mid2', function () {
+        }]);
+    });
+
+    $app->run();
+
+    expect($app->config('useGroupNamedMiddleware'))->toBe(true);
 });
 
 test('before route middleware', function () {
