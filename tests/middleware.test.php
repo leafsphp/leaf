@@ -89,7 +89,7 @@ test('grouped in-route named middleware', function () {
         $app->config('useGroupNamedMiddleware', true);
     });
 
-    $app->group('/groups', function () use($app) {
+    $app->group('/groups', function () use ($app) {
         $app->get('/test', ['middleware' => 'mid2', function () {
         }]);
     });
