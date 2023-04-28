@@ -50,6 +50,11 @@ test('nested config (custom group)', function () {
     expect(app()->config('home.key'))->toBe('2');
 });
 
+test('Env is successfully loaded from .env', function () {
+    \Leaf\Helpers\Env::loadEnv(__DIR__ . "/.env");
+    expect(_env('MY_APPLICATION_ID'))->toBe('my_application_id');
+});
+
 test('Env is successfully retrieved', function () {
     expect(_env('USER', false))->toBe(getenv('USER'));
 });
