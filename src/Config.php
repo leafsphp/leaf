@@ -13,8 +13,9 @@ class Config
 {
     protected static $settings = [
         'app' => ['down' => false, 'instance' => null],
-        'mode' => 'development',
         'debug' => true,
+        'eien' => ['enabled' => true],
+        'http' => ['version' => '1.1'],
         'log' => [
             'writer' => null,
             'level' => null,
@@ -23,7 +24,7 @@ class Config
             'file' => 'log.txt',
             'open' => true,
         ],
-        'http' => ['version' => '1.1'],
+        'mode' => 'development',
         'views' => ['path' => null, 'cachePath' => null],
     ];
 
