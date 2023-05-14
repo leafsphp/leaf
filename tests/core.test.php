@@ -2,7 +2,7 @@
 
 class MyScript
 {
-    static $called = false;
+    public static $called = false;
 }
 
 test('attach a script to the leaf instance', function () {
