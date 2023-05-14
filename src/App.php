@@ -38,26 +38,9 @@ class App extends Router
      */
     public function __construct(array $userSettings = [])
     {
-        if (class_exists('\Leaf\BareUI')) {
-            View::attach(\Leaf\BareUI::class, 'template');
-        }
-
         $this->setupErrorHandler();
         $this->container = new \Leaf\Helpers\Container();
         $this->loadConfig($userSettings);
-
-        if (class_exists('\Leaf\Anchor\CSRF')) {
-            if (!Anchor\CSRF::token()) {
-                Anchor\CSRF::init();
-            }
-
-            if (!Anchor\CSRF::verify()) {
-                $csrfError = Anchor\CSRF::errors()['token'];
-                Http\Headers::resetStatus(400);
-                echo Exception\General::csrf($csrfError);
-                exit();
-            }
-        }
     }
 
     protected function loadConfig(array $userSettings = [])
@@ -228,9 +211,21 @@ class App extends Router
     }
 
     /**
+     * Run code that can change the behaviour of Leaf
+     * *Usually used by library creators*
+     */
+    public function attach(callable $code)
+    {
+        call_user_func($code, \Leaf\Config::get());
+        $this->loadConfig();
+        $this->setupErrorHandler();
+    }
+
+    /**
      * Swap out Leaf request instance
      *
      * @param mixed $class The new request class to attach
+     * @deprecated
      */
     public function setRequestClass($class)
     {
@@ -243,6 +238,7 @@ class App extends Router
      * Swap out Leaf response instance
      *
      * @param mixed $class The new response class to attach
+     * @deprecated
      */
     public function setResponseClass($class)
     {
@@ -388,6 +384,21 @@ class App extends Router
                 return $callback();
             }
         });
+    }
+
+    /**
+     * Run mode-specific code. Unlike script, this runs immedietly.
+     *
+     * @param string $mode The mode to run code in
+     * @param callable $callback The code to run in selected mode.
+     */
+    public static function environment($mode, $callback)
+    {
+        $appMode = Config::get('mode') ?? 'development';
+
+        if ($mode === $appMode) {
+            return $callback();
+        }
     }
 
     /**
