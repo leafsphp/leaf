@@ -41,6 +41,14 @@ class App extends Router
         $this->setupErrorHandler();
         $this->container = new \Leaf\Helpers\Container();
         $this->loadConfig($userSettings);
+
+        if (!empty($this->config('scripts'))) {
+            foreach ($this->config('scripts') as $script) {
+                call_user_func($script, \Leaf\Config::get());
+            }
+
+            $this->loadConfig();
+        }
     }
 
     protected function loadConfig(array $userSettings = [])

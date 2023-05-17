@@ -25,6 +25,7 @@ class Config
             'open' => true,
         ],
         'mode' => 'development',
+        'scripts' => [],
         'views' => ['path' => null, 'cachePath' => null],
     ];
 
@@ -87,5 +88,14 @@ class Config
         }
 
         return static::$settings;
+    }
+
+    /**
+     * Add a script to attach to the leaf instance
+     * @param callable $script The script to attach
+     */
+    public static function addScript(callable $script)
+    {
+        static::$settings['scripts'][] = $script;
     }
 }
