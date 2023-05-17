@@ -44,7 +44,7 @@ class App extends Router
 
         if (!empty($this->config('scripts'))) {
             foreach ($this->config('scripts') as $script) {
-                call_user_func($script, \Leaf\Config::get());
+                call_user_func($script, $this, \Leaf\Config::get());
             }
 
             $this->loadConfig();
@@ -145,23 +145,6 @@ class App extends Router
         $this->container->singleton('headers', function () {
             return new \Leaf\Http\Headers();
         });
-
-        if ($this->config('log.enabled') && class_exists('Leaf\Log')) {
-            $this->container->singleton('logWriter', function ($c) {
-                $logWriter = Config::get('log.writer');
-                $file = $this->config('log.dir') . $this->config('log.file');
-
-                return is_object($logWriter) ? $logWriter : new \Leaf\LogWriter($file, $this->config('log.open') ?? true);
-            });
-
-            $this->container->singleton('log', function ($c) {
-                $log = new \Leaf\Log($c->logWriter);
-                $log->enabled($this->config('log.enabled'));
-                $log->level($this->config('log.level'));
-
-                return $log;
-            });
-        }
 
         Config::set('mode', _env('APP_ENV', $this->config('mode')));
         Config::set('app.instance', $this);
