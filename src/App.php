@@ -195,7 +195,7 @@ class App extends Router
      */
     public function attach(callable $code)
     {
-        call_user_func($code, \Leaf\Config::get());
+        call_user_func($code, $this, \Leaf\Config::get());
         $this->loadConfig();
         $this->setupErrorHandler();
     }
