@@ -63,17 +63,11 @@ class App extends Router
 
     protected function setupErrorHandler()
     {
-        if (Anchor::toBool($this->config('debug')) === true) {
-            $debugConfig = [E_ALL, 1];
-            $this->errorHandler = (new \Leaf\Exception\Run());
-            $this->errorHandler->register();
-        } else {
-            $debugConfig = [0, 0];
-            $this->setErrorHandler(['\Leaf\Exception\General', 'defaultError'], true);
-        }
+        $this->errorHandler = (new \Leaf\Exception\Run());
+        $this->errorHandler->register();
 
-        error_reporting($debugConfig[0]);
-        ini_set('display_errors', (string) $debugConfig[1]);
+        error_reporting((bool) $this->config('debug') ? E_ALL : 0);
+        ini_set('display_errors', (bool) $this->config('debug') ? 1 : 0);
     }
 
     /**
@@ -83,27 +77,21 @@ class App extends Router
     public function setErrorHandler($handler, bool $wrapper = true)
     {
         if (Anchor::toBool($this->config('debug')) === false) {
-            $errorHandler = $handler;
-
             if ($this->errorHandler instanceof \Leaf\Exception\Run) {
                 $this->errorHandler->unregister();
             }
 
+
+            $this->errorHandler = new \Leaf\Exception\Run();
+
             if ($handler instanceof \Leaf\Exception\Handler\Handler) {
-                $this->errorHandler = new \Leaf\Exception\Run();
                 $this->errorHandler->pushHandler($handler)->register();
+            } else {
+                $this
+                    ->errorHandler
+                    ->pushHandler(new \Leaf\Exception\Handler\CustomHandler($handler))
+                    ->register();
             }
-
-            if ($wrapper) {
-                $errorHandler = function ($errno, $errstr = '', $errfile = '', $errline = '') use ($handler) {
-                    $exception = Exception\General::toException($errno, $errstr, $errfile, $errline);
-                    Http\Headers::resetStatus(500);
-                    call_user_func_array($handler, [$exception]);
-                    exit();
-                };
-            }
-
-            set_error_handler($errorHandler);
         }
     }
 
