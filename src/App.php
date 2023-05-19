@@ -67,7 +67,7 @@ class App extends Router
         $this->errorHandler->register();
 
         error_reporting((bool) $this->config('debug') ? E_ALL : 0);
-        ini_set('display_errors', (bool) $this->config('debug') ? 1 : 0);
+        ini_set('display_errors', (bool) $this->config('debug') ? '1' : '0');
     }
 
     /**
