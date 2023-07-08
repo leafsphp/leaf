@@ -65,33 +65,24 @@ class App extends Router
     {
         $this->errorHandler = (new \Leaf\Exception\Run());
         $this->errorHandler->register();
-
-        error_reporting((bool) $this->config('debug') ? E_ALL : 0);
-        ini_set('display_errors', (bool) $this->config('debug') ? '1' : '0');
     }
 
     /**
      * Set a custom error screen.
-     * @param callable|array $handler The function to be executed
+     * @param $handler The function to be executed
      */
-    public function setErrorHandler($handler, bool $wrapper = true)
+    public function setErrorHandler($handler)
     {
         if (Anchor::toBool($this->config('debug')) === false) {
             if ($this->errorHandler instanceof \Leaf\Exception\Run) {
                 $this->errorHandler->unregister();
             }
 
-
             $this->errorHandler = new \Leaf\Exception\Run();
-
-            if ($handler instanceof \Leaf\Exception\Handler\Handler) {
-                $this->errorHandler->pushHandler($handler)->register();
-            } else {
-                $this
-                    ->errorHandler
-                    ->pushHandler(new \Leaf\Exception\Handler\CustomHandler($handler))
-                    ->register();
-            }
+            $this
+                ->errorHandler
+                ->pushHandler($handler)
+                ->register();
         }
     }
 
