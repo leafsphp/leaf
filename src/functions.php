@@ -6,9 +6,8 @@ if (!function_exists('app')) {
     /**
      * Return the Leaf instance
      *
-     * @return Leaf\App
      */
-    function app()
+    function app(): Leaf\App
     {
         $app = Leaf\Config::get('app')['instance'] ?? null;
 
