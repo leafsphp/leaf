@@ -271,27 +271,24 @@ class App extends Router
 
     /**
      * Get the Request Headers
-     * @return \Leaf\Http\Headers
      */
-    public function headers()
+    public function headers(): Http\Headers
     {
         return $this->headers;
     }
 
     /**
      * Get the Request object
-     * @return \Leaf\Http\Request
      */
-    public function request()
+    public function request(): Http\Request
     {
         return $this->request;
     }
 
     /**
      * Get the Response object
-     * @return \Leaf\Http\Response
      */
-    public function response()
+    public function response(): Http\Response
     {
         return $this->response;
     }
