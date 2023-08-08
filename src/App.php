@@ -114,15 +114,15 @@ class App extends Router
     private function setupDefaultContainer()
     {
         $this->container->singleton('request', function () {
-            return new \Leaf\Http\Request();
+            return new Http\Request();
         });
 
         $this->container->singleton('response', function () {
-            return new \Leaf\Http\Response();
+            return new Http\Response();
         });
 
         $this->container->singleton('headers', function () {
-            return new \Leaf\Http\Headers();
+            return new Http\Headers();
         });
 
         Config::set('mode', _env('APP_ENV', $this->config('mode')));
