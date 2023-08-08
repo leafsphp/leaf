@@ -19,14 +19,13 @@ class App extends Router
 {
     /**
      * Leaf container instance
-     * @var \Leaf\Helpers\Container
      */
-    protected $container;
+    protected Helpers\Container $container;
 
     /**
      * Callable to be invoked on application error
      */
-    protected $errorHandler;
+    protected Exception\Run $errorHandler;
 
     /********************************************************************************
      * Instantiation and Configuration
