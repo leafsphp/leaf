@@ -38,12 +38,12 @@ class App extends Router
     public function __construct(array $userSettings = [])
     {
         $this->setupErrorHandler();
-        $this->container = new \Leaf\Helpers\Container();
+        $this->container = new Helpers\Container();
         $this->loadConfig($userSettings);
 
         if (!empty($this->config('scripts'))) {
             foreach ($this->config('scripts') as $script) {
-                call_user_func($script, $this, \Leaf\Config::get());
+                call_user_func($script, $this, Config::get());
             }
 
             $this->loadConfig();
@@ -62,7 +62,7 @@ class App extends Router
 
     protected function setupErrorHandler()
     {
-        $this->errorHandler = (new \Leaf\Exception\Run());
+        $this->errorHandler = (new Exception\Run());
         $this->errorHandler->register();
     }
 
@@ -73,11 +73,11 @@ class App extends Router
     public function setErrorHandler($handler)
     {
         if (Anchor::toBool($this->config('debug')) === false) {
-            if ($this->errorHandler instanceof \Leaf\Exception\Run) {
+            if ($this->errorHandler instanceof Exception\Run) {
                 $this->errorHandler->unregister();
             }
 
-            $this->errorHandler = new \Leaf\Exception\Run();
+            $this->errorHandler = new Exception\Run();
             $this
                 ->errorHandler
                 ->pushHandler($handler)
@@ -185,7 +185,7 @@ class App extends Router
      */
     public function attach(callable $code)
     {
-        call_user_func($code, $this, \Leaf\Config::get());
+        call_user_func($code, $this, Config::get());
         $this->loadConfig();
         $this->setupErrorHandler();
     }
