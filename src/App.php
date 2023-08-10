@@ -19,14 +19,13 @@ class App extends Router
 {
     /**
      * Leaf container instance
-     * @var \Leaf\Helpers\Container
      */
-    protected $container;
+    protected Helpers\Container $container;
 
     /**
      * Callable to be invoked on application error
      */
-    protected $errorHandler;
+    protected Exception\Run $errorHandler;
 
     /********************************************************************************
      * Instantiation and Configuration
@@ -39,12 +38,12 @@ class App extends Router
     public function __construct(array $userSettings = [])
     {
         $this->setupErrorHandler();
-        $this->container = new \Leaf\Helpers\Container();
+        $this->container = new Helpers\Container();
         $this->loadConfig($userSettings);
 
         if (!empty($this->config('scripts'))) {
             foreach ($this->config('scripts') as $script) {
-                call_user_func($script, $this, \Leaf\Config::get());
+                call_user_func($script, $this, Config::get());
             }
 
             $this->loadConfig();
@@ -63,7 +62,7 @@ class App extends Router
 
     protected function setupErrorHandler()
     {
-        $this->errorHandler = (new \Leaf\Exception\Run());
+        $this->errorHandler = (new Exception\Run());
         $this->errorHandler->register();
     }
 
@@ -74,11 +73,11 @@ class App extends Router
     public function setErrorHandler($handler)
     {
         if (Anchor::toBool($this->config('debug')) === false) {
-            if ($this->errorHandler instanceof \Leaf\Exception\Run) {
+            if ($this->errorHandler instanceof Exception\Run) {
                 $this->errorHandler->unregister();
             }
 
-            $this->errorHandler = new \Leaf\Exception\Run();
+            $this->errorHandler = new Exception\Run();
             $this
                 ->errorHandler
                 ->pushHandler($handler)
@@ -114,15 +113,15 @@ class App extends Router
     private function setupDefaultContainer()
     {
         $this->container->singleton('request', function () {
-            return new \Leaf\Http\Request();
+            return new Http\Request();
         });
 
         $this->container->singleton('response', function () {
-            return new \Leaf\Http\Response();
+            return new Http\Response();
         });
 
         $this->container->singleton('headers', function () {
-            return new \Leaf\Http\Headers();
+            return new Http\Headers();
         });
 
         Config::set('mode', _env('APP_ENV', $this->config('mode')));
@@ -186,7 +185,7 @@ class App extends Router
      */
     public function attach(callable $code)
     {
-        call_user_func($code, $this, \Leaf\Config::get());
+        call_user_func($code, $this, Config::get());
         $this->loadConfig();
         $this->setupErrorHandler();
     }
@@ -271,27 +270,24 @@ class App extends Router
 
     /**
      * Get the Request Headers
-     * @return \Leaf\Http\Headers
      */
-    public function headers()
+    public function headers(): Http\Headers
     {
         return $this->headers;
     }
 
     /**
      * Get the Request object
-     * @return \Leaf\Http\Request
      */
-    public function request()
+    public function request(): Http\Request
     {
         return $this->request;
     }
 
     /**
      * Get the Response object
-     * @return \Leaf\Http\Response
      */
-    public function response()
+    public function response(): Http\Response
     {
         return $this->response;
     }
