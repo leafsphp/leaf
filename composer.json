@@ -31,6 +31,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"require": {
+		"php": "^7.4|^8.0",
+		"ext-json": "*",
+		"ext-zip": "*",
 		"leafs/http": "*",
 		"leafs/router": "*",
 		"leafs/anchor": "*",
