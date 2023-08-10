@@ -25,7 +25,7 @@ if (!function_exists('_env')) {
      * Gets the value of an environment variable.
      *
      * @param  string  $key
-     * @param  mixed  $default
+     * @param  mixed   $default
      * @return mixed
      */
     function _env($key, $default = null)
