@@ -31,8 +31,8 @@ class View
 
     private static function getDiIndex($class)
     {
-        $fullName = explode("\\", strtolower(get_class($class)));
-        $className = $fullName[count($fullName) - 1];
+        $fullName = \explode("\\", \strtolower(\get_class($class)));
+        $className = $fullName[\count($fullName) - 1];
 
         return $className;
     }

@@ -37,11 +37,11 @@ class Config
      */
     public static function set($item, $value = null)
     {
-        if (is_string($item)) {
-            if (!strpos($item, '.')) {
+        if (\is_string($item)) {
+            if (!\strpos($item, '.')) {
                 static::$settings[$item] = $value;
             } else {
-                static::$settings = array_merge(
+                static::$settings = \array_merge(
                     static::$settings,
                     static::mapConfig($item, $value)
                 );
@@ -58,13 +58,13 @@ class Config
      */
     protected static function mapConfig(string $item, $value = null)
     {
-        $config = explode('.', $item);
+        $config = \explode('.', $item);
 
-        if (count($config) > 2) {
-            trigger_error('Nested config can\'t be more than 1 level deep');
+        if (\count($config) > 2) {
+            \trigger_error('Nested config can\'t be more than 1 level deep');
         }
 
-        return [$config[0] => array_merge(
+        return [$config[0] => \array_merge(
             static::$settings[$config[0]] ?? [],
             [$config[1] => $value]
         )];
@@ -78,9 +78,9 @@ class Config
     public static function get($item = null)
     {
         if ($item) {
-            $items = explode('.', $item);
+            $items = \explode('.', $item);
 
-            if (count($items) > 1) {
+            if (\count($items) > 1) {
                 return static::$settings[$items[0]][$items[1]] ?? null;
             }
 

@@ -43,7 +43,7 @@ class App extends Router
 
         if (!empty($this->config('scripts'))) {
             foreach ($this->config('scripts') as $script) {
-                call_user_func($script, $this, Config::get());
+                \call_user_func($script, $this, Config::get());
             }
 
             $this->loadConfig();
@@ -170,7 +170,7 @@ class App extends Router
      */
     public function config($name, $value = null)
     {
-        if ($value === null && is_string($name)) {
+        if ($value === null && \is_string($name)) {
             return Config::get($name);
         }
 
@@ -185,7 +185,7 @@ class App extends Router
      */
     public function attach(callable $code)
     {
-        call_user_func($code, $this, Config::get());
+        \call_user_func($code, $this, Config::get());
         $this->loadConfig();
         $this->setupErrorHandler();
     }
@@ -223,10 +223,10 @@ class App extends Router
      */
     public function cors($options = [])
     {
-        if (class_exists('Leaf\Http\Cors')) {
+        if (\class_exists('Leaf\Http\Cors')) {
             Http\Cors::config($options);
         } else {
-            trigger_error('Cors module not found! Run `leaf install cors` or `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
+            \trigger_error('Cors module not found! Run `leaf install cors` or `composer require leafs/cors` to install the CORS module. This is required to configure CORS.');
         }
     }
 
@@ -240,7 +240,7 @@ class App extends Router
      */
     public function ws(string $name, callable $callback)
     {
-        Config::set('eien.events', array_merge(
+        Config::set('eien.events', \array_merge(
             Config::get('eien.events') ?? [],
             [$name => $callback]
         ));
@@ -258,7 +258,7 @@ class App extends Router
     public function logger()
     {
         if (!$this->log) {
-            trigger_error('You need to enable logging to use this feature! Set log.enabled to true and install the logger module');
+            \trigger_error('You need to enable logging to use this feature! Set log.enabled to true and install the logger module');
         }
 
         return $this->log;
@@ -308,7 +308,7 @@ class App extends Router
      */
     public function root()
     {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getScriptName(), '/') . '/';
+        return \rtrim($_SERVER['DOCUMENT_ROOT'], '/') . \rtrim($this->request->getScriptName(), '/') . '/';
     }
 
     /**
@@ -323,8 +323,8 @@ class App extends Router
      */
     public static function halt($status, $message = '')
     {
-        if (ob_get_level() !== 0) {
-            ob_clean();
+        if (\ob_get_level() !== 0) {
+            \ob_clean();
         }
 
         Http\Headers::resetStatus($status);
@@ -372,7 +372,7 @@ class App extends Router
      */
     public static function run(?callable $callback = null)
     {
-        if (class_exists('Leaf\Eien\Server') && Config::get('eien.enabled')) {
+        if (\class_exists('Leaf\Eien\Server') && Config::get('eien.enabled')) {
             server()
                 ->wrap(function () use ($callback) {
                     parent::run($callback);
