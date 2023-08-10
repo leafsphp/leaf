@@ -32,10 +32,6 @@ if (!function_exists('_env')) {
     {
         $env = array_merge(getenv() ?? [], $_ENV ?? []);
 
-        if (!isset($env[$key]) || (isset($env[$key]) && $env[$key] === null)) {
-            $env[$key] = $default;
-        }
-
-        return $env[$key] ?? $default;
+        return $env[$key] ??= $default;
     }
 }
