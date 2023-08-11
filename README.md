@@ -115,7 +115,7 @@ Leaf 3 provides a bunch of features that aim to tackle these common problems fou
 You can create a Leaf 3 app with the [Leaf CLI](https://cli.leafphp.dev)
 
 ```bash
-leaf create <project-name> --v3 --basic
+leaf create <project-name> --basic
 ```
 
 `<project-name>` is the name of your project
