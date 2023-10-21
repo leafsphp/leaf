@@ -191,32 +191,6 @@ class App extends Router
     }
 
     /**
-     * Swap out Leaf request instance
-     *
-     * @param mixed $class The new request class to attach
-     * @deprecated
-     */
-    public function setRequestClass($class)
-    {
-        $this->container->singleton('request', function () use ($class) {
-            return new $class();
-        });
-    }
-
-    /**
-     * Swap out Leaf response instance
-     *
-     * @param mixed $class The new response class to attach
-     * @deprecated
-     */
-    public function setResponseClass($class)
-    {
-        $this->container->singleton('response', function () use ($class) {
-            return new $class();
-        });
-    }
-
-    /**
      * Evade CORS errors
      *
      * @param $options Config for cors
