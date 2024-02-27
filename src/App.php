@@ -374,9 +374,7 @@ class App extends Router
     {
         if (\class_exists('Leaf\Eien\Server') && Config::get('eien.enabled')) {
             server()
-                ->wrap(function () use ($callback) {
-                    parent::run($callback);
-                })
+                ->wrap(fn() => parent::run($callback))
                 ->listen();
         } else {
             return parent::run($callback);
