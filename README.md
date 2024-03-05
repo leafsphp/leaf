@@ -8,21 +8,21 @@
 <h1 align="center">Leaf 3</h1>
 
 <p align="center">
-	<a href="https://packagist.org/packages/leafs/leaf"
-		><img
-			src="https://poser.pugx.org/leafs/leaf/v/stable"
-			alt="Latest Stable Version"
-	/></a>
-	<a href="https://packagist.org/packages/leafs/leaf"
-		><img
-			src="https://poser.pugx.org/leafs/leaf/downloads"
-			alt="Total Downloads"
-	/></a>
-	<a href="https://packagist.org/packages/leafs/leaf"
-		><img
-			src="https://poser.pugx.org/leafs/leaf/license"
-			alt="License"
-	/></a>
+  <a href="https://packagist.org/packages/leafs/leaf"
+    ><img
+      src="https://poser.pugx.org/leafs/leaf/v/stable"
+      alt="Latest Stable Version"
+  /></a>
+  <a href="https://packagist.org/packages/leafs/leaf"
+    ><img
+      src="https://poser.pugx.org/leafs/leaf/downloads"
+      alt="Total Downloads"
+  /></a>
+  <a href="https://packagist.org/packages/leafs/leaf"
+    ><img
+      src="https://poser.pugx.org/leafs/leaf/license"
+      alt="License"
+  /></a>
 </p>
 <br />
 <br />
@@ -141,7 +141,7 @@ composer require leafs/leaf
 
 | Project                                                         | Status                                                                                                                                                                                                                                                         | Description                                                       |
 | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| [alchemy](https://github.com/leafsphp/alchemy)                  | [![Latest Stable Version](https://poser.pugx.org/leafs/alchemy/v/stable)](https://packagist.org/packages/leafs/alchemy) [![Total Downloads](https://poser.pugx.org/leafs/alchemy/downloads)](https://packagist.org/packages/leafs/alchemy)                     | A test runner for your Leaf apps                                   |
+| [alchemy](https://github.com/leafsphp/alchemy)                  | [![Latest Stable Version](https://poser.pugx.org/leafs/alchemy/v/stable)](https://packagist.org/packages/leafs/alchemy) [![Total Downloads](https://poser.pugx.org/leafs/alchemy/downloads)](https://packagist.org/packages/leafs/alchemy)                     | A test runner for your Leaf apps                                  |
 | [aloe](https://github.com/leafsphp/aloe)                        | [![Latest Stable Version](https://poser.pugx.org/leafs/aloe/v/stable)](https://packagist.org/packages/leafs/aloe) [![Total Downloads](https://poser.pugx.org/leafs/aloe/downloads)](https://packagist.org/packages/leafs/aloe)                                 | Smart console helper for leaf mvc, leaf api and skeleton          |
 | [anchor](https://github.com/leafsphp/anchor)                    | [![Latest Stable Version](https://poser.pugx.org/leafs/anchor/v/stable)](https://packagist.org/packages/leafs/anchor) [![Total Downloads](https://poser.pugx.org/leafs/anchor/downloads)](https://packagist.org/packages/leafs/anchor)                         | Basic security tools                                              |
 | [auth](https://github.com/leafsphp/auth)                        | [![Latest Stable Version](https://poser.pugx.org/leafs/auth/v/stable)](https://packagist.org/packages/leafs/auth) [![Total Downloads](https://poser.pugx.org/leafs/auth/downloads)](https://packagist.org/packages/leafs/auth)                                 | Simple but powerful authentication system for your apps           |
