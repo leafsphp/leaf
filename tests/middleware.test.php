@@ -1,13 +1,21 @@
 <?php
 
+class StaticTestClassMid
+{
+    public static $called = false;
+}
+
+afterEach(function () {
+    StaticTestClassMid::$called = false;
+});
+
 test('leaf middleware', function () {
-    app()->config('anotherKey', false);
 
     class AppMid extends \Leaf\Middleware
     {
         public function call()
         {
-            app()->config('anotherKey', true);
+            StaticTestClassMid::$called = true;
             $this->next();
         }
     }
@@ -16,11 +24,10 @@ test('leaf middleware', function () {
     $_SERVER['REQUEST_URI'] = '/';
 
     app()->use(new AppMid());
-    app()->get('/', function () {
-    });
+    app()->get('/', function () {});
     app()->run();
 
-    expect(app()->config('anotherKey'))->toBe(true);
+    expect(StaticTestClassMid::$called)->toBe(true);
 });
 
 test('in-route middleware', function () {
@@ -28,17 +35,15 @@ test('in-route middleware', function () {
     $_SERVER['REQUEST_URI'] = '/';
 
     $app = new Leaf\App();
-    $app->config('useMiddleware', false);
 
     $m = function () use ($app) {
-        $app->config('useMiddleware', true);
+        StaticTestClassMid::$called = true;
     };
 
-    $app->get('/', ['middleware' => $m, function () {
-    }]);
+    $app->get('/', ['middleware' => $m, function () {}]);
     $app->run();
 
-    expect($app->config('useMiddleware'))->toBe(true);
+    expect(StaticTestClassMid::$called)->toBe(true);
 });
 
 test('in-route named middleware', function () {
@@ -46,16 +51,15 @@ test('in-route named middleware', function () {
     $_SERVER['REQUEST_URI'] = '/';
 
     $app = new Leaf\App();
-    $app->config('useNamedMiddleware', false);
+
     $app->registerMiddleware('mid1', function () use ($app) {
-        $app->config('useNamedMiddleware', true);
+        StaticTestClassMid::$called = true;
     });
 
-    $app->get('/', ['middleware' => 'mid1', function () {
-    }]);
+    $app->get('/', ['middleware' => 'mid1', function () {}]);
     $app->run();
 
-    expect($app->config('useNamedMiddleware'))->toBe(true);
+    expect(StaticTestClassMid::$called)->toBe(true);
 });
 
 test('in-route middleware + group', function () {
@@ -70,8 +74,7 @@ test('in-route middleware + group', function () {
     };
 
     $app->group('/group-test', function () use ($app, $m) {
-        $app->get('/', ['middleware' => $m, function () {
-        }]);
+        $app->get('/', ['middleware' => $m, function () {}]);
     });
 
     $app->run();
@@ -90,8 +93,7 @@ test('grouped in-route named middleware', function () {
     });
 
     $app->group('/groups', function () use ($app) {
-        $app->get('/test', ['middleware' => 'mid2', function () {
-        }]);
+        $app->get('/test', ['middleware' => 'mid2', function () {}]);
     });
 
     $app->run();
@@ -109,8 +111,7 @@ test('before route middleware', function () {
     $app->before('GET', '/', function () use ($app) {
         $app->config('inTest', 'false');
     });
-    $app->get('/', function () {
-    });
+    $app->get('/', function () {});
     $app->run();
 
     expect($app->config('inTest'))->toBe('false');
@@ -127,8 +128,7 @@ test('before router middleware', function () {
     $app->before('GET', '/.*', function () use ($app) {
         $app->config('inTest2', 'false');
     });
-    $app->get('/test', function () {
-    });
+    $app->get('/test', function () {});
     $app->run();
 
     expect($app->config('inTest2'))->toBe('false');

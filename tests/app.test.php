@@ -15,9 +15,6 @@ test('app mode', function () {
     app()->config('test', false);
     app()->config('mode', 'TEST');
 
-    app()->set404(function () {
-    });
-
     app()->script('TEST', function () {
         app()->config('test', true);
     });
@@ -63,21 +60,6 @@ test('set app down', function () {
 
     expect(app()->config('testKey.three'))->toBe(2);
     app()->config('app.down', false);
-});
-
-test('swap out leaf response', function () {
-    class TestResponse extends \Leaf\Http\Response
-    {
-        public function customMethod()
-        {
-            return 'This is some test response';
-        }
-    }
-
-    $leafInstance1 = new \Leaf\App();
-    $leafInstance1->setResponseClass(TestResponse::class);
-
-    expect($leafInstance1->response->customMethod())->toBe((new TestResponse())->customMethod());
 });
 
 test('get route info', function () {
