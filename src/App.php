@@ -124,10 +124,11 @@ class App extends Router
             return new Http\Headers();
         });
 
+        Config::set('mode',  _env('APP_ENV', Config::get('mode')));
         Config::set('app.instance', $this);
-        Config::set('app.container', $this->container);
 
-        $this->config('mode', _env('APP_ENV', Config::get('mode')));
+        /**@deprecated app.container will be removed in next version */
+        Config::set('app.container', $this->container);
     }
 
     public function __get($name)
