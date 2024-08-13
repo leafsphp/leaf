@@ -41,8 +41,8 @@ class App extends Router
         $this->container = new Helpers\Container();
         $this->loadConfig($userSettings);
 
-        if (!empty($this->config('scripts'))) {
-            foreach ($this->config('scripts') as $script) {
+        if (!empty(Config::get('scripts'))) {
+            foreach (Config::get('scripts') as $script) {
                 \call_user_func($script, $this, Config::get());
             }
 
@@ -72,7 +72,7 @@ class App extends Router
      */
     public function setErrorHandler($handler)
     {
-        if (Anchor::toBool($this->config('debug')) === false) {
+        if (Anchor::toBool(Config::get('debug')) === false) {
             if ($this->errorHandler instanceof Exception\Run) {
                 $this->errorHandler->unregister();
             }
@@ -124,9 +124,10 @@ class App extends Router
             return new Http\Headers();
         });
 
-        Config::set('mode', _env('APP_ENV', $this->config('mode')));
         Config::set('app.instance', $this);
         Config::set('app.container', $this->container);
+
+        $this->config('mode', _env('APP_ENV', Config::get('mode')));
     }
 
     public function __get($name)

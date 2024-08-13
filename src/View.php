@@ -25,7 +25,9 @@ class View
     public static function attach($className, $name = null)
     {
         $class = new $className();
+
         static::$engines[$name ?? static::getDiIndex($class)] = $class;
+
         Config::set('views.engine', $name ?? static::getDiIndex($class));
     }
 
