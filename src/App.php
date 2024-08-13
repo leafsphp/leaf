@@ -37,7 +37,7 @@ class App extends Router
 
         if (!empty(Config::getStatic('scripts'))) {
             foreach (Config::getStatic('scripts') as $script) {
-                \call_user_func($script, $this, Config::get());
+                \call_user_func($script, $this);
             }
 
             $this->loadConfig();
@@ -339,7 +339,7 @@ class App extends Router
      */
     public static function run(?callable $callback = null)
     {
-        if (\class_exists('Leaf\Eien\Server') && Config::get('eien')['enabled']) {
+        if (\class_exists('Leaf\Eien\Server') && Config::getStatic('eien')['enabled']) {
             server()
                 ->wrap(function () use ($callback) {
                     parent::run($callback);
