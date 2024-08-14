@@ -59,6 +59,20 @@ class Config
     }
 
     /**
+     * Attach view engine to Leaf view
+     *
+     * @param mixed $className The class to attach
+     * @param string|null $name The key to save view engine with
+     */
+    public static function attachView($className, $name = null)
+    {
+        $class = new $className();
+        $diIndex = $name ?? static::getDiIndex($class);
+
+        static::set("views.$diIndex", $class);
+    }
+
+    /**
      * Grab context
      *
      * @param string|null $item The config to get. Returns all items if nothing is specified.
@@ -210,6 +224,14 @@ class Config
             static::$context[$config[0]] ?? [],
             [$config[1] => $value]
         )];
+    }
+
+    protected static function getDiIndex($class)
+    {
+        $fullName = \explode("\\", \strtolower(\get_class($class)));
+        $className = $fullName[\count($fullName) - 1];
+
+        return $className;
     }
 
     /**
