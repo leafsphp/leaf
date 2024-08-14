@@ -11,7 +11,6 @@ namespace Leaf;
  */
 class Config
 {
-
     /**
      * Leaf application context
      * @var array
