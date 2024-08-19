@@ -16,21 +16,21 @@ class Config
      * @var array
      */
     protected static $context = [
-        'app' => ['down' => false, 'instance' => null],
+        'app' => null,
+        'app.down' => false,
         'debug' => true,
-        'eien' => ['enabled' => true],
-        'http' => ['version' => '1.1'],
-        'log' => [
-            'writer' => null,
-            'level' => null,
-            'enabled' => false,
-            'dir' => __DIR__ . '/../../../../storage/logs/',
-            'file' => 'log.txt',
-            'open' => true,
-        ],
+        'eien.enabled' => true,
+        'http.version' => '1.1',
+        'log.writer' => null,
+        'log.level' => null,
+        'log.enabled' => false,
+        'log.dir' => __DIR__ . '/../../../../storage/logs/',
+        'log.file' => 'log.txt',
+        'log.open' => true,
         'mode' => 'development',
         'scripts' => [],
-        'views' => ['path' => null, 'cachePath' => null],
+        'views.path' => null,
+        'views.cachePath' => null,
     ];
 
     /**
@@ -42,18 +42,9 @@ class Config
     public static function set($item, $value = null)
     {
         if (\is_string($item)) {
-            if (!\strpos($item, '.')) {
-                static::$context[$item] = $value;
-            } else {
-                static::$context = \array_merge(
-                    static::$context,
-                    static::mapContext($item, $value)
-                );
-            }
+            static::$context[$item] = $value;
         } else {
-            foreach ($item as $k => $v) {
-                static::set($k, $v);
-            }
+            static::$context = \array_merge(static::$context, $item);
         }
     }
 
@@ -82,7 +73,7 @@ class Config
             return static::$context;
         }
 
-        $value = \Leaf\Anchor::deepGetDot(static::$context, $item);
+        $value = static::$context[$item] ?? null;
 
         return static::isInvokable($value) ? $value(static::$context) : $value;
     }
@@ -198,31 +189,21 @@ class Config
     {
         static::$context = [
             'app' => static::$context['app'],
+            'app.down' => static::$context['app.down'],
             'debug' => static::$context['debug'],
-            'eien' => static::$context['eien'],
-            'http' => static::$context['http'],
-            'log' => static::$context['log'],
+            'eien.enabled' => static::$context['eien.enabled'],
+            'http.version' => static::$context['http.version'],
+            'log.writer' => static::$context['log.writer'],
+            'log.level' => static::$context['log.level'],
+            'log.enabled' => static::$context['log.enabled'],
+            'log.dir' => static::$context['log.dir'],
+            'log.file' => static::$context['log.file'],
+            'log.open' => static::$context['log.open'],
             'mode' => static::$context['mode'],
             'scripts' => [],
-            'views' => static::$context['views'],
+            'views.path' => static::$context['views.path'],
+            'views.cachePath' => static::$context['views.cachePath'],
         ];
-    }
-
-    /**
-     * Map nested config to their parents recursively
-     */
-    protected static function mapContext(string $item, $value = null)
-    {
-        $config = \explode('.', $item);
-
-        if (\count($config) > 2) {
-            \trigger_error('Nested config can\'t be more than 1 level deep');
-        }
-
-        return [$config[0] => \array_merge(
-            static::$context[$config[0]] ?? [],
-            [$config[1] => $value]
-        )];
     }
 
     protected static function getDiIndex($class)

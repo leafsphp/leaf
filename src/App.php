@@ -35,8 +35,10 @@ class App extends Router
         $this->setupErrorHandler();
         $this->loadConfig($userSettings);
 
-        if (!empty(Config::getStatic('scripts'))) {
-            foreach (Config::getStatic('scripts') as $script) {
+        $scripts = Config::getStatic('scripts');
+
+        if (!empty($scripts)) {
+            foreach ($scripts as $script) {
                 \call_user_func($script, $this);
             }
 
@@ -118,7 +120,10 @@ class App extends Router
             return new Http\Headers();
         });
 
-        Config::set('app.instance', $this);
+        Config::singleton('app', function () {
+            return $this;
+        });
+
         Config::set('mode', _env('APP_ENV', Config::getStatic('mode')));
     }
 
@@ -208,7 +213,7 @@ class App extends Router
     public function ws(string $name, callable $callback)
     {
         Config::set('eien.events', \array_merge(
-            Config::getStatic('eien')['events'] ?? [],
+            Config::getStatic('eien.events') ?? [],
             [$name => $callback]
         ));
     }
@@ -339,7 +344,7 @@ class App extends Router
      */
     public static function run(?callable $callback = null)
     {
-        if (\class_exists('Leaf\Eien\Server') && Config::getStatic('eien')['enabled']) {
+        if (\class_exists('Leaf\Eien\Server') && Config::getStatic('eien.enabled')) {
             server()
                 ->wrap(function () use ($callback) {
                     parent::run($callback);

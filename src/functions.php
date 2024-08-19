@@ -9,14 +9,13 @@ if (!function_exists('app')) {
      */
     function app(): Leaf\App
     {
-        $app = Leaf\Config::get('app')['instance'] ?? null;
-
-        if (!$app) {
-            $app = new Leaf\App();
-            Leaf\Config::set('app', ['instance' => $app]);
+        if (!(\Leaf\Config::getStatic('app'))) {
+            \Leaf\Config::singleton('app', function () {
+                return new \Leaf\App();
+            });
         }
 
-        return $app;
+        return \Leaf\Config::get('app');
     }
 }
 
