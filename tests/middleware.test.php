@@ -36,7 +36,7 @@ test('leaf middleware with next data', function () {
         public function call()
         {
             $this->next([
-                'data' => 'Some data'
+                'data' => 'Some data',
             ]);
         }
     }

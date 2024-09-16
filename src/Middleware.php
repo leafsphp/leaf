@@ -52,7 +52,7 @@ abstract class Middleware
 
     /**
      * Call the next middleware
-     * 
+     *
      * @param mixed $data Data to pass to the next middleware/route
      */
     final public function next($data = null)
