@@ -63,6 +63,14 @@ class Config
     }
 
     /**
+     * Return an attached view engine
+     */
+    public static function view($className)
+    {
+        return static::getStatic("views.$className");
+    }
+
+    /**
      * Grab context
      *
      * @param string|null $item The config to get. Returns all items if nothing is specified.
