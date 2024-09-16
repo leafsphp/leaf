@@ -10,26 +10,46 @@ class TView
     }
 };
 
-test('view attach', function () {
-    Leaf\View::attach(TView::class);
+beforeEach(function () {
+    Leaf\Config::clear();
+});
 
-    expect(Leaf\View::tview())->toBeInstanceOf(TView::class);
+test('view attach', function () {
+    Leaf\Config::attachView(TView::class);
+
+    $view = Leaf\Config::get('views.tview');
+
+    expect($view)->toBeInstanceOf(TView::class);
 });
 
 test('view attach with name', function () {
-    Leaf\View::attach(TView::class, 'named');
+    Leaf\Config::attachView(TView::class, 'named');
 
-    expect(Leaf\View::named())->toBeInstanceOf(TView::class);
+    $view = Leaf\Config::get('views.named');
+
+    expect($view)->toBeInstanceOf(TView::class);
 });
 
 test('access attached view props', function () {
-    Leaf\View::attach(TView::class, 'named');
+    Leaf\Config::attachView(TView::class, 'named');
 
-    expect(Leaf\View::named()::$num)->toBe(TView::$num);
+    $view = Leaf\Config::get('views.named');
+
+    expect($view::$num)->toBe(TView::$num);
 });
 
 test('access attached view methods', function () {
-    Leaf\View::attach(TView::class, 'named');
+    Leaf\Config::attachView(TView::class, 'named');
 
-    expect(Leaf\View::named()->test())->toBe(TView::test());
+    $view = Leaf\Config::get('views.named');
+
+    expect($view->test())->toBe(TView::test());
+});
+
+test('access attached view using the view command', function () {
+    Leaf\Config::attachView(TView::class, 'named2');
+
+    $view = Leaf\Config::view('named2');
+
+    expect($view->test())->toBe(TView::test());
 });

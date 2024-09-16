@@ -15,6 +15,8 @@ test('app mode', function () {
     app()->config('test', false);
     app()->config('mode', 'TEST');
 
+    app()->get('/', function () {});
+
     app()->script('TEST', function () {
         app()->config('test', true);
     });

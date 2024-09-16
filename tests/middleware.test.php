@@ -10,7 +10,6 @@ afterEach(function () {
 });
 
 test('leaf middleware', function () {
-
     class AppMid extends \Leaf\Middleware
     {
         public function call()
@@ -28,6 +27,30 @@ test('leaf middleware', function () {
     app()->run();
 
     expect(StaticTestClassMid::$called)->toBe(true);
+});
+
+test('leaf middleware with next data', function () {
+
+    class AppMid2 extends \Leaf\Middleware
+    {
+        public function call()
+        {
+            $this->next([
+                'data' => 'Some data'
+            ]);
+        }
+    }
+
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/';
+
+    app()->use(new AppMid2());
+
+    app()->get('/', function () {});
+
+    app()->run();
+
+    expect(request()->next('data'))->toBe('Some data');
 });
 
 test('in-route middleware', function () {
