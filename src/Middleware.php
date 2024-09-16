@@ -52,10 +52,16 @@ abstract class Middleware
 
     /**
      * Call the next middleware
+     * 
+     * @param mixed $data Data to pass to the next middleware/route
      */
-    final public function next()
+    final public function next($data = null)
     {
         $nextMiddleware = $this->next;
+
+        if ($data) {
+            \Leaf\Config::set('middleware.data', $data);
+        }
 
         if (!$nextMiddleware) {
             return;
