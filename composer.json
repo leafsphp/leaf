@@ -1,6 +1,6 @@
 {
 	"name": "leafs/leaf",
-	"description": "Simple, performant and powerful PHP micro-framework for rapid web app & API development",
+	"description": "Elegant PHP for modern developers",
 	"keywords": [
 		"microframework",
 		"rest",
@@ -33,7 +33,6 @@
 	"require": {
 		"php": "^7.4|^8.0",
 		"leafs/http": "*",
-		"leafs/router": "*",
 		"leafs/anchor": "*",
 		"leafs/exception": "*"
 	},
