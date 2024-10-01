@@ -25,7 +25,7 @@ class Config
         'log.level' => null,
         'log.enabled' => false,
         'log.dir' => __DIR__ . '/../../../../storage/logs/',
-        'log.file' => 'log.txt',
+        'log.file' => 'app.log',
         'log.open' => true,
         'mode' => 'development',
         'scripts' => [],
