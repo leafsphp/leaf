@@ -182,7 +182,7 @@ class Router
             static::$routes[$method][] = [
                 'pattern' => $pattern,
                 'handler' => $handler,
-                'name' => $routeOptions['name'] ?? ''
+                'name' => $routeOptions['name'] ?? '',
             ];
 
             if ($routeOptions['middleware'] || !empty(static::$routeGroupMiddleware)) {
@@ -197,7 +197,7 @@ class Router
             'methods' => $methods,
             'pattern' => $pattern,
             'handler' => $handler,
-            'name' => $routeOptions['name'] ?? ''
+            'name' => $routeOptions['name'] ?? '',
         ];
 
         if ($routeOptions['name']) {
@@ -571,7 +571,7 @@ class Router
 
     /**
      * Register a middleware in your Leaf application by name
-     * 
+     *
      * @param string $name The name of the middleware
      * @param callable $middleware The middleware to register
      */
@@ -661,7 +661,7 @@ class Router
 
     /**
      * Find the current route
-     * 
+     *
      * @return array
      */
     private static function findRoute(
@@ -804,7 +804,7 @@ class Router
                 $handler,
                 $params
             );
-        } else if (stripos($handler, '@') !== false) {
+        } elseif (stripos($handler, '@') !== false) {
             list($controller, $method) = explode('@', $handler);
 
             if (!class_exists($controller)) {
@@ -820,7 +820,7 @@ class Router
             if (call_user_func_array([new $controller(), $method], $params) === false) {
                 // Try to call the method as a non-static method. (the if does nothing, only avoids the notice)
                 if (forward_static_call_array([$controller, $method], $params) === false)
-                    ;
+                ;
             }
         }
     }

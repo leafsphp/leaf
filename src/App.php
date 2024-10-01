@@ -50,7 +50,7 @@ class App extends Router
     {
         if (!empty($userSettings)) {
             Config::set(array_merge($userSettings, [
-                'mode' => _env('APP_ENV', Config::getStatic('mode'))
+                'mode' => _env('APP_ENV', Config::getStatic('mode')),
             ]));
         }
 
