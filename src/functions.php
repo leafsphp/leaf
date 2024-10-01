@@ -29,7 +29,7 @@ if (!function_exists('_env')) {
      */
     function _env($key, $default = null)
     {
-        $env = array_merge(getenv() ?? [], $_ENV ?? []);
+        $env = array_merge($_ENV ?? []);
 
         return $env[$key] ??= $default;
     }
