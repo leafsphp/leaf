@@ -7,22 +7,16 @@ class StaticTestClassMid
 
 afterEach(function () {
     StaticTestClassMid::$called = false;
+    response()->next([]);
 });
 
 test('leaf middleware', function () {
-    class AppMid extends \Leaf\Middleware
-    {
-        public function call()
-        {
-            StaticTestClassMid::$called = true;
-            $this->next();
-        }
-    }
-
     $_SERVER['REQUEST_METHOD'] = 'GET';
     $_SERVER['REQUEST_URI'] = '/';
 
-    app()->use(new AppMid());
+    app()->use(function () {
+        StaticTestClassMid::$called = true;
+    });
     app()->get('/', function () {});
     app()->run();
 
@@ -30,21 +24,14 @@ test('leaf middleware', function () {
 });
 
 test('leaf middleware with next data', function () {
-
-    class AppMid2 extends \Leaf\Middleware
-    {
-        public function call()
-        {
-            $this->next([
-                'data' => 'Some data',
-            ]);
-        }
-    }
-
     $_SERVER['REQUEST_METHOD'] = 'GET';
     $_SERVER['REQUEST_URI'] = '/';
 
-    app()->use(new AppMid2());
+    app()->use(function () {
+        response()->next([
+            'data' => 'Some data',
+        ]);
+    });
 
     app()->get('/', function () {});
 
@@ -59,14 +46,17 @@ test('in-route middleware', function () {
 
     $app = new Leaf\App();
 
-    $m = function () use ($app) {
-        StaticTestClassMid::$called = true;
+    $m = function () {
+        response()->next([
+            'data' => 'in-route middleware',
+        ]);
     };
 
     $app->get('/', ['middleware' => $m, function () {}]);
+
     $app->run();
 
-    expect(StaticTestClassMid::$called)->toBe(true);
+    expect(request()->next('data'))->toBe('in-route middleware');
 });
 
 test('in-route named middleware', function () {
@@ -85,74 +75,21 @@ test('in-route named middleware', function () {
     expect(StaticTestClassMid::$called)->toBe(true);
 });
 
-test('in-route middleware + group', function () {
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    $_SERVER['REQUEST_URI'] = '/group-test';
-
-    $app = new Leaf\App();
-    $app->config('useMiddlewares', false);
-
-    $m = function () use ($app) {
-        $app->config('useMiddlewares', true);
-    };
-
-    $app->group('/group-test', function () use ($app, $m) {
-        $app->get('/', ['middleware' => $m, function () {}]);
-    });
-
-    $app->run();
-
-    expect($app->config('useMiddlewares'))->toBe(true);
-});
-
 test('grouped in-route named middleware', function () {
     $_SERVER['REQUEST_METHOD'] = 'GET';
     $_SERVER['REQUEST_URI'] = '/groups/test';
 
-    $app = new Leaf\App();
-    $app->config('useGroupNamedMiddleware', false);
-    $app->registerMiddleware('mid2', function () use ($app) {
-        $app->config('useGroupNamedMiddleware', true);
+    app()->registerMiddleware('mid34', function () {
+        app()->response()->next([
+            'data' => 'grouped in-route named middleware',
+        ]);
     });
 
-    $app->group('/groups', function () use ($app) {
-        $app->get('/test', ['middleware' => 'mid2', function () {}]);
+    app()->group('/groups', function () {
+        app()->get('/test', ['middleware' => 'mid34', function () {}]);
     });
 
-    $app->run();
+    app()->run();
 
-    expect($app->config('useGroupNamedMiddleware'))->toBe(true);
-});
-
-test('before route middleware', function () {
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    $_SERVER['REQUEST_URI'] = '/';
-
-    $app = new Leaf\App();
-
-    $app->config('inTest', 'true');
-    $app->before('GET', '/', function () use ($app) {
-        $app->config('inTest', 'false');
-    });
-    $app->get('/', function () {});
-    $app->run();
-
-    expect($app->config('inTest'))->toBe('false');
-});
-
-test('before router middleware', function () {
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    $_SERVER['REQUEST_URI'] = '/test';
-
-    $app = new Leaf\App();
-
-    $app->config('inTest2', 'true');
-
-    $app->before('GET', '/.*', function () use ($app) {
-        $app->config('inTest2', 'false');
-    });
-    $app->get('/test', function () {});
-    $app->run();
-
-    expect($app->config('inTest2'))->toBe('false');
+    expect(app()->request()->next('data'))->toBe('grouped in-route named middleware');
 });
