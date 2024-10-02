@@ -563,10 +563,14 @@ class Router
             $middleware = static::$namedMiddleware[$middleware];
         }
 
-        static::$middleware['GET'][] = [
-            'pattern' => '/.*',
-            'handler' => $middleware,
-        ];
+        $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'];
+
+        for ($i=0; $i < count($methods); $i++) {
+            static::$middleware[$methods[$i]][] = [
+                'pattern' => '/.*',
+                'handler' => $middleware,
+            ];
+        }
     }
 
     /**
@@ -664,7 +668,7 @@ class Router
      *
      * @return array
      */
-    private static function findRoute(
+    public static function findRoute(
         ?array $routes = null,
         ?string $uri = null,
         $returnFirst = true
