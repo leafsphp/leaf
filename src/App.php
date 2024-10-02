@@ -188,6 +188,27 @@ class App extends Router
     }
 
     /**
+     * Add CSRF protection to your app
+     * 
+     * @param array $options Config for csrf
+     */
+    public function csrf($options = [])
+    {
+        if (!\class_exists('Leaf\Anchor\CSRF')) {
+            \trigger_error('CSRF module not found! Run `leaf install csrf` or `composer require leafs/csrf` to install the CSRF module. This is required to configure CSRF.');
+        }
+
+        if (!Anchor\CSRF::token()) {
+            Anchor\CSRF::init();
+            Anchor\CSRF::config($options);
+        }
+
+        $this->use(function () {
+            Anchor\CSRF::validate();
+        });
+    }
+
+    /**
      * Create a route handled by websocket (requires Eien module)
      *
      * @param string $name The url of the route
