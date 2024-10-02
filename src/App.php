@@ -189,7 +189,7 @@ class App extends Router
 
     /**
      * Add CSRF protection to your app
-     * 
+     *
      * @param array $options Config for csrf
      */
     public function csrf($options = [])

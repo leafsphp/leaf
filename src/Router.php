@@ -565,7 +565,7 @@ class Router
 
         $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'];
 
-        for ($i=0; $i < count($methods); $i++) {
+        for ($i = 0; $i < count($methods); $i++) {
             static::$middleware[$methods[$i]][] = [
                 'pattern' => '/.*',
                 'handler' => $middleware,
