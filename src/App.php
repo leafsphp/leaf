@@ -132,6 +132,11 @@ class App extends Router
         Config::remove($name);
     }
 
+    public function __call($method, $args)
+    {
+        return Config::view($method);
+    }
+
     /**
      * Configure Leaf Settings
      *
