@@ -204,8 +204,8 @@ class App extends Router
         }
 
         if (!Anchor\CSRF::token()) {
-            Anchor\CSRF::init();
             Anchor\CSRF::config($options);
+            Anchor\CSRF::init();
         }
 
         $this->use(function () {
