@@ -17,7 +17,7 @@ beforeEach(function () {
 test('view attach', function () {
     Leaf\Config::attachView(TView::class);
 
-    $view = Leaf\Config::get('views.tview');
+    $view = app()->tview();
 
     expect($view)->toBeInstanceOf(TView::class);
 });
