@@ -216,7 +216,7 @@ class Config
 
     protected static function getDiIndex($class)
     {
-        $fullName = \explode("\\", \strtolower(\get_class($class)));
+        $fullName = \explode('\\', \strtolower(\get_class($class)));
         $className = $fullName[\count($fullName) - 1];
 
         return $className;

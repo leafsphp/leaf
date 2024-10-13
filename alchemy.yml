@@ -1,0 +1,61 @@
+app:
+  - src
+
+tests:
+  engine: pest
+  parallel: true
+  paths:
+    - tests
+  files:
+    - '*.test.php'
+  coverage:
+    processUncoveredFiles: true
+
+lint:
+  preset: PSR12
+  rules:
+    single_quote: true
+    phpdoc_scalar: true
+    no_unused_imports: true
+    unary_operator_spaces: true
+    binary_operator_spaces: true
+    phpdoc_var_without_name: true
+    trailing_comma_in_multiline: true
+    phpdoc_single_line_var_spacing: true
+    single_trait_insert_per_statement: true
+    not_operator_with_successor_space: false
+    array_syntax:
+      syntax: short
+    ordered_imports:
+      sort_algorithm: alpha
+    method_argument_space:
+      on_multiline: ensure_fully_multiline
+      keep_multiple_spaces_after_comma: true
+    blank_line_before_statement:
+      statements:
+        - break
+        - continue
+        - declare
+        - return
+        - throw
+        - try
+
+actions:
+  run:
+    - lint
+    - tests
+  os:
+    - ubuntu-latest
+    - macos-latest
+    - windows-latest
+  php:
+    extensions: json, zip
+    versions:
+      - '8.3'
+      - '8.2'
+      - '8.1'
+      - '8.0'
+      - '7.4'
+  events:
+    - push
+    - pull_request

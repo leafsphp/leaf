@@ -1,52 +1,56 @@
 {
-	"name": "leafs/leaf",
-	"description": "Elegant PHP for modern developers",
-	"keywords": [
-		"microframework",
-		"rest",
-		"router",
-		"leaf",
-		"php",
-		"framework"
-	],
-	"homepage": "https://leafphp.dev",
-	"type": "library",
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "Michael Darko",
-			"email": "mickdd22@gmail.com",
-			"homepage": "https://mychi.netlify.app",
-			"role": "Developer"
-		}
-	],
-	"autoload": {
-		"psr-4": {
-			"Leaf\\": "src"
-		},
-		"files": [
-			"src/functions.php"
-		]
-	},
-	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"require": {
-		"php": "^7.4|^8.0",
-		"leafs/http": "*",
-		"leafs/anchor": "*",
-		"leafs/exception": "*"
-	},
-	"require-dev": {
-		"pestphp/pest": "^1.21",
-		"friendsofphp/php-cs-fixer": "^3.0"
-	},
-	"scripts": {
-        "format": "vendor/bin/php-cs-fixer fix --config=.php_cs.dist.php --allow-risky=yes",
-        "test": "vendor/bin/pest"
+    "name": "leafs/leaf",
+    "description": "Elegant PHP for modern developers",
+    "keywords": [
+        "microframework",
+        "rest",
+        "router",
+        "leaf",
+        "php",
+        "framework"
+    ],
+    "homepage": "https://leafphp.dev",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Darko",
+            "email": "mickdd22@gmail.com",
+            "homepage": "https://mychi.netlify.app",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Leaf\\": "src"
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
-	"config": {
-		"allow-plugins": {
-			"pestphp/pest-plugin": true
-		}
-	}
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.4|^8.0",
+        "leafs/http": "*",
+        "leafs/anchor": "*",
+        "leafs/exception": "*",
+        "leafs/alchemy": "dev-next"
+    },
+    "scripts": {
+        "format": "vendor/bin/php-cs-fixer fix --config=.php_cs.dist.php --allow-risky=yes",
+        "test": "./vendor/bin/alchemy setup --test",
+        "alchemy": "./vendor/bin/alchemy setup",
+        "lint": "./vendor/bin/alchemy setup --lint",
+        "actions": "./vendor/bin/alchemy setup --actions"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.3",
+        "friendsofphp/php-cs-fixer": "^3.64"
+    }
 }

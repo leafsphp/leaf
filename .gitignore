@@ -17,3 +17,6 @@ Thumbs.db
 
 # phpstorm
 .idea/*
+
+# Alchemy
+.alchemy
