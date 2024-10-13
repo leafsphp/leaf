@@ -50,7 +50,7 @@
         }
     },
     "require-dev": {
-        "pestphp/pest": "^3.3",
-        "friendsofphp/php-cs-fixer": "^3.64"
+        "pestphp/pest": "*",
+        "friendsofphp/php-cs-fixer": "*"
     }
 }
