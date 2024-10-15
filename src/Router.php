@@ -831,7 +831,7 @@ class Router
             static::invoke($currentRoute['handler'], $currentRoute['params']);
         }
 
-        return count($routeToHandle);
+        return count($routesToRun);
     }
 
     private static function invoke($handler, $params = [])
