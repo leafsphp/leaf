@@ -186,10 +186,21 @@ class Router
             ];
 
             if ($routeOptions['middleware'] || !empty(static::$routeGroupMiddleware)) {
-                static::$middleware[$method][] = [
-                    'pattern' => $pattern,
-                    'handler' => $routeOptions['middleware'] ?? static::$routeGroupMiddleware,
-                ];
+                $routeMiddleware = $routeOptions['middleware'] ?? static::$routeGroupMiddleware;
+
+                if (is_array($routeMiddleware)) {
+                    foreach ($routeMiddleware as $middleware) {
+                        static::$middleware[$method][] = [
+                            'pattern' => $pattern,
+                            'handler' => $middleware,
+                        ];
+                    }
+                } else {
+                    static::$middleware[$method][] = [
+                        'pattern' => $pattern,
+                        'handler' => $routeMiddleware,
+                    ];
+                }
             }
         }
 
@@ -328,10 +339,20 @@ class Router
      * - `/posts/{id}/delete` - POST | DELETE - Controller@destroy
      *
      * @param string $pattern The base route to use eg: /post
-     * @param string $controller to handle route eg: PostController
+     * @param array|string $controller to handle route eg: PostController
      */
-    public static function resource(string $pattern, string $controller)
+    public static function resource(string $pattern, $controller)
     {
+        if (is_array($controller)) {
+            $controllerToCall = $controller[0];
+
+            $controller[0] = function () use ($pattern, $controllerToCall) {
+                static::resource('/', $controllerToCall);
+            };
+
+            return static::group($pattern, $controller);
+        }
+
         static::match('GET|HEAD', $pattern, "$controller@index");
         static::post($pattern, "$controller@store");
         static::match('GET|HEAD', "$pattern/create", "$controller@create");
@@ -489,6 +510,18 @@ class Router
                 $parsedOptions['middleware'] = static::$namedMiddleware[$handler['middleware']] ?? null;
             }
 
+            if (is_array($handler['middleware'] ?? null)) {
+                $parsedOptions['middleware'] = [];
+
+                foreach ($handler['middleware'] as $middleware) {
+                    if (is_string($middleware)) {
+                        $parsedOptions['middleware'][] = static::$namedMiddleware[$middleware] ?? null;
+                    } else {
+                        $parsedOptions['middleware'][] = $middleware;
+                    }
+                }
+            }
+
             if (isset($handler['handler'])) {
                 $parsedHandler = $handler['handler'];
                 unset($handler['handler']);
@@ -582,19 +615,6 @@ class Router
     public function registerMiddleware(string $name, callable $middleware)
     {
         static::$namedMiddleware[$name] = $middleware;
-    }
-
-    /**
-     * Run middleware
-     */
-    protected static function runMiddleware()
-    {
-        $currentMiddleware = array_shift(static::$middleware);
-        $currentMiddleware();
-
-        if (!empty(static::$middleware)) {
-            static::runMiddleware();
-        }
     }
 
     /**
@@ -697,6 +717,15 @@ class Router
                     return isset($match[0][0]) ? trim($match[0][0], '/') : null;
                 }, $matches, array_keys($matches));
 
+                $paramsWithSlash = array_filter($params, function ($param) {
+                    return strpos($param, '/') !== false;
+                });
+
+                // if any of the params contain /, we should skip this route
+                if (!empty($paramsWithSlash)) {
+                    continue;
+                }
+
                 $routeData = [
                     'params' => $params,
                     'handler' => $route['handler'],
@@ -786,16 +815,20 @@ class Router
      */
     private static function handle(?array $routes = null, bool $quitAfterRun = false, ?string $uri = null): int
     {
+        $uri = $uri ?? static::getCurrentUri();
         $routeToHandle = static::findRoute($routes, $uri, $quitAfterRun);
 
-        if (!empty($routeToHandle)) {
-            if (count($routeToHandle) > 1) {
-                foreach ($routeToHandle as $route) {
-                    static::invoke($route['handler'], $route['params']);
-                }
-            } else {
-                static::invoke($routeToHandle[0]['handler'], $routeToHandle[0]['params']);
-            }
+        // hacky solution to handle middleware catching all middleware with pattern (.*?)
+        $routesToRun = array_filter($routeToHandle, function ($route) use ($uri) {
+            return $route['route']['pattern'] === $uri || $route['route']['pattern'] === '/.*';
+        });
+
+        if (empty($routesToRun)) {
+            $routesToRun = $routeToHandle;
+        }
+
+        foreach ($routesToRun as $currentRoute) {
+            static::invoke($currentRoute['handler'], $currentRoute['params']);
         }
 
         return count($routeToHandle);
@@ -824,7 +857,7 @@ class Router
             if (call_user_func_array([new $controller(), $method], $params) === false) {
                 // Try to call the method as a non-static method. (the if does nothing, only avoids the notice)
                 if (forward_static_call_array([$controller, $method], $params) === false)
-                ;
+                    ;
             }
         }
     }
