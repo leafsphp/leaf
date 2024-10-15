@@ -507,7 +507,9 @@ class Router
 
         if (is_array($handler)) {
             if (is_string($handler['middleware'] ?? null)) {
-                $parsedOptions['middleware'] = static::$namedMiddleware[$handler['middleware']] ?? null;
+                $parsedOptions['middleware'] = (class_exists($handler['middleware'])) ? function () use ($handler) {
+                    (new $handler['middleware']())->call();
+                } : static::$namedMiddleware[$handler['middleware']] ?? null;
             }
 
             if (is_array($handler['middleware'] ?? null)) {
@@ -591,9 +593,11 @@ class Router
         // if (in_array($middleware, static::$middleware)) {
         //     throw new \RuntimeException('Circular Middleware setup detected. Tried to queue the same Middleware twice.');
         // }
-
+        
         if (is_string($middleware)) {
-            $middleware = static::$namedMiddleware[$middleware];
+            $middleware = class_exists($middleware) ? function () use ($middleware) {
+                (new $middleware())->call();
+            } : static::$namedMiddleware[$middleware];
         }
 
         $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'];
