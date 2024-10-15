@@ -37,7 +37,6 @@
         "leafs/exception": "*"
     },
     "scripts": {
-        "format": "vendor/bin/php-cs-fixer fix --config=.php_cs.dist.php --allow-risky=yes",
         "test": "./vendor/bin/alchemy setup --test",
         "alchemy": "./vendor/bin/alchemy setup",
         "lint": "./vendor/bin/alchemy setup --lint",
