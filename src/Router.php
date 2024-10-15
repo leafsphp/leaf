@@ -593,7 +593,7 @@ class Router
         // if (in_array($middleware, static::$middleware)) {
         //     throw new \RuntimeException('Circular Middleware setup detected. Tried to queue the same Middleware twice.');
         // }
-        
+
         if (is_string($middleware)) {
             $middleware = class_exists($middleware) ? function () use ($middleware) {
                 (new $middleware())->call();
