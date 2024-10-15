@@ -33,20 +33,20 @@ lint:
       keep_multiple_spaces_after_comma: true
     blank_line_before_statement:
       statements:
-        - break
-        - continue
-        - declare
-        - return
-        - throw
         - try
+        - break
+        - throw
+        - return
+        - declare
+        - continue
 
 actions:
   run:
     - lint
     - tests
   os:
-    - ubuntu-latest
     - macos-latest
+    - ubuntu-latest
     - windows-latest
   php:
     extensions: json, zip
