@@ -707,7 +707,7 @@ class Router
 
         return '/' . trim($uri, '/');
     }
-    
+
     /**
      * Get route info of the current route
      *
