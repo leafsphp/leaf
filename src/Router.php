@@ -701,11 +701,23 @@ class Router
      */
     public static function getCurrentUri(): string
     {
-        // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
-        $uri = substr(rawurldecode($_SERVER['REQUEST_URI']), strlen(static::getBasePath()));
+        $basePath = static::getBasePath();
+        $requestUri = rawurldecode($_SERVER['REQUEST_URI']);
 
-        if (strstr($uri, '?')) {
-            $uri = substr($uri, 0, strpos($uri, '?'));
+        // Early exit If base path doesn't match
+        if (strncmp($requestUri, $basePath, strlen($basePath)) !== 0) {
+            if (!static::$notFoundHandler) {
+                static::$notFoundHandler = function () {
+                    \Leaf\Exception\General::default404();
+                };
+            }
+            static::invoke(static::$notFoundHandler);
+        }
+
+        // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
+        $uri = substr($requestUri, strlen($basePath)) ?: '/';
+        if (($queryPos = strpos($uri, '?')) !== false) {
+            $uri = substr($uri, 0, $queryPos);
         }
 
         return '/' . trim($uri, '/');
