@@ -74,6 +74,11 @@ class Router
     ];
 
     /**
+     * Sitemap options
+     */
+    protected static $sitemapOptions = [];
+
+    /**
      * Current group base path
      */
     protected static $groupRoute = '';
@@ -127,6 +132,7 @@ class Router
         $initialNamespace = static::$namespace;
         $initialGroupRoute = static::$groupRoute;
         $initialLingoOptioins = static::$lingoOptions;
+        $initialSitemapOptions = static::$sitemapOptions;
         $initialGroupMiddleware = static::$routeGroupMiddleware;
 
         if ($groupOptions['namespace']) {
@@ -147,11 +153,16 @@ class Router
             static::$lingoOptions['lingo.no_locale_prefix'] = $groupOptions['lingo.no_locale_prefix'];
         }
 
+        if (isset($groupOptions['sitemap'])) {
+            static::$sitemapOptions = $groupOptions['sitemap'];
+        }
+
         call_user_func($handler);
 
         static::$namespace = $initialNamespace;
         static::$groupRoute = $initialGroupRoute;
         static::$lingoOptions = $initialLingoOptioins;
+        static::$sitemapOptions = $initialSitemapOptions;
         static::$routeGroupMiddleware = $initialGroupMiddleware;
     }
 
@@ -197,10 +208,19 @@ class Router
         }
 
         foreach ($methods as $method) {
+            $sitemapOptions = [];
+
+            if (isset($routeOptions['sitemap'])) {
+                $sitemapOptions = $routeOptions['sitemap'];
+            } elseif (static::$sitemapOptions === false || (is_array(static::$sitemapOptions) && !empty(static::$sitemapOptions))) {
+                $sitemapOptions = static::$sitemapOptions;
+            }
+
             static::$routes[$method][] = [
                 'pattern' => $pattern,
                 'handler' => $handler,
                 'name' => $routeOptions['name'] ?? '',
+                'sitemap' => $sitemapOptions,
                 'lingo.routes' => $routeOptions['lingo.routes'] ?? static::$lingoOptions['lingo.routes'] ?? [],
                 'lingo.no_locale_prefix' => $routeOptions['lingo.no_locale_prefix'] ?? static::$lingoOptions['lingo.no_locale_prefix'] ?? false,
             ];
@@ -856,7 +876,7 @@ class Router
         $requestedMethod = \Leaf\Http\Request::getMethod();
         $appDown = _env('APP_DOWN', \Leaf\Anchor::toBool(\Leaf\Config::getStatic('app.down')) ?? false);
 
-        if ($appDown === true) {
+        if ($appDown == 'true') {
             if (!static::$downHandler) {
                 static::$downHandler = function () {
                     \Leaf\Exception\General::defaultDown();
