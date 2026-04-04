@@ -69,7 +69,6 @@ class Router
      * Lingo options
      */
     protected static $lingoOptions = [
-        'lingo.no_locale_prefix' => false,
         'lingo.routes' => [],
     ];
 
@@ -149,10 +148,6 @@ class Router
             static::$lingoOptions['lingo.routes'] = $groupOptions['lingo.routes'];
         }
 
-        if (isset($groupOptions['lingo.no_locale_prefix'])) {
-            static::$lingoOptions['lingo.no_locale_prefix'] = $groupOptions['lingo.no_locale_prefix'];
-        }
-
         if (isset($groupOptions['sitemap'])) {
             static::$sitemapOptions = $groupOptions['sitemap'];
         }
@@ -222,7 +217,6 @@ class Router
                 'name' => $routeOptions['name'] ?? '',
                 'sitemap' => $sitemapOptions,
                 'lingo.routes' => $routeOptions['lingo.routes'] ?? static::$lingoOptions['lingo.routes'] ?? [],
-                'lingo.no_locale_prefix' => $routeOptions['lingo.no_locale_prefix'] ?? static::$lingoOptions['lingo.no_locale_prefix'] ?? false,
             ];
 
             if ($routeOptions['middleware'] || !empty(static::$routeGroupMiddleware)) {
