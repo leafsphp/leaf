@@ -109,7 +109,7 @@ You can find a full list of all modules on the [modules documentation](https://l
 
 ## 😇 Contributing
 
-We are glad to have you. All contributions are welcome! To get started, familiarize yourself with our [contribution guide](https://leafphp.dev/community/contributing.html) and you'll be ready to make your first pull request 🚀.
+We are glad to have you. All contributions are welcome! To get started, familiarize yourself with our [contribution guide](https://leafphp.dev/community/guide.html#contribution-guide) and you'll be ready to make your first pull request 🚀.
 
 To report a security vulnerability, you can reach out to [@mychidarko](https://twitter.com/mychidarko) or [@leafphp](https://twitter.com/leafphp) on twitter. We will coordinate the fix and eventually commit the solution in this project.
 
@@ -117,6 +117,6 @@ To report a security vulnerability, you can reach out to [@mychidarko](https://t
 
 We are committed to keeping Leaf open-source and free, but maintaining and developing new features now requires significant time and resources. As the project has grown, so have the costs, which have been mostly covered by the team. To sustain and grow Leaf, we need your help to support full-time maintainers.
 
-You can sponsor Leaf and any of our packages on [open collective](https://opencollective.com/leaf) or check the [contribution page](https://leafphp.dev/support/) for a list of ways to contribute.
+You can sponsor Leaf and any of our packages on [open collective](https://opencollective.com/leaf) or check the [contribution page](https://leafphp.dev/support.html) for a list of ways to contribute.
 
 And to all our [existing cash/code contributors](https://leafphp.dev#sponsors), we love you all ❤️
