@@ -522,6 +522,7 @@ class Router
     {
         if (!isset(static::$namedRoutes[$routeName])) {
             trigger_error('Route named ' . $routeName . ' not found');
+
             return '';
         }
 
@@ -712,6 +713,7 @@ class Router
 
         if (!$middleware) {
             trigger_error('Middleware not found');
+
             return;
         }
 
@@ -789,6 +791,7 @@ class Router
                 };
             }
             static::invoke(static::$notFoundHandler);
+
             return '/';
         }
 
@@ -1000,6 +1003,7 @@ class Router
 
             if (!isset(static::$namedMiddleware[$middleware])) {
                 trigger_error("Middleware named $middleware not found");
+
                 return;
             }
 
@@ -1065,6 +1069,7 @@ class Router
 
         if (!empty($params)) {
             $regex .= preg_quote(substr($pattern, $offset), '#');
+
             return ['regex' => '#^' . $regex . '$#', 'params' => $params];
         }
 
