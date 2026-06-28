@@ -50,7 +50,7 @@ class App extends Router
     {
         if (!empty($userSettings)) {
             Config::set(array_merge($userSettings, [
-                'mode' => _env('APP_ENV', Config::getStatic('mode')),
+                'mode' => _env('APP_ENV', $userSettings['mode'] ?? Config::getStatic('mode')),
             ]));
         }
 
@@ -93,6 +93,20 @@ class App extends Router
 
     private function setupDefaultContainer()
     {
+        $mode = _env('APP_ENV', Config::getStatic('mode') ?: 'development');
+        Config::set('mode', $mode);
+
+        if (Config::getStatic('debug') === null) {
+            Config::set('debug', $mode !== 'production');
+        }
+
+        $sessionCookie = Config::getStatic('session.cookie') ?? [];
+
+        if (($sessionCookie['secure'] ?? null) === null) {
+            $sessionCookie['secure'] = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+            Config::set('session.cookie', $sessionCookie);
+        }
+
         Config::singleton('request', function () {
             return new Http\Request();
         });
@@ -108,8 +122,6 @@ class App extends Router
         Config::singleton('app', function () {
             return $this;
         });
-
-        Config::set('mode', _env('APP_ENV', Config::getStatic('mode')));
     }
 
     public function __get($name)
@@ -240,22 +252,6 @@ class App extends Router
         });
     }
 
-    /**
-     * Create a route handled by websocket (requires Eien module)
-     *
-     * @param string $name The url of the route
-     * @param callable $callback The callback function
-     * @uses package Eien module
-     * @see https://leafphp.dev/modules/eien/
-     */
-    public function ws(string $name, callable $callback)
-    {
-        Config::set('eien.events', \array_merge(
-            Config::getStatic('eien.events') ?? [],
-            [$name => $callback]
-        ));
-    }
-
     /********************************************************************************
      * Logging
      *******************************************************************************/
@@ -382,14 +378,6 @@ class App extends Router
      */
     public static function run(?callable $callback = null)
     {
-        if (\class_exists('Leaf\Eien\Server') && Config::getStatic('eien.enabled')) {
-            server()
-                ->wrap(function () use ($callback) {
-                    parent::run($callback);
-                })
-                ->listen();
-        } else {
-            return parent::run($callback);
-        }
+        return parent::run($callback);
     }
 }
