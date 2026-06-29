@@ -1092,6 +1092,7 @@ class Router
         if (empty($route['params']) && $route['pattern'] !== '/.*') {
             $route['static'] = true;
             static::$routeIndex[$method]['static'][$route['pattern']][] = $route;
+
             return;
         }
 
@@ -1100,6 +1101,7 @@ class Router
 
         if ($bucket === '*') {
             static::$routeIndex[$method]['fallback'][] = $route;
+
             return;
         }
 
