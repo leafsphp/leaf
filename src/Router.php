@@ -51,6 +51,16 @@ class Router
     protected static $routes = [];
 
     /**
+     * Fast route lookup table for dispatching current request routes.
+     */
+    protected static $routeIndex = [];
+
+    /**
+     * Registration order used to preserve first-match routing semantics.
+     */
+    protected static $routeOrder = 0;
+
+    /**
      * Sorted list of routes and their handlers
      */
     protected static $appRoutes = [];
@@ -225,7 +235,10 @@ class Router
                 'name' => $routeOptions['name'] ?? '',
                 'sitemap' => $sitemapOptions,
                 'lingo.routes' => $routeOptions['lingo.routes'] ?? static::$lingoOptions['lingo.routes'] ?? [],
+                'order' => static::$routeOrder++,
             ];
+
+            static::indexRoute($method, static::$routes[$method][array_key_last(static::$routes[$method])]);
 
             if ($routeOptions['middleware'] || !empty(static::$routeGroupMiddleware)) {
                 $routeMiddleware = $routeOptions['middleware'] ?? static::$routeGroupMiddleware;
@@ -834,9 +847,23 @@ class Router
     ): array {
         $handledRoutes = [];
         $uri = $uri ?? static::getCurrentUri();
-        $routes = $routes ?? (static::$routes[\Leaf\Http\Request::getMethod()] ?? []);
+        $routes = $routes ?? static::candidateRoutes(\Leaf\Http\Request::getMethod(), $uri);
 
         foreach ($routes as $route) {
+            if (($route['static'] ?? false) && $route['pattern'] === $uri) {
+                $handledRoutes[] = [
+                    'params' => [],
+                    'handler' => $route['handler'],
+                    'route' => $route,
+                ];
+
+                if ($returnFirst) {
+                    break;
+                }
+
+                continue;
+            }
+
             if (!isset($route['regex'])) {
                 $compiledPattern = static::compilePattern($route['pattern']);
                 $route['regex'] = $compiledPattern['regex'];
@@ -939,6 +966,14 @@ class Router
         $uri = $uri ?? static::getCurrentUri();
         $routeToHandle = static::findRoute($routes, $uri, $quitAfterRun);
 
+        if ($quitAfterRun) {
+            foreach ($routeToHandle as $currentRoute) {
+                static::invoke($currentRoute['handler'], $currentRoute['params']);
+            }
+
+            return count($routeToHandle);
+        }
+
         // hacky solution to handle middleware catching all middleware with pattern (.*?)
         $routesToRun = array_filter($routeToHandle, function ($route) use ($uri) {
             return $route['route']['pattern'] === $uri || $route['route']['pattern'] === '/.*' || implode('/', $route['params'] ?? []) === ltrim($uri, '/');
@@ -1025,6 +1060,8 @@ class Router
         static::$middleware = [];
         static::$namedMiddleware = [];
         static::$routes = [];
+        static::$routeIndex = [];
+        static::$routeOrder = 0;
         static::$appRoutes = [];
         static::$namedRoutes = [];
         static::$routeGroupMiddleware = [];
@@ -1036,6 +1073,81 @@ class Router
         static::$namespace = '';
         static::$serverBasePath = '';
         static::$currentUri = null;
+    }
+
+    private static function indexRoute(string $method, array $route): void
+    {
+        if (!isset(static::$routeIndex[$method])) {
+            static::$routeIndex[$method] = [
+                'static' => [],
+                'dynamic' => [],
+                'fallback' => [],
+            ];
+        }
+
+        if (empty($route['params']) && $route['pattern'] !== '/.*') {
+            $route['static'] = true;
+            static::$routeIndex[$method]['static'][$route['pattern']][] = $route;
+            return;
+        }
+
+        $bucket = static::routeBucket($route['pattern']);
+        $route['static'] = false;
+
+        if ($bucket === '*') {
+            static::$routeIndex[$method]['fallback'][] = $route;
+            return;
+        }
+
+        static::$routeIndex[$method]['dynamic'][$bucket][] = $route;
+    }
+
+    private static function candidateRoutes(string $method, string $uri): array
+    {
+        $index = static::$routeIndex[$method] ?? null;
+
+        if (!$index) {
+            return static::$routes[$method] ?? [];
+        }
+
+        $bucket = static::uriBucket($uri);
+        $candidates = [];
+
+        if (isset($index['static'][$uri])) {
+            $candidates = array_merge($candidates, $index['static'][$uri]);
+        }
+
+        if (isset($index['dynamic'][$bucket])) {
+            $candidates = array_merge($candidates, $index['dynamic'][$bucket]);
+        }
+
+        if (!empty($index['fallback'])) {
+            $candidates = array_merge($candidates, $index['fallback']);
+        }
+
+        if (count($candidates) > 1) {
+            usort($candidates, function ($a, $b) {
+                return ($a['order'] ?? 0) <=> ($b['order'] ?? 0);
+            });
+        }
+
+        return $candidates;
+    }
+
+    private static function routeBucket(string $pattern): string
+    {
+        $segment = explode('/', trim($pattern, '/'), 2)[0] ?? '';
+
+        if ($segment === '' || strpos($segment, '{') !== false || strpos($segment, '(') !== false || strpos($segment, '*') !== false) {
+            return '*';
+        }
+
+        return $segment;
+    }
+
+    private static function uriBucket(string $uri): string
+    {
+        return explode('/', trim($uri, '/'), 2)[0] ?? '';
     }
 
     protected static function compilePattern(string $pattern): array
