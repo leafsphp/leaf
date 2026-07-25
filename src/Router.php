@@ -108,6 +108,19 @@ class Router
     protected static $currentUri;
 
     /**
+     * Cached HTTP method for the current request
+     */
+    protected static $currentMethod;
+
+    /**
+     * Get the current request method, resolving overrides only once per request
+     */
+    protected static function getCurrentMethod(): string
+    {
+        return static::$currentMethod ??= \Leaf\Http\Request::getMethod();
+    }
+
+    /**
      * Set the 404 handling function.
      *
      * @param object|callable $handler The function to be executed
@@ -697,9 +710,28 @@ class Router
             if (is_callable($hook)) {
                 $context = $hook(['routes' => static::$routes]);
 
-                if ($context) {
-                    static::$routes = $context['routes'] ?? static::$routes;
+                if ($context && isset($context['routes']) && $context['routes'] !== static::$routes) {
+                    static::$routes = $context['routes'];
+                    static::reindexRoutes();
                 }
+            }
+        }
+    }
+
+    /**
+     * Rebuild the route index after routes are replaced at runtime (eg: by a router hook)
+     */
+    private static function reindexRoutes(): void
+    {
+        static::$routeIndex = [];
+
+        foreach (static::$routes as $method => $routes) {
+            foreach ($routes as $route) {
+                $compiledPattern = static::compilePattern($route['pattern']);
+                $route['regex'] = $compiledPattern['regex'];
+                $route['params'] = $compiledPattern['params'];
+
+                static::indexRoute($method, $route);
             }
         }
     }
@@ -828,7 +860,7 @@ class Router
             $route = array_merge($route, [
                 'pattern' => $currentRoute[0]['route']['pattern'],
                 'path' => static::getCurrentUri(),
-                'method' => \Leaf\Http\Request::getMethod(),
+                'method' => static::getCurrentMethod(),
                 'name' => $currentRoute[0]['route']['name'] ?? null,
                 'handler' => $currentRoute[0]['route']['handler'],
                 'params' => $currentRoute[0]['params'] ?? [],
@@ -850,7 +882,23 @@ class Router
     ): array {
         $handledRoutes = [];
         $uri = $uri ?? static::getCurrentUri();
-        $routes = $routes ?? static::candidateRoutes(\Leaf\Http\Request::getMethod(), $uri);
+
+        if ($routes === null) {
+            $method = static::getCurrentMethod();
+
+            // exact matches win outright, so we can skip regex matching entirely
+            $staticRoute = static::$routeIndex[$method]['static'][$uri][0] ?? null;
+
+            if ($staticRoute && $returnFirst) {
+                return [[
+                    'params' => [],
+                    'handler' => $staticRoute['handler'],
+                    'route' => $staticRoute,
+                ]];
+            }
+
+            $routes = static::candidateRoutes($method, $uri);
+        }
 
         foreach ($routes as $route) {
             if (($route['static'] ?? false) && $route['pattern'] === $uri) {
@@ -898,8 +946,9 @@ class Router
     public static function run(?callable $callback = null)
     {
         static::$currentUri = null;
+        static::$currentMethod = null;
 
-        $requestedMethod = \Leaf\Http\Request::getMethod();
+        $requestedMethod = static::getCurrentMethod();
         $appDown = _env('APP_DOWN', \Leaf\Anchor::toBool(\Leaf\Config::getStatic('app.down')) ?? false);
 
         if ($appDown === true || $appDown === 'true') {
@@ -1077,6 +1126,7 @@ class Router
         static::$namespace = '';
         static::$serverBasePath = '';
         static::$currentUri = null;
+        static::$currentMethod = null;
     }
 
     private static function indexRoute(string $method, array $route): void
@@ -1116,12 +1166,10 @@ class Router
             return static::$routes[$method] ?? [];
         }
 
+        // static routes outrank dynamic routes, which outrank catch-alls.
+        // Registration order only breaks ties within a tier.
+        $candidates = $index['static'][$uri] ?? [];
         $bucket = static::uriBucket($uri);
-        $candidates = [];
-
-        if (isset($index['static'][$uri])) {
-            $candidates = array_merge($candidates, $index['static'][$uri]);
-        }
 
         if (isset($index['dynamic'][$bucket])) {
             $candidates = array_merge($candidates, $index['dynamic'][$bucket]);
@@ -1129,12 +1177,6 @@ class Router
 
         if (!empty($index['fallback'])) {
             $candidates = array_merge($candidates, $index['fallback']);
-        }
-
-        if (count($candidates) > 1) {
-            usort($candidates, function ($a, $b) {
-                return ($a['order'] ?? 0) <=> ($b['order'] ?? 0);
-            });
         }
 
         return $candidates;
@@ -1169,14 +1211,22 @@ class Router
         if (preg_match_all('/{([A-Za-z_][A-Za-z0-9_]*)(\?)?(?::([^}]+))?}/', $pattern, $matches, PREG_OFFSET_CAPTURE)) {
             foreach ($matches[0] as $index => $match) {
                 [$token, $position] = $match;
-                $regex .= preg_quote(substr($pattern, $offset, $position - $offset), '#');
+                $literal = preg_quote(substr($pattern, $offset, $position - $offset), '#');
 
                 $name = $matches[1][$index][0];
                 $isOptional = ($matches[2][$index][0] ?? '') === '?';
                 $constraint = $matches[3][$index][0] ?: '[^/]+';
 
                 $params[] = $name;
-                $regex .= $isOptional ? "(?P<$name>$constraint)?" : "(?P<$name>$constraint)";
+
+                // an optional param swallows its leading slash so /posts/{id?} also matches /posts
+                if ($isOptional && substr($literal, -1) === '/' && $regex . $literal !== '/') {
+                    $regex .= substr($literal, 0, -1) . "(?:/(?P<$name>$constraint))?";
+                } else {
+                    $regex .= $literal;
+                    $regex .= $isOptional ? "(?P<$name>$constraint)?" : "(?P<$name>$constraint)";
+                }
+
                 $offset = $position + strlen($token);
             }
         }

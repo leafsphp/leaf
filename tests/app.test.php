@@ -120,7 +120,7 @@ test('dynamic route dispatch uses the matching route', function () {
     expect(app()->config('testKey.routeParam'))->toBe('user-42');
 });
 
-test('route registration order is preserved for overlapping static and dynamic routes', function () {
+test('static routes win over dynamic routes regardless of registration order', function () {
     app()->config('testKey.routePriority', null);
 
     $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -138,5 +138,5 @@ test('route registration order is preserved for overlapping static and dynamic r
 
     app()->run();
 
-    expect(app()->config('testKey.routePriority'))->toBe('dynamic-new');
+    expect(app()->config('testKey.routePriority'))->toBe('static');
 });
