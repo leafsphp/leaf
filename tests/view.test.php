@@ -53,3 +53,14 @@ test('access attached view using the view command', function () {
 
     expect($view->test())->toBe(TView::test());
 });
+
+test('attached views resolve through the app instance', function () {
+    Leaf\Config::attachView(TView::class, 'named3');
+
+    expect(app()->named3()->test())->toBe(TView::test());
+});
+
+test('undefined app methods throw instead of returning null', function () {
+    expect(fn () => app()->definitelyNotAMethod())
+        ->toThrow(BadMethodCallException::class);
+});

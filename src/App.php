@@ -150,7 +150,15 @@ class App extends Router
 
     public function __call($method, $args)
     {
-        return Config::view($method);
+        $view = Config::view($method);
+
+        if ($view !== null) {
+            return $view;
+        }
+
+        throw new \BadMethodCallException(
+            "Call to undefined method Leaf\\App::$method(). If you're trying to use a view engine, attach it with attachView() first."
+        );
     }
 
     /**
