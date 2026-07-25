@@ -74,6 +74,33 @@ test('inline constraints only match the given pattern', function () {
     expect(app()->config('testKey.constraint'))->toBe('404');
 });
 
+test('constraints with quantifiers match exact formats', function () {
+    app()->config('testKey.quantifier', null);
+
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/q-blog/2026';
+
+    app()->setBasePath('/');
+
+    app()->get('/q-blog/{year:[0-9]{4}}', function ($year) {
+        app()->config('testKey.quantifier', "year-$year");
+    });
+
+    app()->set404(function () {
+        app()->config('testKey.quantifier', '404');
+    });
+
+    app()->run();
+
+    expect(app()->config('testKey.quantifier'))->toBe('year-2026');
+
+    $_SERVER['REQUEST_URI'] = '/q-blog/20261';
+
+    app()->run();
+
+    expect(app()->config('testKey.quantifier'))->toBe('404');
+});
+
 test('registration order breaks ties between overlapping dynamic routes', function () {
     app()->config('testKey.dynamicOrder', null);
 
