@@ -999,8 +999,6 @@ class Router
 
         static::callHook('router.after.route');
 
-        restore_error_handler();
-
         return static::callHook('router.after') ?? ($numHandled !== 0);
     }
 
@@ -1208,7 +1206,7 @@ class Router
         $regex = '';
         $offset = 0;
 
-        if (preg_match_all('/{([A-Za-z_][A-Za-z0-9_]*)(\?)?(?::([^}]+))?}/', $pattern, $matches, PREG_OFFSET_CAPTURE)) {
+        if (preg_match_all('/{([A-Za-z_][A-Za-z0-9_]*)(\?)?(?::((?:[^{}]|\{[^{}]*\})+))?}/', $pattern, $matches, PREG_OFFSET_CAPTURE)) {
             foreach ($matches[0] as $index => $match) {
                 [$token, $position] = $match;
                 $literal = preg_quote(substr($pattern, $offset, $position - $offset), '#');

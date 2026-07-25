@@ -10,7 +10,7 @@ namespace Leaf;
  * The easiest way to build simple but powerful apps and APIs quickly.
  *
  * @author Michael Darko <mickdd22@gmail.com>
- * @copyright 2019-2025 Michael Darko
+ * @copyright 2019-2026 Michael Darko
  * @link https://leafphp.dev
  * @license MIT
  * @package Leaf
@@ -20,7 +20,7 @@ class App extends Router
     /**
      * Callable to be invoked on application error
      */
-    protected Exception\Run $errorHandler;
+    protected static ?Exception\Run $errorHandler = null;
 
     /********************************************************************************
      * Instantiation and Configuration
@@ -59,8 +59,13 @@ class App extends Router
 
     protected function setupErrorHandler()
     {
-        $this->errorHandler = (new Exception\Run());
-        $this->errorHandler->register();
+        // registering once keeps custom handlers intact and the handler stack balanced
+        if (static::$errorHandler !== null) {
+            return;
+        }
+
+        static::$errorHandler = new Exception\Run();
+        static::$errorHandler->register();
     }
 
     /**
@@ -70,13 +75,12 @@ class App extends Router
     public function setErrorHandler($handler)
     {
         if (Anchor::toBool(Config::getStatic('debug')) === false) {
-            if ($this->errorHandler instanceof Exception\Run) {
-                $this->errorHandler->unregister();
+            if (static::$errorHandler instanceof Exception\Run) {
+                static::$errorHandler->unregister();
             }
 
-            $this->errorHandler = new Exception\Run();
-            $this
-                ->errorHandler
+            static::$errorHandler = new Exception\Run();
+            static::$errorHandler
                 ->pushHandler($handler)
                 ->register();
         }
