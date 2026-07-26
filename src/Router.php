@@ -11,7 +11,7 @@ namespace Leaf;
  *
  * @author Michael Darko
  * @since 1.2.0
- * @version 3.0
+ * @version 5.0
  */
 class Router
 {
@@ -158,7 +158,7 @@ class Router
 
         $initialNamespace = static::$namespace;
         $initialGroupRoute = static::$groupRoute;
-        $initialLingoOptioins = static::$lingoOptions;
+        $initialLingoOptions = static::$lingoOptions;
         $initialSitemapOptions = static::$sitemapOptions;
         $initialGroupMiddleware = static::$routeGroupMiddleware;
 
@@ -184,7 +184,7 @@ class Router
 
         static::$namespace = $initialNamespace;
         static::$groupRoute = $initialGroupRoute;
-        static::$lingoOptions = $initialLingoOptioins;
+        static::$lingoOptions = $initialLingoOptions;
         static::$sitemapOptions = $initialSitemapOptions;
         static::$routeGroupMiddleware = $initialGroupMiddleware;
     }
@@ -665,8 +665,6 @@ class Router
                     }
                 }
             }
-
-            // $parsedOptions = array_merge($handler, $parsedOptions);
         }
 
         return [$parsedHandler, $parsedOptions];
@@ -746,10 +744,6 @@ class Router
      */
     public static function use($middleware)
     {
-        // if (in_array($middleware, static::$middleware)) {
-        //     throw new \RuntimeException('Circular Middleware setup detected. Tried to queue the same Middleware twice.');
-        // }
-
         if (is_string($middleware)) {
             $middleware = class_exists($middleware) ? function () use ($middleware) {
                 (new $middleware())->call();

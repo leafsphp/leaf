@@ -3,7 +3,8 @@ app:
 
 tests:
   engine: pest
-  parallel: true
+  # parallel workers crash on this suite: the middleware tests echo directly to stdout
+  parallel: false
   paths:
     - tests
   files:
