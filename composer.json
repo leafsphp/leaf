@@ -37,10 +37,11 @@
         "leafs/exception": "*"
     },
     "scripts": {
-        "test": "./vendor/bin/alchemy setup --test",
+        "test": "./vendor/bin/alchemy test",
         "alchemy": "./vendor/bin/alchemy setup",
-        "lint": "./vendor/bin/alchemy setup --lint",
-        "actions": "./vendor/bin/alchemy setup --actions"
+        "lint": "./vendor/bin/alchemy lint",
+        "fmt": "./vendor/bin/alchemy fmt",
+        "ci": "./vendor/bin/alchemy ci"
     },
     "config": {
         "allow-plugins": {
@@ -50,6 +51,6 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.64",
         "pestphp/pest": "*",
-        "leafs/alchemy": "^4.0"
+        "leafs/alchemy": "v5.x-dev"
     }
 }
