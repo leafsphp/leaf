@@ -42,11 +42,11 @@
         "leafs/exception": "*"
     },
     "scripts": {
-        "test": "./vendor/bin/alchemy test",
-        "alchemy": "./vendor/bin/alchemy setup",
-        "lint": "./vendor/bin/alchemy lint",
-        "fmt": "./vendor/bin/alchemy fmt",
-        "ci": "./vendor/bin/alchemy ci"
+        "test": "@php vendor/bin/alchemy test",
+        "alchemy": "@php vendor/bin/alchemy setup",
+        "lint": "@php vendor/bin/alchemy lint",
+        "fmt": "@php vendor/bin/alchemy fmt",
+        "ci": "@php vendor/bin/alchemy ci"
     },
     "config": {
         "allow-plugins": {
