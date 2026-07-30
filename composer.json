@@ -28,10 +28,15 @@
             "src/functions.php"
         ]
     },
+    "extra": {
+        "branch-alias": {
+            "dev-v5.x": "5.0.x-dev"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.2",
         "leafs/http": "*",
         "leafs/anchor": "*",
         "leafs/exception": "*"
