@@ -268,3 +268,54 @@ test('getCurrentUri never fires the 404 handler as a side effect', function () {
     expect($fired)->toBeFalse()
         ->and($uri)->toBe('/outside'); // path untouched when base doesn't prefix it
 });
+
+test('group names cascade into route names', function () {
+    // https://github.com/leafsphp/leaf/issues/279
+    \Leaf\Router::reset();
+
+    app()->group('/admin', ['name' => 'admin', function () {
+        app()->get('/dashboard', ['name' => 'dashboard', function () {}]);
+
+        app()->group('/reports', ['name' => 'reports', function () {
+            app()->get('/{id}', ['name' => 'show', function () {}]);
+        }]);
+    }]);
+
+    expect(\Leaf\Router::route('admin.dashboard'))->toBe('/admin/dashboard')
+        ->and(\Leaf\Router::route('admin.reports.show', ['id' => 9]))->toBe('/admin/reports/9');
+});
+
+test('resource routes name themselves', function () {
+    \Leaf\Router::reset();
+
+    app()->resource('/users', 'UsersController');
+
+    expect(\Leaf\Router::route('users.index'))->toBe('/users')
+        ->and(\Leaf\Router::route('users.show', ['id' => 3]))->toBe('/users/3')
+        ->and(\Leaf\Router::route('users.edit', ['id' => 3]))->toBe('/users/3/edit');
+});
+
+test('resource names compose with group names', function () {
+    \Leaf\Router::reset();
+
+    app()->group('/admin', ['name' => 'admin', function () {
+        app()->apiResource('/users', 'UsersController');
+    }]);
+
+    expect(\Leaf\Router::route('admin.users.index'))->toBe('/admin/users')
+        ->and(\Leaf\Router::route('admin.users.update', ['id' => 5]))->toBe('/admin/users/5');
+});
+
+test('unnamed routes in named groups stay unnamed', function () {
+    \Leaf\Router::reset();
+
+    app()->group('/named', ['name' => 'named', function () {
+        app()->get('/plain', function () {});
+    }]);
+
+    $ref = new ReflectionClass(\Leaf\Router::class);
+    $prop = $ref->getProperty('namedRoutes');
+    $prop->setAccessible(true);
+
+    expect($prop->getValue())->toBe([]);
+});

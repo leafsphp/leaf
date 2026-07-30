@@ -93,6 +93,11 @@ class Router
     protected static $groupRoute = '';
 
     /**
+     * Current group name prefix for named routes (e.g. "admin.")
+     */
+    protected static $groupName = '';
+
+    /**
      * Default controller namespace
      */
     protected static $namespace = '';
@@ -158,6 +163,7 @@ class Router
 
         $initialNamespace = static::$namespace;
         $initialGroupRoute = static::$groupRoute;
+        $initialGroupName = static::$groupName;
         $initialLingoOptions = static::$lingoOptions;
         $initialSitemapOptions = static::$sitemapOptions;
         $initialGroupMiddleware = static::$routeGroupMiddleware;
@@ -172,6 +178,12 @@ class Router
             static::$routeGroupMiddleware = $groupOptions['middleware'];
         }
 
+        if (!empty($groupOptions['name'])) {
+            // group names cascade: group "admin" + route "users.index"
+            // registers as "admin.users.index" — nested groups compose
+            static::$groupName .= trim($groupOptions['name'], '.') . '.';
+        }
+
         if (isset($groupOptions['lingo.routes'])) {
             static::$lingoOptions['lingo.routes'] = $groupOptions['lingo.routes'];
         }
@@ -184,6 +196,7 @@ class Router
 
         static::$namespace = $initialNamespace;
         static::$groupRoute = $initialGroupRoute;
+        static::$groupName = $initialGroupName;
         static::$lingoOptions = $initialLingoOptions;
         static::$sitemapOptions = $initialSitemapOptions;
         static::$routeGroupMiddleware = $initialGroupMiddleware;
@@ -218,6 +231,10 @@ class Router
         $compiledPattern = static::compilePattern($pattern);
 
         list($handler, $routeOptions) = static::mapHandler($handler);
+
+        if (!empty($routeOptions['name']) && static::$groupName !== '') {
+            $routeOptions['name'] = static::$groupName . $routeOptions['name'];
+        }
 
         if (is_string($handler)) {
             $namespace = static::$namespace;
@@ -443,6 +460,21 @@ class Router
      * @param string $pattern The base route to use eg: /post
      * @param array|string $controller to handle route eg: PostController
      */
+    /**
+     * Derive the dot-name base for a resource: '/admin/users' -> 'admin.users',
+     * '/' inside a group -> the group's last segment
+     */
+    protected static function resourceName(string $pattern): string
+    {
+        $base = trim($pattern, '/');
+
+        if ($base === '') {
+            $base = trim(basename(static::$groupRoute), '/');
+        }
+
+        return str_replace('/', '.', $base);
+    }
+
     public static function resource(string $pattern, $controller)
     {
         if (is_array($controller)) {
@@ -455,13 +487,15 @@ class Router
             return static::group($pattern, $controller);
         }
 
-        static::match('GET|HEAD', $pattern, "$controller@index");
-        static::post($pattern, "$controller@store");
-        static::match('GET|HEAD', "$pattern/create", "$controller@create");
-        static::match('DELETE', "$pattern/{id}", "$controller@destroy");
-        static::match('PUT|PATCH', "$pattern/{id}", "$controller@update");
-        static::match('GET|HEAD', "$pattern/{id}/edit", "$controller@edit");
-        static::match('GET|HEAD', "$pattern/{id}", "$controller@show");
+        $name = static::resourceName($pattern);
+
+        static::match('GET|HEAD', $pattern, ['name' => "$name.index", "$controller@index"]);
+        static::post($pattern, ['name' => "$name.store", "$controller@store"]);
+        static::match('GET|HEAD', "$pattern/create", ['name' => "$name.create", "$controller@create"]);
+        static::match('DELETE', "$pattern/{id}", ['name' => "$name.destroy", "$controller@destroy"]);
+        static::match('PUT|PATCH', "$pattern/{id}", ['name' => "$name.update", "$controller@update"]);
+        static::match('GET|HEAD', "$pattern/{id}/edit", ['name' => "$name.edit", "$controller@edit"]);
+        static::match('GET|HEAD', "$pattern/{id}", ['name' => "$name.show", "$controller@show"]);
 
         // still keeping DELETE and PUT|PATCH so earlier versions of leaf apps don't break
         static::match('POST|DELETE', "$pattern/{id}/delete", "$controller@destroy");
@@ -494,11 +528,13 @@ class Router
             return static::group($pattern, $controller);
         }
 
-        static::match('GET|HEAD', $pattern, "$controller@index");
-        static::post($pattern, "$controller@store");
-        static::match('GET|HEAD', "$pattern/{id}", "$controller@show");
-        static::match('DELETE', "$pattern/{id}", "$controller@destroy");
-        static::match('PUT|PATCH', "$pattern/{id}", "$controller@update");
+        $name = static::resourceName($pattern);
+
+        static::match('GET|HEAD', $pattern, ['name' => "$name.index", "$controller@index"]);
+        static::post($pattern, ['name' => "$name.store", "$controller@store"]);
+        static::match('GET|HEAD', "$pattern/{id}", ['name' => "$name.show", "$controller@show"]);
+        static::match('DELETE', "$pattern/{id}", ['name' => "$name.destroy", "$controller@destroy"]);
+        static::match('PUT|PATCH', "$pattern/{id}", ['name' => "$name.update", "$controller@update"]);
 
         // still keeping DELETE and PUT|PATCH so earlier versions of leaf apps don't break
         static::match('POST|DELETE', "$pattern/{id}/delete", "$controller@destroy");
@@ -1110,6 +1146,7 @@ class Router
         ];
         static::$sitemapOptions = [];
         static::$groupRoute = '';
+        static::$groupName = '';
         static::$namespace = '';
         static::$serverBasePath = null;
         static::$currentUri = null;
