@@ -98,9 +98,9 @@ class Router
     protected static $namespace = '';
 
     /**
-     * The Server Base Path for Router Execution
+     * The Server Base Path for Router Execution (null = not yet resolved)
      */
-    protected static $serverBasePath = '';
+    protected static $serverBasePath = null;
 
     /**
      * Cached URI for the current request
@@ -787,8 +787,17 @@ class Router
      */
     public static function getBasePath(): string
     {
-        if (static::$serverBasePath === '') {
-            static::$serverBasePath = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME']), 0, -1)) . '/';
+        if (static::$serverBasePath === null) {
+            $scriptDir = implode('/', array_slice(explode('/', $_SERVER['SCRIPT_NAME'] ?? ''), 0, -1)) . '/';
+            $requestPath = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
+
+            // the script directory is only a base path when the request actually
+            // lives under it (classic subfolder deployments) — under php -S or
+            // the CLI it usually isn't, and stripping it would eat URI segments
+            // https://github.com/leafsphp/leaf/issues/323
+            static::$serverBasePath = ($scriptDir !== '/' && strncmp($requestPath, $scriptDir, strlen($scriptDir)) === 0)
+                ? $scriptDir
+                : '/';
         }
 
         return static::$serverBasePath;
@@ -802,7 +811,7 @@ class Router
      */
     public static function setBasePath($serverBasePath)
     {
-        static::$serverBasePath = $serverBasePath;
+        static::$serverBasePath = ($serverBasePath === '' || $serverBasePath === null) ? '/' : $serverBasePath;
         static::$currentUri = null;
     }
 
@@ -822,16 +831,11 @@ class Router
         $requestPath = parse_url($requestUri, PHP_URL_PATH) ?: '/';
         $requestPath = rawurldecode($requestPath);
 
-        // Early exit If base path doesn't match
+        // if an explicit base path doesn't prefix the request, don't strip
+        // anything (and never fire handlers from a getter) — unmatched routes
+        // 404 through the normal dispatch flow
         if (strncmp($requestPath, $basePath, strlen($basePath)) !== 0) {
-            if (!static::$notFoundHandler) {
-                static::$notFoundHandler = function () {
-                    \Leaf\Exception\General::default404();
-                };
-            }
-            static::invoke(static::$notFoundHandler);
-
-            return '/';
+            return static::$currentUri = '/' . trim($requestPath, '/');
         }
 
         // Get the current Request URI and remove rewrite base path from it (= allows one to run the router in a sub folder)
@@ -1107,7 +1111,7 @@ class Router
         static::$sitemapOptions = [];
         static::$groupRoute = '';
         static::$namespace = '';
-        static::$serverBasePath = '';
+        static::$serverBasePath = null;
         static::$currentUri = null;
         static::$currentMethod = null;
     }

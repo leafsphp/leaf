@@ -209,3 +209,62 @@ test('router hooks can replace routes at runtime', function () {
 
     expect(app()->config('testKey.hooked'))->toBe('original');
 });
+
+test('base path is not auto-stripped when the request does not live under the script dir', function () {
+    // https://github.com/leafsphp/leaf/issues/323 — php -S serving from a subdir
+    \Leaf\Router::reset();
+    $_SERVER['SCRIPT_NAME'] = '/public/index.php';
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/practices/42';
+
+    $matched = null;
+    app()->get('/practices/{id}', function ($id) use (&$matched) {
+        $matched = $id;
+    });
+
+    app()->run();
+
+    expect(\Leaf\Router::getBasePath())->toBe('/')
+        ->and($matched)->toBe('42');
+});
+
+test('base path is stripped for real subfolder deployments', function () {
+    \Leaf\Router::reset();
+    $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/subdir/users/5';
+
+    $matched = null;
+    app()->get('/users/{id}', function ($id) use (&$matched) {
+        $matched = $id;
+    });
+
+    app()->run();
+
+    expect(\Leaf\Router::getBasePath())->toBe('/subdir/')
+        ->and($matched)->toBe('5');
+});
+
+test('setBasePath with an empty string means no base path', function () {
+    \Leaf\Router::reset();
+    app()->setBasePath('');
+
+    expect(\Leaf\Router::getBasePath())->toBe('/');
+});
+
+test('getCurrentUri never fires the 404 handler as a side effect', function () {
+    \Leaf\Router::reset();
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/outside';
+    app()->setBasePath('/api/');
+
+    $fired = false;
+    app()->set404(function () use (&$fired) {
+        $fired = true;
+    });
+
+    $uri = \Leaf\Router::getCurrentUri();
+
+    expect($fired)->toBeFalse()
+        ->and($uri)->toBe('/outside'); // path untouched when base doesn't prefix it
+});
