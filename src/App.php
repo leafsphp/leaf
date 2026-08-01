@@ -19,8 +19,9 @@ class App extends Router
 {
     /**
      * Callable to be invoked on application error
+     * @var Exception\Run|\Leaf\Crash\Handler|null
      */
-    protected static ?Exception\Run $errorHandler = null;
+    protected static $errorHandler = null;
 
     /********************************************************************************
      * Instantiation and Configuration
@@ -55,12 +56,51 @@ class App extends Router
         }
 
         $this->setupDefaultContainer();
+        $this->syncCrashContext();
+    }
+
+    /**
+     * Keep the crash engine in step with app config: debug mode decides
+     * the crash page vs the production page, and every report carries
+     * the request + app context without any user setup.
+     */
+    protected function syncCrashContext()
+    {
+        if (!(static::$errorHandler instanceof \Leaf\Crash\Handler)) {
+            return;
+        }
+
+        static::$errorHandler->debug(Anchor::toBool(Config::getStatic('debug')) ?? true);
+
+        $context = [
+            'appRoot' => getcwd(),
+            'app' => [
+                'env' => Config::getStatic('mode'),
+                'leaf' => defined('static::VERSION') ? static::VERSION : 'v5',
+            ],
+        ];
+
+        if (isset($_SERVER['REQUEST_METHOD'])) {
+            $context['request'] = [
+                'method' => $_SERVER['REQUEST_METHOD'],
+                'url' => ($_SERVER['REQUEST_URI'] ?? '/'),
+            ];
+        }
+
+        crash()->context($context);
     }
 
     protected function setupErrorHandler()
     {
         // registering once keeps custom handlers intact and the handler stack balanced
         if (static::$errorHandler !== null) {
+            return;
+        }
+
+        if (class_exists(\Leaf\Crash\Handler::class)) {
+            static::$errorHandler = new \Leaf\Crash\Handler(crash());
+            static::$errorHandler->register();
+
             return;
         }
 
@@ -75,6 +115,17 @@ class App extends Router
     public function setErrorHandler($handler)
     {
         if (Anchor::toBool(Config::getStatic('debug')) === false) {
+            if (static::$errorHandler instanceof \Leaf\Crash\Handler) {
+                static::$errorHandler->renderWith(function ($report) use ($handler) {
+                    ob_start();
+                    $handler($report);
+
+                    return ob_get_clean();
+                });
+
+                return;
+            }
+
             if (static::$errorHandler instanceof Exception\Run) {
                 static::$errorHandler->unregister();
             }

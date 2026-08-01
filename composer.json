@@ -39,7 +39,7 @@
         "php": "^8.2",
         "leafs/http": "*",
         "leafs/anchor": "*",
-        "leafs/exception": "*"
+        "leafs/exception": "v5.x-dev"
     },
     "scripts": {
         "test": "@php vendor/bin/alchemy test",

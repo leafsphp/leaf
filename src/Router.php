@@ -983,6 +983,16 @@ class Router
         static::$currentMethod = null;
 
         $requestedMethod = static::getCurrentMethod();
+
+        if (function_exists('crash')) {
+            crash()->leaveCrumb(
+                $requestedMethod . ' ' . static::getCurrentUri(),
+                \Leaf\Crash\Breadcrumbs::TYPE_REQUEST,
+                [],
+                false
+            );
+        }
+
         $appDown = _env('APP_DOWN', \Leaf\Anchor::toBool(\Leaf\Config::getStatic('app.down')) ?? false);
 
         if ($appDown === true || $appDown === 'true') {
