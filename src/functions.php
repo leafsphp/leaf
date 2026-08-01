@@ -35,8 +35,48 @@ if (!function_exists('_env')) {
             $env = array_merge(getenv() ?: [], $_ENV ?? []);
         }
 
-        $value = $env[$key] ?? null;
+        if (!array_key_exists($key, $env)) {
+            return $default;
+        }
 
+        return _envCast($env[$key], $default);
+    }
+}
+
+if (!function_exists('_envUncached')) {
+    /**
+     * Read an environment variable live, skipping _env()'s per-request
+     * cache. Every call hits the environment, so it is dramatically
+     * slower than _env() — only reach for this when something mutates
+     * the environment mid-request (eg. putenv()) and you need to see it.
+     *
+     * @param  string  $key
+     * @param  mixed   $default
+     * @return mixed
+     */
+    function _envUncached($key, $default = null)
+    {
+        $value = $_ENV[$key] ?? getenv($key);
+
+        if ($value === false || $value === null) {
+            return $default;
+        }
+
+        return _envCast($value, $default);
+    }
+}
+
+if (!function_exists('_envCast')) {
+    /**
+     * Normalize a raw environment string the way _env() does —
+     * true/false/empty/null keywords and quoted values.
+     *
+     * @param  mixed  $value
+     * @param  mixed  $default
+     * @return mixed
+     */
+    function _envCast($value, $default = null)
+    {
         if ($value === null) {
             return $default;
         }
@@ -101,13 +141,26 @@ if (!function_exists('rescue')) {
      * @template T
      * @param  callable  $callback
      * @param  mixed  $default
+     * @param  bool  $report Report the exception to Leaf Crash
      * @return T|mixed
      */
-    function rescue(callable $callback, $default = null)
+    function rescue(callable $callback, $default = null, bool $report = true)
     {
         try {
             return $callback();
         } catch (Throwable $e) {
+            if ($report && function_exists('crash')) {
+                // a rescued exception is handled, not fatal, but it still
+                // belongs in the journey of whatever fails later
+                crash()->leaveCrumb(
+                    'rescued ' . get_class($e) . ': ' . $e->getMessage(),
+                    \Leaf\Crash\Breadcrumbs::TYPE_ACTION,
+                    ['file' => $e->getFile() . ':' . $e->getLine()]
+                );
+
+                crash()->capture($e, ['level' => 'warning']);
+            }
+
             return $default instanceof Closure ? $default($e) : $default;
         }
     }
