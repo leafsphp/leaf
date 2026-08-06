@@ -146,6 +146,15 @@ class App extends Router
         Config::singleton($name, $value);
     }
 
+    /**
+     * Check if a dependency exists in the container
+     * @param string $name The name of the registered dependency
+     */
+    public function has(string $name): bool
+    {
+        return Config::has($name);
+    }
+
     private function setupDefaultContainer()
     {
         $mode = _env('APP_ENV', Config::getStatic('mode') ?: 'development');
