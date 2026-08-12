@@ -28,18 +28,18 @@
             "src/functions.php"
         ]
     },
-    "extra": {
-        "branch-alias": {
-            "dev-v5.x": "5.0.x-dev"
-        }
-    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": "^8.2",
-        "leafs/http": "*",
-        "leafs/anchor": "*",
-        "leafs/exception": "v5.x-dev"
+        "leafs/http": "^5.0",
+        "leafs/anchor": "^5.0",
+        "leafs/exception": "^5.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "*",
+        "pestphp/pest": "*",
+        "leafs/alchemy": "^5.0"
     },
     "scripts": {
         "test": "@php vendor/bin/alchemy test",
@@ -52,10 +52,5 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
-    },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.64",
-        "pestphp/pest": "*",
-        "leafs/alchemy": "v5.x-dev"
     }
 }
