@@ -19,7 +19,7 @@ class App extends Router
 {
     /**
      * Callable to be invoked on application error
-     * @var Exception\Run|\Leaf\Crash\Handler|null
+     * @var \Leaf\Crash\Handler|null
      */
     protected static $errorHandler = null;
 
@@ -97,14 +97,7 @@ class App extends Router
             return;
         }
 
-        if (class_exists(\Leaf\Crash\Handler::class)) {
-            static::$errorHandler = new \Leaf\Crash\Handler(crash());
-            static::$errorHandler->register();
-
-            return;
-        }
-
-        static::$errorHandler = new Exception\Run();
+        static::$errorHandler = new \Leaf\Crash\Handler(crash());
         static::$errorHandler->register();
     }
 
@@ -115,25 +108,12 @@ class App extends Router
     public function setErrorHandler($handler)
     {
         if (Anchor::toBool(Config::getStatic('debug')) === false) {
-            if (static::$errorHandler instanceof \Leaf\Crash\Handler) {
-                static::$errorHandler->renderWith(function ($report) use ($handler) {
-                    ob_start();
-                    $handler($report);
+            static::$errorHandler->renderWith(function ($report) use ($handler) {
+                ob_start();
+                $handler($report);
 
-                    return ob_get_clean();
-                });
-
-                return;
-            }
-
-            if (static::$errorHandler instanceof Exception\Run) {
-                static::$errorHandler->unregister();
-            }
-
-            static::$errorHandler = new Exception\Run();
-            static::$errorHandler
-                ->pushHandler($handler)
-                ->register();
+                return ob_get_clean();
+            });
         }
     }
 

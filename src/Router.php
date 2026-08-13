@@ -136,7 +136,7 @@ class Router
             static::$notFoundHandler = $handler;
         } else {
             static::$notFoundHandler = function () {
-                \Leaf\Exception\General::default404();
+                \Leaf\Crash\Pages::default404();
             };
         }
     }
@@ -998,7 +998,7 @@ class Router
         if ($appDown === true || $appDown === 'true') {
             if (!static::$downHandler) {
                 static::$downHandler = function () {
-                    \Leaf\Exception\General::defaultDown();
+                    \Leaf\Crash\Pages::defaultDown();
                 };
             }
 
@@ -1029,7 +1029,7 @@ class Router
         if ($numHandled === 0) {
             if (!static::$notFoundHandler) {
                 static::$notFoundHandler = function () {
-                    \Leaf\Exception\General::default404();
+                    \Leaf\Crash\Pages::default404();
                 };
             }
 
