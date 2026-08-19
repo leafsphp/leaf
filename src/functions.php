@@ -99,10 +99,10 @@ if (!function_exists('_envCast')) {
                 return;
         }
 
-        if (strpos($value, '"') === 0 && strpos($value, '"') === strlen($value) - 1) {
+        if (str_starts_with($value, '"') && str_ends_with($value, '"') && strlen($value) >= 2) {
             return substr($value, 1, -1);
         }
-
+        
         return $value;
     }
 }
