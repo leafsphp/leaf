@@ -26,4 +26,9 @@ jobs:
         run: composer update --no-interaction --no-progress
 
       - name: Run Linter
-        run: composer run lint -- --check
+        run: composer run fmt
+
+      - name: Commit style fixes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: 'chore: fix styling'

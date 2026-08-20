@@ -14,6 +14,7 @@ tests:
 
 lint:
   preset: PSR12
+  autofix: true
   rules:
     single_quote: true
     phpdoc_scalar: true
