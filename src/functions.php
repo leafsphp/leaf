@@ -102,7 +102,7 @@ if (!function_exists('_envCast')) {
         if (str_starts_with($value, '"') && str_ends_with($value, '"') && strlen($value) >= 2) {
             return substr($value, 1, -1);
         }
-        
+
         return $value;
     }
 }
