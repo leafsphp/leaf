@@ -64,3 +64,34 @@ test('undefined app methods throw instead of returning null', function () {
     expect(fn () => app()->definitelyNotAMethod())
         ->toThrow(BadMethodCallException::class);
 });
+
+class TRenderEngine
+{
+    public function render(string $view, array $data = [])
+    {
+        return 'rendered:' . $view . ':' . ($data['name'] ?? '');
+    }
+}
+
+// Regression for leafsphp/leaf#331: response()->render() used to call app()->blade()
+// unconditionally, which throws when Blade is not attached, so BareUI (attached as
+// "template") and any custom engine could never be reached.
+test('response render works with a non-blade engine attached as template', function () {
+    Leaf\Config::attachView(TRenderEngine::class, 'template');
+
+    ob_start();
+    response()->render('sample/index', ['name' => 'nicolas']);
+    $output = ob_get_clean();
+
+    expect($output)->toContain('rendered:sample/index:nicolas');
+});
+
+test('response render resolves a custom engine attached under its own name', function () {
+    Leaf\Config::attachView(TRenderEngine::class);
+
+    ob_start();
+    response()->render('home');
+    $output = ob_get_clean();
+
+    expect($output)->toContain('rendered:home');
+});
