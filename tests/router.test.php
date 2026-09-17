@@ -315,7 +315,6 @@ test('unnamed routes in named groups stay unnamed', function () {
 
     $ref = new ReflectionClass(\Leaf\Router::class);
     $prop = $ref->getProperty('namedRoutes');
-    $prop->setAccessible(true);
 
     expect($prop->getValue())->toBe([]);
 });
