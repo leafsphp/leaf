@@ -937,20 +937,11 @@ class Router
         $uri = $uri ?? static::getCurrentUri();
         $routeToHandle = static::findRoute($routes, $uri, $quitAfterRun);
 
-        // hacky solution to handle middleware catching all middleware with pattern (.*?)
-        $routesToRun = array_filter($routeToHandle, function ($route) use ($uri) {
-            return $route['route']['pattern'] === $uri || $route['route']['pattern'] === '/.*' || implode('/', $route['params'] ?? []) === ltrim($uri, '/');
-        });
-
-        if (empty($routesToRun)) {
-            $routesToRun = $routeToHandle;
-        }
-
-        foreach ($routesToRun as $currentRoute) {
+        foreach ($routeToHandle as $currentRoute) {
             static::invoke($currentRoute['handler'], $currentRoute['params']);
         }
 
-        return count($routesToRun);
+        return count($routeToHandle);
     }
 
     private static function invoke($handler, $params = [])
