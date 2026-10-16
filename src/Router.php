@@ -668,20 +668,14 @@ class Router
 
         if (is_array($handler)) {
             if (is_string($handler['middleware'] ?? null)) {
-                $parsedOptions['middleware'] = (class_exists($handler['middleware'])) ? function () use ($handler) {
-                    (new $handler['middleware']())->call();
-                } : static::$namedMiddleware[$handler['middleware']] ?? null;
+                $parsedOptions['middleware'] = static::resolveMiddleware($handler['middleware']);
             }
 
             if (is_array($handler['middleware'] ?? null)) {
                 $parsedOptions['middleware'] = [];
 
                 foreach ($handler['middleware'] as $middleware) {
-                    if (is_string($middleware)) {
-                        $parsedOptions['middleware'][] = static::$namedMiddleware[$middleware] ?? null;
-                    } else {
-                        $parsedOptions['middleware'][] = $middleware;
-                    }
+                    $parsedOptions['middleware'][] = static::resolveMiddleware($middleware);
                 }
             }
 
@@ -803,6 +797,42 @@ class Router
                 'handler' => $middleware,
             ];
         }
+    }
+
+    /**
+     * Turn a middleware reference into something invokable.
+     *
+     * Class names are wrapped so the class is instantiated and called
+     * at request time. Named middleware is resolved lazily, so it does
+     * not matter whether registerMiddleware() runs before or after the
+     * routes that use it. A name that is still unknown when the request
+     * hits the route throws instead of silently letting the route run.
+     *
+     * @param callable|string $middleware A callable, a class name or a registered middleware name
+     *
+     * @return callable
+     */
+    protected static function resolveMiddleware($middleware): callable
+    {
+        if (!is_string($middleware)) {
+            return $middleware;
+        }
+
+        if (class_exists($middleware)) {
+            return function () use ($middleware) {
+                (new $middleware())->call();
+            };
+        }
+
+        return function (...$params) use ($middleware) {
+            if (!isset(static::$namedMiddleware[$middleware])) {
+                throw new \RuntimeException(
+                    "Middleware named '$middleware' not found. Register it with registerMiddleware() before the request is handled."
+                );
+            }
+
+            return static::$namedMiddleware[$middleware](...$params);
+        };
     }
 
     /**

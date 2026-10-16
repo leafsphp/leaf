@@ -163,3 +163,56 @@ test('dynamic group middleware still runs when a catch-all middleware exists', f
     expect($ran['global'])->toBeTrue()
         ->and($ran['group'])->toBeTrue();
 });
+
+test('named middleware registered after the routes still runs', function () {
+    \Leaf\Router::reset();
+    app()->setBasePath('/');
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/late/42';
+
+    $ran = ['string' => false, 'array' => false, 'group' => false];
+
+    app()->get('/late/{id}', ['middleware' => 'late.string', function () {}]);
+    app()->get('/late-array/{id}', ['middleware' => ['late.array'], function () {}]);
+    app()->group('/late-group', ['middleware' => 'late.group', function () {
+        app()->get('/{id}', function () {});
+    }]);
+
+    // registered AFTER the routes above were declared
+    app()->registerMiddleware('late.string', function () use (&$ran) {
+        $ran['string'] = true;
+    });
+    app()->registerMiddleware('late.array', function () use (&$ran) {
+        $ran['array'] = true;
+    });
+    app()->registerMiddleware('late.group', function () use (&$ran) {
+        $ran['group'] = true;
+    });
+
+    app()->run();
+    expect($ran['string'])->toBeTrue();
+
+    $_SERVER['REQUEST_URI'] = '/late-array/42';
+    app()->run();
+    expect($ran['array'])->toBeTrue();
+
+    $_SERVER['REQUEST_URI'] = '/late-group/42';
+    app()->run();
+    expect($ran['group'])->toBeTrue();
+});
+
+test('a route using an unregistered named middleware fails closed', function () {
+    \Leaf\Router::reset();
+    app()->setBasePath('/');
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['REQUEST_URI'] = '/never';
+
+    $handlerRan = false;
+
+    app()->get('/never', ['middleware' => 'never.registered', function () use (&$handlerRan) {
+        $handlerRan = true;
+    }]);
+
+    expect(fn () => app()->run())->toThrow(RuntimeException::class, 'never.registered');
+    expect($handlerRan)->toBeFalse();
+});
