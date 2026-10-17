@@ -32,9 +32,9 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.4|^8.0",
-        "leafs/http": "*",
-        "leafs/anchor": "*",
-        "leafs/exception": "*"
+        "leafs/http": "<5.0",
+        "leafs/anchor": "<5.0",
+        "leafs/exception": "<5.0"
     },
     "scripts": {
         "test": "./vendor/bin/alchemy setup --test",
@@ -48,6 +48,7 @@
         }
     },
     "require-dev": {
+        "symfony/console": "<8.0",
         "friendsofphp/php-cs-fixer": "^3.64",
         "pestphp/pest": "*",
         "leafs/alchemy": "^4.0"
