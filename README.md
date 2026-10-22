@@ -24,6 +24,10 @@
       alt="License"
   /></a>
 </p>
+
+> [!CAUTION]
+> **Security notice, 22 Oct 2026:** PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix CVE-2026-109618 and CVE-2026-109619 ("PHP2Shell"), critical remote code execution bugs in the PHP runtime that are being exploited in the wild. Leaf's code is not affected, but please update PHP on every server that runs your Leaf apps. Details: [PHP security advisory](https://www.php.net/archive/2026.php).
+
 <br />
 <br />
 
